@@ -264,6 +264,7 @@ create table Entrada
 )
 
 -- Seccion atracciones
+-------------------------FEDE--------------------------------------
 create table Tour (
     ID_Tour bigint primary key clustered identity(1,1),
     Costo decimal (11,2),
