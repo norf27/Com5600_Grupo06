@@ -262,3 +262,33 @@ create table Entrada
     foreign key (ID_compra)
     references Compra(ID)
 )
+
+-- Seccion atracciones
+create table Tour (
+    ID_Tour bigint primary key clustered identity(1,1),
+    Costo decimal (11,2),
+    Cupo_max int not null,
+    Tipo char (1) not null,
+    Duracion int not null, -- minutos
+
+    CONSTRAINT check_cupo     CHECK (Cupo_max > 0),
+    CONSTRAINT check_duracion CHECK (Duracion > 0)
+);
+
+create table R_Tour_Guia(
+    ID_Tour bigint not null,
+    ID_Guia bigint not null,
+
+    CONSTRAINT PK_tour_guia   PRIMARY KEY (ID_tour, ID_guia),
+    CONSTRAINT FK_tour_guia_t FOREIGN KEY (ID_tour) REFERENCES Tour(ID_Tour),
+    CONSTRAINT FK_tour_guia_g FOREIGN KEY (ID_guia) REFERENCES Guia(ID_Empleado)
+);
+
+create table R_Tour_Entrada (
+    ID_Tour bigint not null,
+    ID_Entrada bigint not null,
+
+    CONSTRAINT PK_tour_entrada PRIMARY KEY (ID_Tour, ID_Entrada),
+    CONSTRAINT FK_tour_entrada_t FOREIGN KEY (ID_tour) REFERENCES Tour(ID_Tour),
+    CONSTRAINT FK_tour_entrada_e FOREIGN KEY (ID_entrada) REFERENCES Entrada(ID)
+);
