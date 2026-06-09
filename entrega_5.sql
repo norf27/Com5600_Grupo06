@@ -4,6 +4,7 @@ go
 use sist_gestion_parques
 go
 --INFO PARQUE
+--------------------inicio - nico----------------
 create table Tipo_parque
 (
 ID bigint primary key clustered identity(1,1),
@@ -60,7 +61,7 @@ CUIT varchar(13) not null,
 Correo varchar(100) not null,
 constraint check_CUIT check (CUIT like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
 )
-
+------------------------ fin - nico----------------------
 create table Concesion --ver estados posibles para agregar check
 (
 ID bigint primary key clustered identity(1,1),
