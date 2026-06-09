@@ -153,7 +153,9 @@ CREATE TABLE Guia_Titulo (
     CONSTRAINT FK_GuiaTitulo_Titulo FOREIGN KEY (ID_Titulo) REFERENCES Titulo(ID)
 );
 -------------------------THIAGO--------------------------------------
+
 --  INFO VENTAS
+-------------------------GRASSO--------------------------------------
 create table Tipo_visitante
 (
     ID bigint primary key clustered identity(1,1),
