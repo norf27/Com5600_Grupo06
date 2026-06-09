@@ -87,6 +87,7 @@ constraint check_monto check (monto > 0)
 )
 
 --GUARDAPARQUES Y GUIAS
+-------------------------FEDE--------------------------------------
 CREATE TABLE Guardaparque (
     ID_Empleado BIGINT PRIMARY KEY,
     CONSTRAINT FK_Guardaparque_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleado(ID) ON DELETE CASCADE
