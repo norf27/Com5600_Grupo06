@@ -148,3 +148,111 @@ CREATE TABLE Guia_Titulo (
     CONSTRAINT FK_GuiaTitulo_Guia FOREIGN KEY (ID_Guia) REFERENCES Guia(ID_Empleado),
     CONSTRAINT FK_GuiaTitulo_Titulo FOREIGN KEY (ID_Titulo) REFERENCES Titulo(ID)
 );
+
+--  INFO VENTAS
+create table Tipo_visitante
+(
+    ID bigint primary key clustered identity(1,1),
+    Nombre varchar(100) not null unique
+)
+
+create table Cliente
+(
+    ID bigint primary key clustered identity(1,1),
+    Nombre varchar(100) not null,
+    Documento varchar(20) not null unique,
+    Tipo_doc varchar(20) not null,
+    Nacimiento date not null,
+    
+    constraint CK_cliente_nacimiento
+    check (Nacimiento <= cast(getdate() as date))
+    
+    constraint CK_cliente_documento
+    check (Documento like '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
+)
+
+create table Tarifa
+(
+    ID bigint primary key clustered identity(1,1),
+    
+    Fecha_desde date not null,
+    Fecha_hasta date not null,
+    Precio decimal(11,2) not null,
+    
+    ID_tipo_visitante bigint not null,
+    ID_parque bigint not null,
+    
+    constraint FK_tarifa_tipo_visitante
+    foreign key (ID_tipo_visitante)
+    references Tipo_visitante(ID),
+    
+    constraint FK_tarifa_parque
+    foreign key (ID_parque)
+    references Parque(ID),
+    
+    constraint CK_tarifa_precio
+    check (Precio > 0),
+    
+    constraint CK_tarifa_fechas
+    check (Fecha_hasta >= Fecha_desde)
+)
+
+create table Compra
+(
+    ID bigint primary key clustered identity(1,1),
+    
+    Fecha datetime not null default getdate(),
+    Total decimal(11,2) not null,
+    Cantidad int not null,
+    Punto_venta varchar(100) not null,
+    
+    constraint CK_compra_total
+    check (Total >= 0),
+    
+    constraint CK_compra_cantidad
+    check (Cantidad > 0)
+)
+
+create table Pago
+(
+    ID bigint primary key clustered identity(1,1),
+    
+    Metodo varchar(100) not null,
+    Monto decimal(11,2) not null,
+    Estado char(1) not null,
+    
+    ID_compra bigint not null unique,
+    
+    constraint FK_pago_compra
+    foreign key (ID_compra)
+    references Compra(ID),
+    
+    constraint CK_pago_monto
+    check (Monto > 0),
+    
+    constraint CK_pago_estado
+    check (Estado in ('P','A','R')) -- Pendiente / Aprobado / Rechazado
+)
+
+create table Entrada
+(
+    ID bigint primary key clustered identity(1,1),
+    
+    Fecha_acceso date not null,
+    
+    ID_cliente bigint not null,
+    ID_tarifa bigint not null,
+    ID_compra bigint not null,
+    
+    constraint FK_entrada_cliente
+    foreign key (ID_cliente)
+    references Cliente(ID),
+    
+    constraint FK_entrada_tarifa
+    foreign key (ID_tarifa)
+    references Tarifa(ID),
+    
+    constraint FK_entrada_compra
+    foreign key (ID_compra)
+    references Compra(ID)
+)
