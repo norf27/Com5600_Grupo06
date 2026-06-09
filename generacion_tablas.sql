@@ -30,21 +30,22 @@ constraint FK_tipo_parque foreign key (ID_tipo) references Tipo_parque(ID),
 constraint FK_provincia foreign key (ID_provincia) references Provincia(ID)
 )
 
-create table Empleado --agregar chequeo de estados cuando determinemos cuales puede ser EJ: inactivo, activo, licencia, etc
+create table Empleado 
 (
-ID bigint primary key clustered identity (1,1),
-Nacimiento date not null,
-DNI varchar(8) not null unique,
-Nombre varchar(100) not null,
-Sueldo decimal(11,2) not null,
-Estado char(1) not null,
-ID_parque bigint not null,
-CUIL varchar(13) not null,
-constraint FK_parque foreign key (ID_parque) references Parque(ID),
-constraint check_DNI check (DNI like '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
-constraint check_sueldo check (sueldo > 0),
-constraint check_nacimiento check (nacimiento <= dateadd(year, -18, cast(getdate() as date))), --que sea >= 18 años
-constraint check_CUIL check (CUIL like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
+    ID bigint primary key clustered identity (1,1),
+    Nacimiento date not null,
+    DNI varchar(8) not null unique,
+    Nombre varchar(100) not null,
+    Sueldo decimal(11,2) not null,
+    Estado char(1) not null default 'a', --a: activo, i:inactivo, l: licencia, v:vacaciones
+    ID_parque bigint not null,
+    CUIL varchar(13) not null unique,
+    constraint FK_parque_emp foreign key (ID_parque) references Parque(ID),
+    constraint check_DNI check (DNI like '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+    constraint check_sueldo check (sueldo > 0),
+    constraint check_nacimiento check (nacimiento <= dateadd(year, -18, cast(getdate() as date))), --que sea >= 18 años
+    constraint check_CUIL check (CUIL like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'),
+    constraint check_Estado check(Estado in ('i','a','l','v'))
 )
 --CONCESIONES
 create table Tipo_actividad
@@ -93,7 +94,7 @@ CREATE TABLE Guardaparque (
     ID_Empleado BIGINT PRIMARY KEY,
     CONSTRAINT FK_Guardaparque_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleado(ID) ON DELETE CASCADE
 );
-CREATE TABLE Guardaparque_Parque (
+CREATE TABLE R_Guardaparque_Parque (
     ID_Guardaparque BIGINT,
     ID_Parque INT, 
     Fecha_ingreso DATE NOT NULL,
@@ -115,11 +116,11 @@ CREATE TABLE Guia (
     CONSTRAINT FK_Guia_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleado(ID) ON DELETE CASCADE
 );
 CREATE TABLE Habilitacion (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID BIGINT IDENTITY(1,1) PRIMARY KEY,
     Detalles VARCHAR(100) NOT NULL,
     Fecha DATE NOT NULL
 );
-CREATE TABLE Guia_Habilitacion (
+CREATE TABLE R_Guia_Habilitacion (
     ID_Guia BIGINT,
     ID_Habilitacion INT,
     PRIMARY KEY (ID_Guia, ID_Habilitacion),
@@ -127,10 +128,10 @@ CREATE TABLE Guia_Habilitacion (
     CONSTRAINT FK_GuiaHabilitacion_Habilitacion FOREIGN KEY (ID_Habilitacion) REFERENCES Habilitacion(ID)
 );
 CREATE TABLE Especialidad (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID BIGINT IDENTITY(1,1) PRIMARY KEY,
     Nombre VARCHAR(100) NOT NULL
 );
-CREATE TABLE Guia_Especialidad (
+CREATE TABLE R_Guia_Especialidad (
     ID_Guia BIGINT,
     ID_Especialidad INT,
     PRIMARY KEY (ID_Guia, ID_Especialidad),
@@ -139,15 +140,15 @@ CREATE TABLE Guia_Especialidad (
 );
 
 CREATE TABLE Titulo (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID BIGINT IDENTITY(1,1) PRIMARY KEY,
     Nombre VARCHAR(100) NOT NULL,
     Fecha DATE NOT NULL,
     Origen VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE Guia_Titulo (
+CREATE TABLE R_Guia_Titulo (
     ID_Guia BIGINT,
-    ID_Titulo INT,
+    ID_Titulo BIGINT,
     PRIMARY KEY (ID_Guia, ID_Titulo),
     CONSTRAINT FK_GuiaTitulo_Guia FOREIGN KEY (ID_Guia) REFERENCES Guia(ID_Empleado),
     CONSTRAINT FK_GuiaTitulo_Titulo FOREIGN KEY (ID_Titulo) REFERENCES Titulo(ID)
