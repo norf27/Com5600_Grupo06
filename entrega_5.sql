@@ -106,6 +106,8 @@ CREATE TABLE Guardaparque_Parque (
         (Fecha_egreso IS NOT NULL AND Motivo_egreso IS NOT NULL)
     )
 );
+
+-------------------------THIAGO--------------------------------------
 CREATE TABLE Guia (
     ID_Empleado BIGINT PRIMARY KEY,
     CONSTRAINT FK_Guia_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleado(ID) ON DELETE CASCADE
@@ -148,7 +150,7 @@ CREATE TABLE Guia_Titulo (
     CONSTRAINT FK_GuiaTitulo_Guia FOREIGN KEY (ID_Guia) REFERENCES Guia(ID_Empleado),
     CONSTRAINT FK_GuiaTitulo_Titulo FOREIGN KEY (ID_Titulo) REFERENCES Titulo(ID)
 );
-
+-------------------------THIAGO--------------------------------------
 --  INFO VENTAS
 create table Tipo_visitante
 (
