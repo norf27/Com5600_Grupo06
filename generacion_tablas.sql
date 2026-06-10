@@ -15,7 +15,7 @@ Descripcion varchar(250) not null
 create table Provincia
 (
 ID bigint primary key clustered identity(1,1),
-Nombre varchar(100) not null
+Nombre varchar(100) not null unique
 )
 
 create table Parque
@@ -51,14 +51,14 @@ create table Empleado
 create table Tipo_actividad
 (
 ID bigint primary key clustered identity(1,1),
-Nombre varchar(100) not null
+Nombre varchar(100) not null unique
 )
 
 create table Empresa
 (
 ID bigint primary key clustered identity(1,1),
 Nombre varchar(100) not null,
-CUIT varchar(13) not null,
+CUIT varchar(13) not null unique,
 Correo varchar(100) not null,
 constraint check_CUIT check (CUIT like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
 )
