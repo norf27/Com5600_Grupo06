@@ -97,7 +97,7 @@ CREATE TABLE Guardaparque (
 );
 CREATE TABLE R_Guardaparque_Parque (
     ID_Guardaparque BIGINT,
-    ID_Parque INT, 
+    ID_Parque BIGINT, 
     Fecha_ingreso DATE NOT NULL,
     Fecha_egreso DATE NULL,
     Motivo_egreso VARCHAR(255) NULL,
