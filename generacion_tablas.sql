@@ -134,7 +134,7 @@ CREATE TABLE Especialidad (
 );
 CREATE TABLE R_Guia_Especialidad (
     ID_Guia BIGINT,
-    ID_Especialidad INT,
+    ID_Especialidad BIGINT,
     PRIMARY KEY (ID_Guia, ID_Especialidad),
     CONSTRAINT FK_GuiaEspecialidad_Guia FOREIGN KEY (ID_Guia) REFERENCES Guia(ID_Empleado),
     CONSTRAINT FK_GuiaEspecialidad_Especialidad FOREIGN KEY (ID_Especialidad) REFERENCES Especialidad(ID)
