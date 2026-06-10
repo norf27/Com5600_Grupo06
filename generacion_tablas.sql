@@ -51,7 +51,8 @@ create table Empleado
 create table Tipo_actividad
 (
 ID bigint primary key clustered identity(1,1),
-Nombre varchar(100) not null unique
+Nombre varchar(100) not null unique,
+Descripcion varchar(250) not null
 )
 
 create table Empresa
