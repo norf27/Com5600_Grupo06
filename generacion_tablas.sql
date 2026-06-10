@@ -123,7 +123,7 @@ CREATE TABLE Habilitacion (
 );
 CREATE TABLE R_Guia_Habilitacion (
     ID_Guia BIGINT,
-    ID_Habilitacion INT,
+    ID_Habilitacion BIGINT,
     PRIMARY KEY (ID_Guia, ID_Habilitacion),
     CONSTRAINT FK_GuiaHabilitacion_Guia FOREIGN KEY (ID_Guia) REFERENCES Guia(ID_Empleado),
     CONSTRAINT FK_GuiaHabilitacion_Habilitacion FOREIGN KEY (ID_Habilitacion) REFERENCES Habilitacion(ID)
@@ -173,7 +173,7 @@ create table Cliente
     Nacimiento date not null,
     
     constraint CK_cliente_nacimiento
-    check (Nacimiento <= cast(getdate() as date))
+    check (Nacimiento <= cast(getdate() as date)),
     
     constraint CK_cliente_documento
     check (Documento like '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
