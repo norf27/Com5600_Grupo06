@@ -1,5 +1,9 @@
 ------------------ CREACIÓN DE BBDD -------------------
-
+/*
+ALTER DATABASE sist_gestion_parques
+SET MULTI_USER;
+GO
+*/
 USE master;
 GO
 
@@ -243,7 +247,6 @@ BEGIN
 		ID BIGINT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Fecha_inicio DATE NOT NULL,
 		Fecha_fin DATE NOT NULL,
-		Estado CHAR(1),
 		ID_empresa BIGINT NOT NULL,
 		ID_tipo BIGINT NOT NULL,
 		ID_parque BIGINT NOT NULL,
@@ -258,12 +261,12 @@ BEGIN
 	CREATE TABLE Concesiones.Pago_mensual --ver estados posibles para check
 	(
 		ID BIGINT PRIMARY KEY CLUSTERED IDENTITY(1,1),
+		Fecha DATE NOT NULL DEFAULT DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1), --por default es el ultimo primer del mes actual
 		Monto DECIMAL(11,2) NOT NULL,
-		Estado CHAR(1) NOT NULL,
 		Metodo VARCHAR(100) NOT NULL,
 		ID_concesion BIGINT NOT NULL,
 		CONSTRAINT FK_concesion FOREIGN KEY (ID_concesion) REFERENCES Concesiones.Concesion(ID),
-		CONSTRAINT check_monto CHECK (monto > 0)
+		CONSTRAINT check_monto CHECK (monto > 0),
 	);
 END
 
