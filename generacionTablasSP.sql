@@ -48,6 +48,7 @@ BEGIN
 	EXEC('CREATE SCHEMA Atracciones'); 
 END
 GO
+------------------ CREACIÓN DE TABLAS -------------------
 --------------------PARQUE-----------------------
 --------------------inicio - nico----------------
 IF OBJECT_ID('Parque.Tipo_parque', 'U') IS NULL
