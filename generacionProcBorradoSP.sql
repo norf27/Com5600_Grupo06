@@ -480,5 +480,4 @@ PRINT 'Pago eliminado correctamente';
 END
 GO 
 
-
 --------------------ATRACCIONES-----------------------
