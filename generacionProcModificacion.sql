@@ -179,6 +179,421 @@ BEGIN
 END;
 go
 
+CREATE OR ALTER PROCEDURE Empleados.Modificar_Guia
+	@ID_Empleado BIGINT
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Id_Validacion BIGINT;
+
+		SELECT @Id_Validacion = ID_Empleado
+		FROM Empleados.Guia
+		WHERE ID_Empleado = @ID_Empleado;
+
+		IF @Id_Validacion IS NULL
+		BEGIN
+			PRINT('No existe un guia con el ID proporcionado.');
+			RETURN;
+		END
+
+		-- Nota: la tabla guia funciona como una extension de empleado 
+		-- y contiene unicamente el ID_Empleado como clave primaria y foranea, 
+		-- no posee columnas propias adicionales que admitan modificacion por ahora.
+
+		PRINT('Guia verificado correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar el guia.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
+CREATE OR ALTER PROCEDURE Empleados.Modificar_Habilitacion
+	@ID BIGINT,
+	@Detalles VARCHAR(100) = NULL,
+	@Fecha DATE = NULL
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Actual_Detalles VARCHAR(100);
+		DECLARE @Actual_Fecha DATE;
+
+		SELECT 
+			@Actual_Detalles = Detalles,
+			@Actual_Fecha = Fecha
+		FROM Empleados.Habilitacion 
+		WHERE ID = @ID;
+
+		IF @Actual_Detalles IS NULL
+		BEGIN
+			PRINT('No existe una habilitacion con el ID proporcionado.');
+			RETURN;
+		END
+
+		IF @Detalles IS NOT NULL AND @Detalles <> ''
+		BEGIN
+			SET @Detalles = TRIM(@Detalles);
+			
+			IF LEN(@Detalles) > 100
+			BEGIN
+				PRINT('Los detalles superan el maximo permitido de 100 caracteres.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Detalles <> @Actual_Detalles
+			BEGIN
+				UPDATE Empleados.Habilitacion
+				SET Detalles = @Detalles
+				WHERE ID = @ID;
+			END
+		END
+
+		IF @Fecha IS NOT NULL
+		BEGIN
+			IF @Fecha > GETDATE()
+			BEGIN
+				PRINT('La fecha de habilitacion no es valida.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Fecha <> @Actual_Fecha
+			BEGIN
+				UPDATE Empleados.Habilitacion
+				SET Fecha = @Fecha
+				WHERE ID = @ID;
+			END
+		END
+
+		PRINT('Habilitacion actualizada correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar la habilitacion.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Modificar_Especialidad
+	@ID BIGINT,
+	@Nombre VARCHAR(100) = NULL
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Actual_Nombre VARCHAR(100);
+
+		SELECT @Actual_Nombre = Nombre
+		FROM Empleados.Especialidad 
+		WHERE ID = @ID;
+
+		IF @Actual_Nombre IS NULL
+		BEGIN
+			PRINT('No existe una especialidad con el ID proporcionado.');
+			RETURN;
+		END
+
+		IF @Nombre IS NOT NULL AND @Nombre <> ''
+		BEGIN
+			SET @Nombre = TRIM(@Nombre);
+			
+			IF LEN(@Nombre) > 100
+			BEGIN
+				PRINT('El nombre supera el maximo permitido de 100 caracteres.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Nombre LIKE '%[^a-zA-Z ]%'
+			BEGIN
+				PRINT('El nombre de la especialidad no es valido.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Nombre <> @Actual_Nombre
+			BEGIN
+				IF EXISTS (
+					SELECT 1 FROM Empleados.Especialidad 
+					WHERE Nombre = @Nombre AND ID <> @ID
+				)
+				BEGIN
+					PRINT('Ya existe otra especialidad con el nombre ingresado.');
+					RAISERROR('.', 16, 1);
+				END
+
+				UPDATE Empleados.Especialidad
+				SET Nombre = @Nombre
+				WHERE ID = @ID;
+			END
+		END
+
+		PRINT('Especialidad actualizada correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar la especialidad.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Modificar_Titulo
+	@ID BIGINT,
+	@Nombre VARCHAR(100) = NULL,
+	@Fecha DATE = NULL,
+	@Origen VARCHAR(100) = NULL
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Actual_Nombre VARCHAR(100);
+		DECLARE @Actual_Fecha DATE;
+		DECLARE @Actual_Origen VARCHAR(100);
+
+		SELECT 
+			@Actual_Nombre = Nombre,
+			@Actual_Fecha = Fecha,
+			@Actual_Origen = Origen
+		FROM Empleados.Titulo 
+		WHERE ID = @ID;
+
+		IF @Actual_Nombre IS NULL
+		BEGIN
+			PRINT('No existe un titulo con el ID proporcionado.');
+			RETURN;
+		END
+
+		IF @Nombre IS NOT NULL AND @Nombre <> ''
+		BEGIN
+			SET @Nombre = TRIM(@Nombre);
+			
+			IF LEN(@Nombre) > 100
+			BEGIN
+				PRINT('El nombre supera el maximo permitido de 100 caracteres.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Nombre LIKE '%[^a-zA-Z ]%'
+			BEGIN
+				PRINT('El nombre del titulo no es valido.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Nombre <> @Actual_Nombre
+			BEGIN
+				UPDATE Empleados.Titulo
+				SET Nombre = @Nombre
+				WHERE ID = @ID;
+			END
+		END
+
+		IF @Origen IS NOT NULL AND @Origen <> ''
+		BEGIN
+			SET @Origen = TRIM(@Origen);
+			
+			IF LEN(@Origen) > 100
+			BEGIN
+				PRINT('El origen supera el maximo permitido de 100 caracteres.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Origen LIKE '%[^a-zA-Z ]%'
+			BEGIN
+				PRINT('El origen del titulo no es valido.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Origen <> @Actual_Origen
+			BEGIN
+				UPDATE Empleados.Titulo
+				SET Origen = @Origen
+				WHERE ID = @ID;
+			END
+		END
+
+		IF @Fecha IS NOT NULL
+		BEGIN
+			IF @Fecha > GETDATE()
+			BEGIN
+				PRINT('La fecha del titulo no es valida.');
+				RAISERROR('.', 16, 1);
+			END
+
+			IF @Fecha <> @Actual_Fecha
+			BEGIN
+				UPDATE Empleados.Titulo
+				SET Fecha = @Fecha
+				WHERE ID = @ID;
+			END
+		END
+
+		PRINT('Titulo actualizado correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar el titulo.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
+--Las tablas de relacion solo tienen de campo los claves de las tablas que unen
+--funciones de modificacion son redundantes, pero fueron realizadas en caso de 
+--que se decida añadir algun atributo a futuro.
+CREATE OR ALTER PROCEDURE Empleados.Modificar_R_Guia_Habilitacion
+	@ID_Guia BIGINT,
+	@ID_Habilitacion BIGINT = NULL
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Id_Validacion BIGINT;
+
+		SELECT TOP 1 @Id_Validacion = ID_Guia
+		FROM Empleados.R_Guia_Habilitacion
+		WHERE ID_Guia = @ID_Guia;
+
+		IF @Id_Validacion IS NULL
+		BEGIN
+			PRINT('No existe una asignacion con el Id proporcionado.');
+			RETURN;
+		END
+
+		IF @ID_Habilitacion IS NOT NULL
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM Empleados.Habilitacion WHERE ID = @ID_Habilitacion)
+			BEGIN
+				PRINT('La habilitacion no es valida');
+				RAISERROR('.', 16, 1);
+			END
+
+			UPDATE Empleados.R_Guia_Habilitacion
+			SET ID_Habilitacion = @ID_Habilitacion
+			WHERE ID_Guia = @ID_Guia;
+		END
+
+		PRINT('Asignacion modificada correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar la asignacion.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Modificar_R_Guia_Especialidad
+	@ID_Guia BIGINT,
+	@ID_Especialidad BIGINT = NULL
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Id_Validacion BIGINT;
+
+		SELECT TOP 1 @Id_Validacion = ID_Guia
+		FROM Empleados.R_Guia_Especialidad
+		WHERE ID_Guia = @ID_Guia;
+
+		IF @Id_Validacion IS NULL
+		BEGIN
+			PRINT('No existe una asignacion con el Id proporcionado.');
+			RETURN;
+		END
+
+		IF @ID_Especialidad IS NOT NULL
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM Empleados.Especialidad WHERE ID = @ID_Especialidad)
+			BEGIN
+				PRINT('La especialidad no es valida');
+				RAISERROR('.', 16, 1);
+			END
+
+			UPDATE Empleados.R_Guia_Especialidad
+			SET ID_Especialidad = @ID_Especialidad
+			WHERE ID_Guia = @ID_Guia;
+		END
+
+		PRINT('Asignacion modificada correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar la asignacion.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Modificar_R_Guia_Titulo
+	@ID_Guia BIGINT,
+	@ID_Titulo BIGINT = NULL
+AS
+BEGIN
+	BEGIN TRY
+		SET NOCOUNT ON;
+
+		DECLARE @Id_Validacion BIGINT;
+
+		SELECT TOP 1 @Id_Validacion = ID_Guia
+		FROM Empleados.R_Guia_Titulo
+		WHERE ID_Guia = @ID_Guia;
+
+		IF @Id_Validacion IS NULL
+		BEGIN
+			PRINT('No existe una asignacion con el Id proporcionado.');
+			RETURN;
+		END
+
+		IF @ID_Titulo IS NOT NULL
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM Empleados.Titulo WHERE ID = @ID_Titulo)
+			BEGIN
+				PRINT('El titulo no es valido');
+				RAISERROR('.', 16, 1);
+			END
+
+			UPDATE Empleados.R_Guia_Titulo
+			SET ID_Titulo = @ID_Titulo
+			WHERE ID_Guia = @ID_Guia;
+		END
+
+		PRINT('Asignacion modificada correctamente.');
+	END TRY
+
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio un error al modificar la asignacion.', 16, 1);
+			RETURN;
+		END
+	END CATCH
+END
+GO
 --------------------CONSECIONES-----------------------
 create or alter procedure ModificarTipo_actividad @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
 BEGIN
