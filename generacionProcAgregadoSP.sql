@@ -1,4 +1,8 @@
-
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Descripcion: Script de genaracion de procedure de agregado
+*/
 USE sist_gestion_parques
 GO
 ------------- CREACION DE STORE PROCEDURE -------------
