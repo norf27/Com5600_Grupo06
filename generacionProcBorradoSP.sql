@@ -131,6 +131,364 @@ BEGIN
 END;
 go
 
+CREATE OR ALTER PROCEDURE Empleados.Borrar_Guia
+	@ID_Empleado BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Aux BIGINT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Empleado)
+			BEGIN
+				SELECT TOP 1 @Id_Aux = ID_Habilitacion 
+				FROM Empleados.R_Guia_Habilitacion 
+				WHERE ID_Guia = @ID_Empleado
+
+				EXEC Empleados.Borrar_R_Guia_Habilitacion
+					@ID_Empleado, @Id_Aux
+			END
+
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Empleado)
+			BEGIN
+				SELECT TOP 1 @Id_Aux = ID_Especialidad 
+				FROM Empleados.R_Guia_Especialidad 
+				WHERE ID_Guia = @ID_Empleado
+
+				EXEC Empleados.Borrar_R_Guia_Especialidad
+					@ID_Empleado, @Id_Aux
+			END
+
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Empleado)
+			BEGIN
+				SELECT TOP 1 @Id_Aux = ID_Titulo 
+				FROM Empleados.R_Guia_Titulo 
+				WHERE ID_Guia = @ID_Empleado
+
+				EXEC Empleados.Borrar_R_Guia_Titulo
+					@ID_Empleado, @Id_Aux
+			END
+
+			DELETE
+			FROM Empleados.Guia
+			WHERE ID_Empleado = @ID_Empleado
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe el guia')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de guia',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Borrar_Habilitacion
+	@Id BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Guia BIGINT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Habilitacion WHERE ID = @Id)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Habilitacion = @Id)
+			BEGIN
+				SELECT TOP 1 @Id_Guia = ID_Guia 
+				FROM Empleados.R_Guia_Habilitacion 
+				WHERE ID_Habilitacion = @Id
+
+				EXEC Empleados.Borrar_R_Guia_Habilitacion
+					@Id_Guia, @Id
+			END
+
+			DELETE
+			FROM Empleados.Habilitacion
+			WHERE ID = @Id
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la habilitacion')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de habilitacion',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Borrar_Especialidad
+	@Id BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Guia BIGINT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Especialidad WHERE ID = @Id)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Especialidad = @Id)
+			BEGIN
+				SELECT TOP 1 @Id_Guia = ID_Guia 
+				FROM Empleados.R_Guia_Especialidad 
+				WHERE ID_Especialidad = @Id
+
+				EXEC Empleados.Borrar_R_Guia_Especialidad
+					@Id_Guia, @Id
+			END
+
+			DELETE
+			FROM Empleados.Especialidad
+			WHERE ID = @Id
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la especialidad')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de especialidad',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Borrar_Titulo
+	@Id BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Guia BIGINT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Titulo WHERE ID = @Id)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Titulo = @Id)
+			BEGIN
+				SELECT TOP 1 @Id_Guia = ID_Guia 
+				FROM Empleados.R_Guia_Titulo 
+				WHERE ID_Titulo = @Id
+
+				EXEC Empleados.Borrar_R_Guia_Titulo
+					@Id_Guia, @Id
+			END
+
+			DELETE
+			FROM Empleados.Titulo
+			WHERE ID = @Id
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe el titulo')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de titulo',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Borrar_R_Guia_Habilitacion
+	@ID_Guia BIGINT,
+	@ID_Habilitacion BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion)
+		BEGIN
+			DELETE
+			FROM Empleados.R_Guia_Habilitacion
+			WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la asignacion de habilitacion')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de asignacion de habilitacion',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Borrar_R_Guia_Especialidad
+	@ID_Guia BIGINT,
+	@ID_Especialidad BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad)
+		BEGIN
+			DELETE
+			FROM Empleados.R_Guia_Especialidad
+			WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la asignacion de especialidad')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de asignacion de especialidad',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.Borrar_R_Guia_Titulo
+	@ID_Guia BIGINT,
+	@ID_Titulo BIGINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo)
+		BEGIN
+			DELETE
+			FROM Empleados.R_Guia_Titulo
+			WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la asignacion de titulo')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de asignacion de titulo',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
 --------------------CONSECIONES-----------------------
 create or alter procedure BorrarTipo_actividad @ID bigint as 
 BEGIN
