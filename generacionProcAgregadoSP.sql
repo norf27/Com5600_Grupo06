@@ -59,9 +59,9 @@ BEGIN
         DECLARE @Id BIGINT;
         SET @Detalles = TRIM(@Detalles);
 
-        IF @Detalles = ''
+        IF @Detalles = '' OR LEN(@Detalles) > 100
         BEGIN
-            PRINT('Los detalles de la habilitacion no pueden estar vacios.');
+            PRINT('Los detalles de la habilitacion no son validos.');
             RAISERROR('.', 16, 1);
         END
 
@@ -104,7 +104,7 @@ BEGIN
         DECLARE @Id BIGINT;
         SET @Nombre = TRIM(@Nombre);
 
-        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%'
+        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100
         BEGIN
             PRINT('El nombre de la especialidad no es valido.');
             RAISERROR('.', 16, 1);
@@ -144,13 +144,13 @@ BEGIN
         SET @Nombre = TRIM(@Nombre);
         SET @Origen = TRIM(@Origen);
 
-        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%'
+        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100
         BEGIN
             PRINT('El nombre del titulo no es valido.');
             RAISERROR('.', 16, 1);
         END
 
-        IF @Origen = '' OR @Origen LIKE '%[^a-zA-Z ]%'
+        IF @Origen = '' OR @Origen LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100
         BEGIN
             PRINT('El origen del titulo no es valido.');
             RAISERROR('.', 16, 1);
