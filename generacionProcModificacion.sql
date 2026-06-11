@@ -778,51 +778,51 @@ go
 --------------------VENTAS----------------------------
 CREATE OR ALTER PROCEDURE Ventas.SP_Cliente_Modificar
 (
-@ID BIGINT,
-@Nombre VARCHAR(100),
-@Documento VARCHAR(20),
-@Tipo_doc VARCHAR(20),
-@Nacimiento DATE
+	@ID BIGINT,
+	@Nombre VARCHAR(100),
+	@Documento VARCHAR(20),
+	@Tipo_doc VARCHAR(20),
+	@Nacimiento DATE
 )
 AS
 BEGIN
-
-DECLARE @Errores VARCHAR(MAX)='';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Cliente
-WHERE ID=@ID
-)
-SET @Errores += CHAR(13) + '- El cliente no existe';
-
-IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre))=''
-SET @Errores += CHAR(13) + '- El nombre es obligatorio';
-
-IF EXISTS
-(
-SELECT 1
-FROM Ventas.Cliente
-WHERE Documento=@Documento
-AND ID<>@ID
-)
-SET @Errores += CHAR(13) + '- El documento ya pertenece a otro cliente';
-
-IF @Errores <> ''
-BEGIN
-THROW 50001, @Errores, 1;
-END
-
-UPDATE Ventas.Cliente
-SET
-Nombre=@Nombre,
-Documento=@Documento,
-Tipo_doc=@Tipo_doc,
-Nacimiento=@Nacimiento
-WHERE ID=@ID;
-
-PRINT 'Cliente modificado correctamente';
+	
+	DECLARE @Errores VARCHAR(MAX)='';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Cliente
+		WHERE ID=@ID
+	)
+	SET @Errores += CHAR(13) + '- El cliente no existe';
+	
+	IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre))=''
+	SET @Errores += CHAR(13) + '- El nombre es obligatorio';
+	
+	IF EXISTS
+	(
+	SELECT 1
+	FROM Ventas.Cliente
+	WHERE Documento=@Documento
+	AND ID<>@ID
+	)
+	SET @Errores += CHAR(13) + '- El documento ya pertenece a otro cliente';
+	
+	IF @Errores <> ''
+	BEGIN
+		THROW 50001, @Errores, 1;
+	END
+	
+	UPDATE Ventas.Cliente
+	SET
+	Nombre=@Nombre,
+	Documento=@Documento,
+	Tipo_doc=@Tipo_doc,
+	Nacimiento=@Nacimiento
+	WHERE ID=@ID;
+	
+	PRINT 'Cliente modificado correctamente';
 
 END
 GO 
@@ -835,237 +835,237 @@ CREATE OR ALTER PROCEDURE Ventas.SP_TipoVisitante_Modificar
 AS
 BEGIN
 
-DECLARE @Errores VARCHAR(MAX)='';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Tipo_visitante
-WHERE ID=@ID
-)
-SET @Errores += CHAR(13) + '- El tipo de visitante no existe';
-
-IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre))=''
-SET @Errores += CHAR(13) + '- El nombre es obligatorio';
-
-IF EXISTS
-(
-SELECT 1
-FROM Ventas.Tipo_visitante
-WHERE Nombre=@Nombre
-AND ID<>@ID
-)
-SET @Errores += CHAR(13) + '- Ya existe otro tipo de visitante con ese nombre';
-
-IF @Errores <> ''
-BEGIN
-THROW 50001, @Errores, 1;
-END
-
-UPDATE Ventas.Tipo_visitante
-SET Nombre=@Nombre
-WHERE ID=@ID;
-
-PRINT 'Tipo de visitante modificado correctamente';
+	DECLARE @Errores VARCHAR(MAX)='';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Tipo_visitante
+		WHERE ID=@ID
+	)
+	SET @Errores += CHAR(13) + '- El tipo de visitante no existe';
+	
+	IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre))=''
+	SET @Errores += CHAR(13) + '- El nombre es obligatorio';
+	
+	IF EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Tipo_visitante
+		WHERE Nombre=@Nombre
+		AND ID<>@ID
+	)
+	SET @Errores += CHAR(13) + '- Ya existe otro tipo de visitante con ese nombre';
+	
+	IF @Errores <> ''
+	BEGIN
+		THROW 50001, @Errores, 1;
+	END
+	
+	UPDATE Ventas.Tipo_visitante
+	SET Nombre=@Nombre
+	WHERE ID=@ID;
+	
+	PRINT 'Tipo de visitante modificado correctamente';
 
 END
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Modificar
 (
-@ID BIGINT,
-@Fecha_desde DATE,
-@Fecha_hasta DATE,
-@Precio DECIMAL(11,2)
+	@ID BIGINT,
+	@Fecha_desde DATE,
+	@Fecha_hasta DATE,
+	@Precio DECIMAL(11,2)
 )
 AS
 BEGIN
-
-DECLARE @Errores VARCHAR(MAX)='';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Tarifa
-WHERE ID=@ID
-)
-SET @Errores += CHAR(13) + '- La tarifa no existe';
-
-IF @Precio <= 0
-SET @Errores += CHAR(13) + '- El precio debe ser mayor a cero';
-
-IF @Fecha_hasta < @Fecha_desde
-SET @Errores += CHAR(13) + '- Las fechas son inválidas';
-
-IF @Errores <> ''
-BEGIN
-THROW 50001, @Errores, 1;
-END
-
-UPDATE Ventas.Tarifa
-SET
-Fecha_desde=@Fecha_desde,
-Fecha_hasta=@Fecha_hasta,
-Precio=@Precio
-WHERE ID=@ID;
-
-PRINT 'Tarifa modificada correctamente';
+	
+	DECLARE @Errores VARCHAR(MAX)='';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Tarifa
+		WHERE ID=@ID
+	)
+	SET @Errores += CHAR(13) + '- La tarifa no existe';
+	
+	IF @Precio <= 0
+	SET @Errores += CHAR(13) + '- El precio debe ser mayor a cero';
+	
+	IF @Fecha_hasta < @Fecha_desde
+	SET @Errores += CHAR(13) + '- Las fechas son inválidas';
+	
+	IF @Errores <> ''
+	BEGIN
+		THROW 50001, @Errores, 1;
+	END
+	
+	UPDATE Ventas.Tarifa
+	SET
+	Fecha_desde=@Fecha_desde,
+	Fecha_hasta=@Fecha_hasta,
+	Precio=@Precio
+	WHERE ID=@ID;
+	
+	PRINT 'Tarifa modificada correctamente';
 
 END
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Modificar
 (
-@ID BIGINT,
-@Fecha_acceso DATE,
-@ID_cliente BIGINT,
-@ID_tarifa BIGINT
+	@ID BIGINT,
+	@Fecha_acceso DATE,
+	@ID_cliente BIGINT,
+	@ID_tarifa BIGINT
 )
 AS
 BEGIN
-
-DECLARE @Errores VARCHAR(MAX)='';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Entrada
-WHERE ID=@ID
-)
-SET @Errores += CHAR(13) + '- La entrada no existe';
-
-IF @Fecha_acceso < CAST(GETDATE() AS DATE)
-SET @Errores += CHAR(13) + '- La fecha de acceso no puede ser anterior a la fecha actual';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Cliente
-WHERE ID=@ID_cliente
-)
-SET @Errores += CHAR(13) + '- El cliente no existe';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Tarifa
-WHERE ID=@ID_tarifa
-)
-SET @Errores += CHAR(13) + '- La tarifa no existe';
-
-IF @Errores <> ''
-BEGIN
-THROW 50001, @Errores, 1;
-END
-
-
-UPDATE Ventas.Entrada
-SET
-Fecha_acceso=@Fecha_acceso,
-ID_cliente=@ID_cliente,
-ID_tarifa=@ID_tarifa
-WHERE ID=@ID;
-
-PRINT 'Entrada modificada correctamente';
+	
+	DECLARE @Errores VARCHAR(MAX)='';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Entrada
+		WHERE ID=@ID
+	)
+	SET @Errores += CHAR(13) + '- La entrada no existe';
+	
+	IF @Fecha_acceso < CAST(GETDATE() AS DATE)
+	SET @Errores += CHAR(13) + '- La fecha de acceso no puede ser anterior a la fecha actual';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Cliente
+		WHERE ID=@ID_cliente
+	)
+	SET @Errores += CHAR(13) + '- El cliente no existe';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Tarifa
+		WHERE ID=@ID_tarifa
+	)
+	SET @Errores += CHAR(13) + '- La tarifa no existe';
+	
+	IF @Errores <> ''
+	BEGIN
+		THROW 50001, @Errores, 1;
+	END
+	
+	
+	UPDATE Ventas.Entrada
+	SET
+		Fecha_acceso=@Fecha_acceso,
+		ID_cliente=@ID_cliente,
+		ID_tarifa=@ID_tarifa
+	WHERE ID=@ID;
+	
+	PRINT 'Entrada modificada correctamente';
 
 END
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Modificar
 (
-@ID BIGINT,
-@Fecha DATETIME,
-@Total DECIMAL(11,2),
-@Cantidad INT,
-@Punto_venta VARCHAR(100)
+	@ID BIGINT,
+	@Fecha DATETIME,
+	@Total DECIMAL(11,2),
+	@Cantidad INT,
+	@Punto_venta VARCHAR(100)
 )
 AS
 BEGIN
 
-DECLARE @Errores VARCHAR(MAX)='';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Compra
-WHERE ID=@ID
-)
-SET @Errores += CHAR(13) + '- La compra no existe';
-
-IF @Fecha > GETDATE()
-SET @Errores += CHAR(13) + '- La fecha de compra no puede ser futura';
-
-IF @Total < 0
-SET @Errores += CHAR(13) + '- El total no puede ser negativo';
-
-IF @Cantidad <= 0
-SET @Errores += CHAR(13) + '- La cantidad debe ser mayor a cero';
-
-IF @Punto_venta IS NULL
-OR LTRIM(RTRIM(@Punto_venta))=''
-SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
-
-IF @Errores <> ''
-BEGIN
-THROW 50001, @Errores, 1;
-END
-
-UPDATE Ventas.Compra
-SET
-Fecha=@Fecha,
-Total=@Total,
-Cantidad=@Cantidad,
-Punto_venta=@Punto_venta
-WHERE ID=@ID;
-
-PRINT 'Compra modificada correctamente';
+	DECLARE @Errores VARCHAR(MAX)='';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Compra
+		WHERE ID=@ID
+	)
+	SET @Errores += CHAR(13) + '- La compra no existe';
+	
+	IF @Fecha > GETDATE()
+	SET @Errores += CHAR(13) + '- La fecha de compra no puede ser futura';
+	
+	IF @Total < 0
+	SET @Errores += CHAR(13) + '- El total no puede ser negativo';
+	
+	IF @Cantidad <= 0
+	SET @Errores += CHAR(13) + '- La cantidad debe ser mayor a cero';
+	
+	IF @Punto_venta IS NULL
+	OR LTRIM(RTRIM(@Punto_venta))=''
+	SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
+	
+	IF @Errores <> ''
+	BEGIN
+		THROW 50001, @Errores, 1;
+	END
+	
+	UPDATE Ventas.Compra
+	SET
+	Fecha=@Fecha,
+	Total=@Total,
+	Cantidad=@Cantidad,
+	Punto_venta=@Punto_venta
+	WHERE ID=@ID;
+	
+	PRINT 'Compra modificada correctamente';
 
 END
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Modificar
 (
-@ID BIGINT,
-@Metodo VARCHAR(100),
-@Monto DECIMAL(11,2),
-@Estado CHAR(1)
+	@ID BIGINT,
+	@Metodo VARCHAR(100),
+	@Monto DECIMAL(11,2),
+	@Estado CHAR(1)
 )
 AS
 BEGIN
-
-DECLARE @Errores VARCHAR(MAX)='';
-
-IF NOT EXISTS
-(
-SELECT 1
-FROM Ventas.Pago
-WHERE ID=@ID
-)
-SET @Errores += CHAR(13) + '- El pago no existe';
-
-IF @Metodo IS NULL
-OR LTRIM(RTRIM(@Metodo))=''
-SET @Errores += CHAR(13) + '- El método de pago es obligatorio';
-
-IF @Monto <= 0
-SET @Errores += CHAR(13) + '- El monto debe ser mayor a cero';
-
-IF @Estado NOT IN ('P','A','R')
-SET @Errores += CHAR(13) + '- Estado inválido (P=Pendiente, A=Aprobado, R=Rechazado)';
-
-IF @Errores <> ''
-BEGIN
-THROW 50001, @Errores, 1;
-END
-
-UPDATE Ventas.Pago
-SET
-Metodo=@Metodo,
-Monto=@Monto,
-Estado=@Estado
-WHERE ID=@ID;
-
-PRINT 'Pago modificado correctamente';
+	
+	DECLARE @Errores VARCHAR(MAX)='';
+	
+	IF NOT EXISTS
+	(
+		SELECT 1
+		FROM Ventas.Pago
+		WHERE ID=@ID
+	)
+	SET @Errores += CHAR(13) + '- El pago no existe';
+	
+	IF @Metodo IS NULL
+	OR LTRIM(RTRIM(@Metodo))=''
+	SET @Errores += CHAR(13) + '- El método de pago es obligatorio';
+	
+	IF @Monto <= 0
+	SET @Errores += CHAR(13) + '- El monto debe ser mayor a cero';
+	
+	IF @Estado NOT IN ('P','A','R')
+	SET @Errores += CHAR(13) + '- Estado inválido (P=Pendiente, A=Aprobado, R=Rechazado)';
+	
+	IF @Errores <> ''
+	BEGIN
+		THROW 50001, @Errores, 1;
+	END
+	
+	UPDATE Ventas.Pago
+	SET
+	Metodo=@Metodo,
+	Monto=@Monto,
+	Estado=@Estado
+	WHERE ID=@ID;
+	
+	PRINT 'Pago modificado correctamente';
 
 END
 GO 
