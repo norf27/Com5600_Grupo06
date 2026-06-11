@@ -106,6 +106,125 @@ go
 
 --------------------EMPLEADOS-----------------------
 
+-- Alta de guardaparque: registra como guardaparque a un empleado existente.
+CREATE OR ALTER PROCEDURE AnadirGuardaparque
+    @ID_Empleado BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Empleado IS NULL
+        SET @error += 'El ID_Empleado no puede ser null' + CHAR(10);
+    IF @ID_Empleado IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Empleado WHERE ID = @ID_Empleado)
+        SET @error += 'El empleado indicado no existe' + CHAR(10);
+    IF @ID_Empleado IS NOT NULL AND EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Empleado)
+        SET @error += 'El empleado indicado ya esta registrado como guardaparque' + CHAR(10);
+    IF @ID_Empleado IS NOT NULL AND EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado)
+        SET @error += 'El empleado indicado ya esta registrado como guia' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    -- La operacion se ejecuta en transaccion para asegurar consistencia.
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Empleados.Guardaparque (ID_Empleado)
+        VALUES (@ID_Empleado);
+
+        COMMIT;
+        PRINT 'Guardaparque registrado correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE AnadirR_Guardaparque_Parque
+    @ID_Guardaparque BIGINT,
+    @ID_Parque BIGINT,
+    @Fecha_ingreso DATE,
+    @Fecha_egreso DATE = NULL,
+    @Motivo_egreso VARCHAR(255) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Alta de asignacion de guardaparque a parque, con fechas de permanencia.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Guardaparque IS NULL
+        SET @error += 'El ID_Guardaparque no puede ser null' + CHAR(10);
+    IF @ID_Parque IS NULL
+        SET @error += 'El ID_Parque no puede ser null' + CHAR(10);
+    IF @Fecha_ingreso IS NULL
+        SET @error += 'La fecha de ingreso no puede ser null' + CHAR(10);
+    IF @ID_Guardaparque IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Guardaparque)
+        SET @error += 'El guardaparque indicado no existe' + CHAR(10);
+    IF @ID_Parque IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Parque.Parque WHERE ID = @ID_Parque)
+        SET @error += 'El parque indicado no existe' + CHAR(10);
+    IF @Fecha_egreso IS NOT NULL AND @Fecha_ingreso IS NOT NULL AND @Fecha_egreso < @Fecha_ingreso
+        SET @error += 'La fecha de egreso no puede ser anterior a la fecha de ingreso' + CHAR(10);
+    -- Si hay egreso, debe existir motivo; si no hay egreso, no debe existir motivo.
+    IF (@Fecha_egreso IS NULL AND @Motivo_egreso IS NOT NULL) OR (@Fecha_egreso IS NOT NULL AND (@Motivo_egreso IS NULL OR LTRIM(RTRIM(@Motivo_egreso)) = ''))
+        SET @error += 'Debe informar fecha y motivo de egreso juntos, o dejar ambos vacios' + CHAR(10);
+    IF EXISTS (
+        SELECT 1
+        FROM Empleados.R_Guardaparque_Parque
+        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND ID_Parque = @ID_Parque
+          AND Fecha_ingreso = @Fecha_ingreso
+    )
+        SET @error += 'Ya existe esa asignacion de guardaparque al parque' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Empleados.R_Guardaparque_Parque
+        (
+            ID_Guardaparque,
+            ID_Parque,
+            Fecha_ingreso,
+            Fecha_egreso,
+            Motivo_egreso
+        )
+        VALUES
+        (
+            @ID_Guardaparque,
+            @ID_Parque,
+            @Fecha_ingreso,
+            @Fecha_egreso,
+            @Motivo_egreso
+        );
+
+        COMMIT;
+        PRINT 'Asignacion de guardaparque al parque registrada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
 create or alter procedure AñadirEmpleado 
 @Nacimiento date,
 @DNI varchar(8),
@@ -999,3 +1118,153 @@ GO
 
 
 --------------------ATRACCIONES-----------------------
+CREATE OR ALTER PROCEDURE AnadirTour
+    @Costo DECIMAL(11,2),
+    @Cupo_max INT,
+    @Tipo CHAR(1),
+    @Duracion INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Validaciones basicas de dominio para evitar datos inconsistentes.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @Costo IS NULL
+        SET @error += 'El costo no puede ser null' + CHAR(10);
+    IF @Costo IS NOT NULL AND @Costo < 0
+        SET @error += 'El costo no puede ser menor a 0' + CHAR(10);
+    IF @Cupo_max IS NULL
+        SET @error += 'El cupo maximo no puede ser null' + CHAR(10);
+    IF @Cupo_max IS NOT NULL AND @Cupo_max <= 0
+        SET @error += 'El cupo maximo debe ser mayor a 0' + CHAR(10);
+    IF @Tipo IS NULL OR LTRIM(RTRIM(@Tipo)) = ''
+        SET @error += 'El tipo no puede ser null ni vacio' + CHAR(10);
+    IF @Duracion IS NULL
+        SET @error += 'La duracion no puede ser null' + CHAR(10);
+    IF @Duracion IS NOT NULL AND @Duracion <= 0
+        SET @error += 'La duracion debe ser mayor a 0' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Atracciones.Tour (Costo, Cupo_max, Tipo, Duracion)
+        VALUES (@Costo, @Cupo_max, @Tipo, @Duracion);
+
+        COMMIT;
+        PRINT 'Tour registrado correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE AnadirR_Tour_Guia
+    @ID_Tour BIGINT,
+    @ID_Guia BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Asigna un guia existente a un tour existente.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF @ID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour)
+        SET @error += 'El tour indicado no existe' + CHAR(10);
+    IF @ID_Guia IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
+        SET @error += 'El guia indicado no existe' + CHAR(10);
+    IF EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
+        SET @error += 'El guia ya esta asignado a ese tour' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Atracciones.R_Tour_Guia (ID_Tour, ID_Guia)
+        VALUES (@ID_Tour, @ID_Guia);
+
+        COMMIT;
+        PRINT 'Guia asignado al tour correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE AnadirR_Tour_Entrada
+    @ID_Tour BIGINT,
+    @ID_Entrada BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Asigna una entrada existente a un tour existente.
+    -- Se controla el cupo maximo antes de insertar.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Entrada IS NULL
+        SET @error += 'El ID_Entrada no puede ser null' + CHAR(10);
+    IF @ID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour)
+        SET @error += 'El tour indicado no existe' + CHAR(10);
+    IF @ID_Entrada IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Ventas.Entrada WHERE ID = @ID_Entrada)
+        SET @error += 'La entrada indicada no existe' + CHAR(10);
+    IF EXISTS (SELECT 1 FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour AND ID_Entrada = @ID_Entrada)
+        SET @error += 'La entrada ya esta asignada a ese tour' + CHAR(10);
+    -- Regla de negocio: no permitir mas entradas que el cupo maximo del tour.
+    IF @ID_Tour IS NOT NULL AND EXISTS (
+        SELECT 1
+        FROM Atracciones.Tour
+        WHERE ID_Tour = @ID_Tour
+          AND Cupo_max <= (SELECT COUNT(*) FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour)
+    )
+        SET @error += 'El tour ya alcanzo su cupo maximo' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        INSERT INTO Atracciones.R_Tour_Entrada (ID_Tour, ID_Entrada)
+        VALUES (@ID_Tour, @ID_Entrada);
+
+        COMMIT;
+        PRINT 'Entrada asignada al tour correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
