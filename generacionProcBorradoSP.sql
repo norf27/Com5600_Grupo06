@@ -106,6 +106,101 @@ BEGIN
 END;
 go
 --------------------EMPLEADOS-----------------------
+	
+CREATE OR ALTER PROCEDURE Guardaparque.Borrar
+    @ID_Empleado BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Baja fisica del rol guardaparque. Se bloquea si tiene parques asignados.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Empleado IS NULL
+        SET @error += 'El ID_Empleado no puede ser null' + CHAR(10);
+    IF @ID_Empleado IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Empleado)
+        SET @error += 'El guardaparque indicado no existe' + CHAR(10);
+    IF @ID_Empleado IS NOT NULL AND EXISTS (SELECT 1 FROM Empleados.R_Guardaparque_Parque WHERE ID_Guardaparque = @ID_Empleado)
+        SET @error += 'No se puede borrar porque el guardaparque tiene parques asignados' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Empleados.Guardaparque
+        WHERE ID_Empleado = @ID_Empleado;
+
+        COMMIT;
+        PRINT 'Guardaparque eliminado correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE Guardaparque.Borrar_Parque
+    @ID_Guardaparque BIGINT,
+    @ID_Parque BIGINT,
+    @Fecha_ingreso DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Baja de una asignacion puntual identificada por su clave compuesta.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Guardaparque IS NULL
+        SET @error += 'El ID_Guardaparque no puede ser null' + CHAR(10);
+    IF @ID_Parque IS NULL
+        SET @error += 'El ID_Parque no puede ser null' + CHAR(10);
+    IF @Fecha_ingreso IS NULL
+        SET @error += 'La fecha de ingreso no puede ser null' + CHAR(10);
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Empleados.R_Guardaparque_Parque
+        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND ID_Parque = @ID_Parque
+          AND Fecha_ingreso = @Fecha_ingreso
+    )
+        SET @error += 'La asignacion indicada no existe' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Empleados.R_Guardaparque_Parque
+        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND ID_Parque = @ID_Parque
+          AND Fecha_ingreso = @Fecha_ingreso;
+
+        COMMIT;
+        PRINT 'Asignacion de guardaparque al parque eliminada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+	
 create or alter procedure BorrarEmpleado @ID bigint as --es borrado logico
 BEGIN
     SET NOCOUNT ON;
@@ -843,3 +938,131 @@ END
 GO 
 
 --------------------ATRACCIONES-----------------------
+CREATE OR ALTER PROCEDURE Tour.Borrar
+    @ID_Tour BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Baja fisica del tour. Se bloquea si posee guias o entradas relacionadas.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour)
+        SET @error += 'El tour indicado no existe' + CHAR(10);
+    IF @ID_Tour IS NOT NULL AND EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour)
+        SET @error += 'No se puede borrar porque el tour tiene guias asignados' + CHAR(10);
+    IF @ID_Tour IS NOT NULL AND EXISTS (SELECT 1 FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour)
+        SET @error += 'No se puede borrar porque el tour tiene entradas asignadas' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Atracciones.Tour
+        WHERE ID_Tour = @ID_Tour;
+
+        COMMIT;
+        PRINT 'Tour eliminado correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
+
+CREATE OR ALTER PROCEDURE R_Tour.Borrar_Guia
+    @ID_Tour BIGINT,
+    @ID_Guia BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Elimina una asignacion puntual entre tour y guia.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF NOT EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
+        SET @error += 'La asignacion indicada no existe' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Atracciones.R_Tour_Guia
+        WHERE ID_Tour = @ID_Tour
+          AND ID_Guia = @ID_Guia;
+
+        COMMIT;
+        PRINT 'Asignacion de guia al tour eliminada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE R_Tour.Borrar_Entrada
+    @ID_Tour BIGINT,
+    @ID_Entrada BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Elimina una asignacion puntual entre tour y entrada.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Entrada IS NULL
+        SET @error += 'El ID_Entrada no puede ser null' + CHAR(10);
+    IF NOT EXISTS (SELECT 1 FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour AND ID_Entrada = @ID_Entrada)
+        SET @error += 'La asignacion indicada no existe' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Atracciones.R_Tour_Entrada
+        WHERE ID_Tour = @ID_Tour
+          AND ID_Entrada = @ID_Entrada;
+
+        COMMIT;
+        PRINT 'Asignacion de entrada al tour eliminada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
