@@ -1,3 +1,9 @@
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Descripcion:
+Procedimiento de negocio para el registro de actividades (tours).
+*/
 CREATE OR ALTER PROCEDURE RegistrarActividad
 (
     @Costo DECIMAL(11,2),
