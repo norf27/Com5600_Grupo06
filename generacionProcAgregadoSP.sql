@@ -307,6 +307,374 @@ GO
 
 
 --------------------VENTAS-----------------------
+CREATE OR ALTER PROCEDURE Ventas.SP_Cliente_Alta
+(
+@Nombre VARCHAR(100),
+@Documento VARCHAR(20),
+@Tipo_doc VARCHAR(20),
+@Nacimiento DATE
+)
+AS
+BEGIN
+
+SET NOCOUNT ON;
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+-- VALIDACIONES
+
+IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre))='' -- elimina espacios en blanco
+SET @Errores += CHAR(13) + '- El nombre es obligatorio';
+
+IF @Documento IS NULL OR LTRIM(RTRIM(@Documento))=''
+SET @Errores += CHAR(13) + '- El documento es obligatorio';
+
+IF @Tipo_doc IS NULL OR LTRIM(RTRIM(@Tipo_doc))=''
+SET @Errores += CHAR(13) + '- El tipo de documento es obligatorio';
+
+IF @Nacimiento > CAST(GETDATE() AS DATE)
+SET @Errores += CHAR(13) + '- La fecha de nacimiento no puede ser futura';
+
+IF @Nacimiento > DATEADD(YEAR,-18,CAST(GETDATE() AS DATE))
+SET @Errores += CHAR(13) + '- El cliente debe ser mayor de edad';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Cliente
+WHERE Documento=@Documento
+)
+SET @Errores += CHAR(13) + '- Ya existe un cliente con ese documento';
+
+-- ERRORES
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;;
+END
+
+-- INSERT
+
+INSERT INTO Ventas.Cliente
+(
+Nombre,
+Documento,
+Tipo_doc,
+Nacimiento
+)
+VALUES
+(
+@Nombre,
+@Documento,
+@Tipo_doc,
+@Nacimiento
+);
+
+PRINT 'Cliente registrado correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_TipoVisitante_Alta
+(
+@Nombre VARCHAR(100)
+)
+AS
+BEGIN
+
+SET NOCOUNT ON;
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+-- VALIDACIONES
+
+IF @Nombre IS NULL OR LTRIM(RTRIM(@Nombre))=''
+SET @Errores += CHAR(13) + '- El nombre es obligatorio';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Tipo_visitante
+WHERE Nombre=@Nombre
+)
+SET @Errores += CHAR(13) + '- Ya existe un tipo de visitante con ese nombre';
+
+
+-- ERRORES
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+-- INSERT
+
+INSERT INTO Ventas.Tipo_visitante(Nombre)
+VALUES(@Nombre);
+
+PRINT 'Tipo de visitante registrado correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Alta
+(
+@Fecha_desde DATE,
+@Fecha_hasta DATE,
+@Precio DECIMAL(11,2),
+@ID_tipo_visitante BIGINT,
+@ID_parque BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+-- VALIDACIONES
+
+IF @Precio <= 0
+SET @Errores += CHAR(13)+'- El precio debe ser mayor a cero';
+
+IF @Fecha_hasta < @Fecha_desde
+SET @Errores += CHAR(13)+'- La fecha hasta debe ser posterior a la fecha desde';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Tipo_visitante
+WHERE ID=@ID_tipo_visitante
+)
+SET @Errores += CHAR(13)+'- El tipo de visitante no existe';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Parque
+WHERE ID=@ID_parque
+)
+SET @Errores += CHAR(13)+'- El parque no existe';
+
+-- ERRORES
+
+IF @Errores<>''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+-- INSERT
+
+INSERT INTO Ventas.Tarifa
+(
+Fecha_desde,
+Fecha_hasta,
+Precio,
+ID_tipo_visitante,
+ID_parque
+)
+VALUES
+(
+@Fecha_desde,
+@Fecha_hasta,
+@Precio,
+@ID_tipo_visitante,
+@ID_parque
+);
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Alta
+(
+@Fecha_acceso DATE,
+@ID_cliente BIGINT,
+@ID_tarifa BIGINT,
+@ID_compra BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+-- VALIDACIONES
+
+IF @Fecha_acceso < CAST(GETDATE() AS DATE)
+SET @Errores += CHAR(13) + '- La fecha de acceso no puede ser anterior a la fecha actual';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Cliente
+WHERE ID=@ID_cliente
+)
+SET @Errores += CHAR(13) + '- El cliente no existe';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Tarifa
+WHERE ID=@ID_tarifa
+)
+SET @Errores += CHAR(13) + '- La tarifa no existe';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Compra
+WHERE ID=@ID_compra
+)
+SET @Errores += CHAR(13) + '- La compra no existe';
+
+-- ERRORES
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+-- INSERT
+
+INSERT INTO Ventas.Entrada
+(
+Fecha_acceso,
+ID_cliente,
+ID_tarifa,
+ID_compra
+)
+VALUES
+(
+@Fecha_acceso,
+@ID_cliente,
+@ID_tarifa,
+@ID_compra
+);
+
+PRINT 'Entrada registrada correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Alta
+(
+@Fecha DATETIME,
+@Total DECIMAL(11,2),
+@Cantidad INT,
+@Punto_venta VARCHAR(100)
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+-- VALIDACIONES
+
+IF @Fecha > GETDATE()
+SET @Errores += CHAR(13) + '- La fecha de compra no puede ser futura';
+
+IF @Total < 0
+SET @Errores += CHAR(13) + '- El total no puede ser negativo';
+
+IF @Cantidad <= 0
+SET @Errores += CHAR(13) + '- La cantidad debe ser mayor a cero';
+
+IF @Punto_venta IS NULL
+OR LTRIM(RTRIM(@Punto_venta))=''
+SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
+
+-- ERRORES
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+INSERT INTO Ventas.Compra
+(
+Fecha,
+Total,
+Cantidad,
+Punto_venta
+)
+VALUES
+(
+@Fecha,
+@Total,
+@Cantidad,
+@Punto_venta
+);
+
+PRINT 'Compra registrada correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Alta
+(
+@Metodo VARCHAR(100),
+@Monto DECIMAL(11,2),
+@Estado CHAR(1),
+@ID_compra BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+-- VALIDACIONES
+
+IF @Metodo IS NULL
+OR LTRIM(RTRIM(@Metodo))=''
+SET @Errores += CHAR(13) + '- El método de pago es obligatorio';
+
+IF @Monto <= 0
+SET @Errores += CHAR(13) + '- El monto debe ser mayor a cero';
+
+IF @Estado NOT IN ('P','A','R')
+SET @Errores += CHAR(13) + '- Estado inválido (P=Pendiente, A=Aprobado, R=Rechazado)';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Compra
+WHERE ID=@ID_compra
+)
+SET @Errores += CHAR(13) + '- La compra no existe';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Pago
+WHERE ID_compra=@ID_compra
+)
+SET @Errores += CHAR(13) + '- La compra ya posee un pago asociado';
+
+-- ERRORES
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+-- INSERT
+
+INSERT INTO Ventas.Pago
+(
+Metodo,
+Monto,
+Estado,
+ID_compra
+)
+VALUES
+(
+@Metodo,
+@Monto,
+@Estado,
+@ID_compra
+);
+
+PRINT 'Pago registrado correctamente';
+
+END
+GO 
 
 
 --------------------ATRACCIONES-----------------------
