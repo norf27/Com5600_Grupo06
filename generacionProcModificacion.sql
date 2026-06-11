@@ -117,6 +117,147 @@ END;
 go
 
 --------------------EMPLEADOS-----------------------
+
+CREATE OR ALTER PROCEDURE ModificarGuardaparque
+    @ID_Empleado BIGINT,
+    @NuevoID_Empleado BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Se valida la clave actual y la nueva clave antes de modificar la relacion.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Empleado IS NULL
+        SET @error += 'El ID_Empleado no puede ser null' + CHAR(10);
+    IF @NuevoID_Empleado IS NULL
+        SET @error += 'El nuevo ID_Empleado no puede ser null' + CHAR(10);
+    IF @ID_Empleado IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Empleado)
+        SET @error += 'El guardaparque indicado no existe' + CHAR(10);
+    IF @NuevoID_Empleado IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Empleado WHERE ID = @NuevoID_Empleado)
+        SET @error += 'El nuevo empleado indicado no existe' + CHAR(10);
+    IF @NuevoID_Empleado IS NOT NULL AND @NuevoID_Empleado <> @ID_Empleado AND EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @NuevoID_Empleado)
+        SET @error += 'El nuevo empleado indicado ya esta registrado como guardaparque' + CHAR(10);
+    IF @NuevoID_Empleado IS NOT NULL AND @NuevoID_Empleado <> @ID_Empleado AND EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @NuevoID_Empleado)
+        SET @error += 'El nuevo empleado indicado ya esta registrado como guia' + CHAR(10);
+    -- No se permite cambiar la PK si ya esta referenciada por asignaciones a parques.
+    IF @ID_Empleado IS NOT NULL AND @NuevoID_Empleado <> @ID_Empleado AND EXISTS (SELECT 1 FROM Empleados.R_Guardaparque_Parque WHERE ID_Guardaparque = @ID_Empleado)
+        SET @error += 'No se puede cambiar el empleado porque el guardaparque tiene parques asignados' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Empleados.Guardaparque
+        SET ID_Empleado = @NuevoID_Empleado
+        WHERE ID_Empleado = @ID_Empleado;
+
+        COMMIT;
+        PRINT 'Guardaparque modificado correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE ModificarR_Guardaparque_Parque
+    @ID_Guardaparque BIGINT,
+    @ID_Parque BIGINT,
+    @Fecha_ingreso DATE,
+    @NuevoID_Guardaparque BIGINT,
+    @NuevoID_Parque BIGINT,
+    @NuevaFecha_ingreso DATE,
+    @NuevaFecha_egreso DATE = NULL,
+    @NuevoMotivo_egreso VARCHAR(255) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Modificacion de una relacion con clave compuesta.
+    -- Se reciben los datos originales para ubicar el registro y los nuevos para actualizarlo.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Guardaparque IS NULL
+        SET @error += 'El ID_Guardaparque no puede ser null' + CHAR(10);
+    IF @ID_Parque IS NULL
+        SET @error += 'El ID_Parque no puede ser null' + CHAR(10);
+    IF @Fecha_ingreso IS NULL
+        SET @error += 'La fecha de ingreso original no puede ser null' + CHAR(10);
+    IF @NuevoID_Guardaparque IS NULL
+        SET @error += 'El nuevo ID_Guardaparque no puede ser null' + CHAR(10);
+    IF @NuevoID_Parque IS NULL
+        SET @error += 'El nuevo ID_Parque no puede ser null' + CHAR(10);
+    IF @NuevaFecha_ingreso IS NULL
+        SET @error += 'La nueva fecha de ingreso no puede ser null' + CHAR(10);
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Empleados.R_Guardaparque_Parque
+        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND ID_Parque = @ID_Parque
+          AND Fecha_ingreso = @Fecha_ingreso
+    )
+        SET @error += 'La asignacion original no existe' + CHAR(10);
+    IF @NuevoID_Guardaparque IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @NuevoID_Guardaparque)
+        SET @error += 'El nuevo guardaparque indicado no existe' + CHAR(10);
+    IF @NuevoID_Parque IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Parque.Parque WHERE ID = @NuevoID_Parque)
+        SET @error += 'El nuevo parque indicado no existe' + CHAR(10);
+    IF @NuevaFecha_egreso IS NOT NULL AND @NuevaFecha_ingreso IS NOT NULL AND @NuevaFecha_egreso < @NuevaFecha_ingreso
+        SET @error += 'La nueva fecha de egreso no puede ser anterior a la nueva fecha de ingreso' + CHAR(10);
+    IF (@NuevaFecha_egreso IS NULL AND @NuevoMotivo_egreso IS NOT NULL) OR (@NuevaFecha_egreso IS NOT NULL AND (@NuevoMotivo_egreso IS NULL OR LTRIM(RTRIM(@NuevoMotivo_egreso)) = ''))
+        SET @error += 'Debe informar fecha y motivo de egreso juntos, o dejar ambos vacios' + CHAR(10);
+    -- Evita duplicar la clave compuesta al cambiar los datos identificatorios.
+    IF EXISTS (
+        SELECT 1
+        FROM Empleados.R_Guardaparque_Parque
+        WHERE ID_Guardaparque = @NuevoID_Guardaparque
+          AND ID_Parque = @NuevoID_Parque
+          AND Fecha_ingreso = @NuevaFecha_ingreso
+          AND NOT (ID_Guardaparque = @ID_Guardaparque AND ID_Parque = @ID_Parque AND Fecha_ingreso = @Fecha_ingreso)
+    )
+        SET @error += 'Ya existe otra asignacion con esos nuevos datos' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Empleados.R_Guardaparque_Parque
+        SET ID_Guardaparque = @NuevoID_Guardaparque,
+            ID_Parque = @NuevoID_Parque,
+            Fecha_ingreso = @NuevaFecha_ingreso,
+            Fecha_egreso = @NuevaFecha_egreso,
+            Motivo_egreso = @NuevoMotivo_egreso
+        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND ID_Parque = @ID_Parque
+          AND Fecha_ingreso = @Fecha_ingreso;
+
+        COMMIT;
+        PRINT 'Asignacion de guardaparque al parque modificada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+	
 create or alter procedure ModificarEmpleado @ID bigint, @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
@@ -1071,3 +1212,202 @@ END
 GO 
 
 --------------------ATRACCIONES-----------------------
+
+CREATE OR ALTER PROCEDURE ModificarTour
+    @ID_Tour BIGINT,
+    @Costo DECIMAL(11,2),
+    @Cupo_max INT,
+    @Tipo CHAR(1),
+    @Duracion INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Modifica los datos principales del tour.
+    -- Tambien controla que el nuevo cupo no quede por debajo de las entradas ya asignadas.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour)
+        SET @error += 'El tour indicado no existe' + CHAR(10);
+    IF @Costo IS NULL
+        SET @error += 'El costo no puede ser null' + CHAR(10);
+    IF @Costo IS NOT NULL AND @Costo < 0
+        SET @error += 'El costo no puede ser menor a 0' + CHAR(10);
+    IF @Cupo_max IS NULL
+        SET @error += 'El cupo maximo no puede ser null' + CHAR(10);
+    IF @Cupo_max IS NOT NULL AND @Cupo_max <= 0
+        SET @error += 'El cupo maximo debe ser mayor a 0' + CHAR(10);
+    -- Regla de negocio: no bajar el cupo por debajo de la cantidad ya reservada.
+    IF @ID_Tour IS NOT NULL AND @Cupo_max IS NOT NULL AND @Cupo_max < (SELECT COUNT(*) FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour)
+        SET @error += 'El cupo maximo no puede ser menor a la cantidad de entradas ya asignadas al tour' + CHAR(10);
+    IF @Tipo IS NULL OR LTRIM(RTRIM(@Tipo)) = ''
+        SET @error += 'El tipo no puede ser null ni vacio' + CHAR(10);
+    IF @Duracion IS NULL
+        SET @error += 'La duracion no puede ser null' + CHAR(10);
+    IF @Duracion IS NOT NULL AND @Duracion <= 0
+        SET @error += 'La duracion debe ser mayor a 0' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Atracciones.Tour
+        SET Costo = @Costo,
+            Cupo_max = @Cupo_max,
+            Tipo = @Tipo,
+            Duracion = @Duracion
+        WHERE ID_Tour = @ID_Tour;
+
+        COMMIT;
+        PRINT 'Tour modificado correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE ModificarR_Tour_Guia
+    @ID_Tour BIGINT,
+    @ID_Guia BIGINT,
+    @NuevoID_Tour BIGINT,
+    @NuevoID_Guia BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Modifica una asignacion tour-guia identificada por clave compuesta.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF @NuevoID_Tour IS NULL
+        SET @error += 'El nuevo ID_Tour no puede ser null' + CHAR(10);
+    IF @NuevoID_Guia IS NULL
+        SET @error += 'El nuevo ID_Guia no puede ser null' + CHAR(10);
+    IF NOT EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
+        SET @error += 'La asignacion original de guia al tour no existe' + CHAR(10);
+    IF @NuevoID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @NuevoID_Tour)
+        SET @error += 'El nuevo tour indicado no existe' + CHAR(10);
+    IF @NuevoID_Guia IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @NuevoID_Guia)
+        SET @error += 'El nuevo guia indicado no existe' + CHAR(10);
+    -- Evita que la modificacion genere una relacion duplicada.
+    IF EXISTS (
+        SELECT 1
+        FROM Atracciones.R_Tour_Guia
+        WHERE ID_Tour = @NuevoID_Tour
+          AND ID_Guia = @NuevoID_Guia
+          AND NOT (ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
+    )
+        SET @error += 'Ya existe otra asignacion con esos nuevos datos' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Atracciones.R_Tour_Guia
+        SET ID_Tour = @NuevoID_Tour,
+            ID_Guia = @NuevoID_Guia
+        WHERE ID_Tour = @ID_Tour
+          AND ID_Guia = @ID_Guia;
+
+        COMMIT;
+        PRINT 'Asignacion de guia al tour modificada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE ModificarR_Tour_Entrada
+    @ID_Tour BIGINT,
+    @ID_Entrada BIGINT,
+    @NuevoID_Tour BIGINT,
+    @NuevoID_Entrada BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Modifica una asignacion tour-entrada identificada por clave compuesta.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Entrada IS NULL
+        SET @error += 'El ID_Entrada no puede ser null' + CHAR(10);
+    IF @NuevoID_Tour IS NULL
+        SET @error += 'El nuevo ID_Tour no puede ser null' + CHAR(10);
+    IF @NuevoID_Entrada IS NULL
+        SET @error += 'El nuevo ID_Entrada no puede ser null' + CHAR(10);
+    IF NOT EXISTS (SELECT 1 FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour AND ID_Entrada = @ID_Entrada)
+        SET @error += 'La asignacion original de entrada al tour no existe' + CHAR(10);
+    IF @NuevoID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @NuevoID_Tour)
+        SET @error += 'El nuevo tour indicado no existe' + CHAR(10);
+    IF @NuevoID_Entrada IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Ventas.Entrada WHERE ID = @NuevoID_Entrada)
+        SET @error += 'La nueva entrada indicada no existe' + CHAR(10);
+    IF EXISTS (
+        SELECT 1
+        FROM Atracciones.R_Tour_Entrada
+        WHERE ID_Tour = @NuevoID_Tour
+          AND ID_Entrada = @NuevoID_Entrada
+          AND NOT (ID_Tour = @ID_Tour AND ID_Entrada = @ID_Entrada)
+    )
+        SET @error += 'Ya existe otra asignacion con esos nuevos datos' + CHAR(10);
+    -- Si se mueve la entrada a otro tour, tambien se verifica el cupo del nuevo tour.
+    IF @NuevoID_Tour IS NOT NULL AND @NuevoID_Tour <> @ID_Tour AND EXISTS (
+        SELECT 1
+        FROM Atracciones.Tour
+        WHERE ID_Tour = @NuevoID_Tour
+          AND Cupo_max <= (SELECT COUNT(*) FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @NuevoID_Tour)
+    )
+        SET @error += 'El nuevo tour ya alcanzo su cupo maximo' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE Atracciones.R_Tour_Entrada
+        SET ID_Tour = @NuevoID_Tour,
+            ID_Entrada = @NuevoID_Entrada
+        WHERE ID_Tour = @ID_Tour
+          AND ID_Entrada = @ID_Entrada;
+
+        COMMIT;
+        PRINT 'Asignacion de entrada al tour modificada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
