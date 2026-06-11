@@ -1,3 +1,9 @@
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Descripcion: Generacion de tablas
+*/
+
 ------------------ CREACIÓN DE BBDD -------------------
 /*
 ALTER DATABASE sist_gestion_parques
