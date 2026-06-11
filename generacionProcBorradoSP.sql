@@ -258,5 +258,227 @@ END;
 go
 
 --------------------VENTAS----------------------------
+CREATE OR ALTER PROCEDURE Ventas.SP_Cliente_Baja
+(
+@ID BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Cliente
+WHERE ID=@ID
+)
+SET @Errores += CHAR(13) + '- El cliente no existe';
+
+IF EXISTS -- no elimina cliente si tiene entrada  
+(
+SELECT 1
+FROM Ventas.Entrada
+WHERE ID_cliente=@ID
+)
+SET @Errores += CHAR(13) + '- El cliente posee entradas asociadas';
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+DELETE FROM Ventas.Cliente
+WHERE ID=@ID;
+
+PRINT 'Cliente eliminado correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_TipoVisitante_Baja
+(
+@ID BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Tipo_visitante
+WHERE ID=@ID
+)
+SET @Errores += CHAR(13) + '- El tipo de visitante no existe';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Tarifa
+WHERE ID_tipo_visitante=@ID
+)
+SET @Errores += CHAR(13) + '- El tipo de visitante posee tarifas asociadas';
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+DELETE FROM Ventas.Tipo_visitante
+WHERE ID=@ID;
+
+PRINT 'Tipo de visitante eliminado correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Baja
+(
+@ID BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Tarifa
+WHERE ID=@ID
+)
+SET @Errores += CHAR(13) + '- La tarifa no existe';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Entrada
+WHERE ID_tarifa=@ID
+)
+SET @Errores += CHAR(13) + '- La tarifa posee entradas asociadas';
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+DELETE FROM Ventas.Tarifa
+WHERE ID=@ID;
+
+PRINT 'Tarifa eliminada correctamente';
+
+END
+GO 
+
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Baja
+(
+@ID BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Entrada
+WHERE ID=@ID
+)
+SET @Errores += CHAR(13) + '- La entrada no existe';
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+DELETE FROM Ventas.Entrada
+WHERE ID=@ID;
+
+PRINT 'Entrada eliminada correctamente';
+
+END
+GO
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Baja
+(
+@ID BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Compra
+WHERE ID=@ID
+)
+SET @Errores += CHAR(13) + '- La compra no existe';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Pago
+WHERE ID_compra=@ID
+)
+SET @Errores += CHAR(13) + '- La compra posee un pago asociado';
+
+IF EXISTS
+(
+SELECT 1
+FROM Ventas.Entrada
+WHERE ID_compra=@ID
+)
+SET @Errores += CHAR(13) + '- La compra posee entradas asociadas';
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+DELETE FROM Ventas.Compra
+WHERE ID=@ID;
+
+PRINT 'Compra eliminada correctamente';
+
+END
+GO 
+
+CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Baja
+(
+@ID BIGINT
+)
+AS
+BEGIN
+
+DECLARE @Errores VARCHAR(MAX)='';
+
+IF NOT EXISTS
+(
+SELECT 1
+FROM Ventas.Pago
+WHERE ID=@ID
+)
+SET @Errores += CHAR(13) + '- El pago no existe';
+
+IF @Errores <> ''
+BEGIN
+THROW 50001, @Errores, 1;
+END
+
+DELETE FROM Ventas.Pago
+WHERE ID=@ID;
+
+PRINT 'Pago eliminado correctamente';
+
+END
+GO 
+
 
 --------------------ATRACCIONES-----------------------
