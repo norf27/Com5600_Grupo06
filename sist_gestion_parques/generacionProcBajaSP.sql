@@ -9,7 +9,7 @@ GO
 
 
 --------------------PARQUE-----------------------
-create or alter procedure Parque.BorrarTipo_parque @ID bigint as 
+CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Baja @ID INT as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -39,7 +39,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Parque.BorrarProvincia @ID bigint as
+CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Baja @ID tinyint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -69,7 +69,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Parque.BorrarParque @ID bigint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Baja @ID INT as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -108,8 +108,8 @@ END;
 go
 --------------------EMPLEADOS-----------------------
 	
-CREATE OR ALTER PROCEDURE Empleados.Guardaparque_Borrar
-@ID_Empleado BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Guardaparque_Baja
+@ID_Empleado INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -149,9 +149,9 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE Empleados.Guardaparque_Borrar_Parque
-    @ID_Guardaparque BIGINT,
-    @ID_Parque BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_GuardaparqueParque_Baja
+    @ID_Guardaparque INT,
+    @ID_Parque INT,
     @Fecha_ingreso DATE
 AS
 BEGIN
@@ -202,7 +202,7 @@ END;
 GO
 
 	
-create or alter procedure EmpleadosBorrarEmpleado @ID bigint as --es borrado logico
+CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Baja @ID INT as --es borrado logico
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -231,14 +231,14 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_Guia
-	@ID_Empleado BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Guia_Baja
+	@ID_Empleado INT
 AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
 		BEGIN TRANSACTION
-		DECLARE @Id_Aux BIGINT;
+		DECLARE @Id_Aux INT;
 
 		IF EXISTS(SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado)
 		BEGIN
@@ -304,14 +304,14 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_Habilitacion
-	@Id BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Baja
+	@Id INT
 AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
 		BEGIN TRANSACTION
-		DECLARE @Id_Guia BIGINT;
+		DECLARE @Id_Guia INT;
 
 		IF EXISTS(SELECT 1 FROM Empleados.Habilitacion WHERE ID = @Id)
 		BEGIN
@@ -357,14 +357,14 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_Especialidad
-	@Id BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad
+	@Id INT
 AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
 		BEGIN TRANSACTION
-		DECLARE @Id_Guia BIGINT;
+		DECLARE @Id_Guia INT;
 
 		IF EXISTS(SELECT 1 FROM Empleados.Especialidad WHERE ID = @Id)
 		BEGIN
@@ -410,14 +410,14 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_Titulo
-	@Id BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Baja
+	@Id INT
 AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
 		BEGIN TRANSACTION
-		DECLARE @Id_Guia BIGINT;
+		DECLARE @Id_Guia INT;
 
 		IF EXISTS(SELECT 1 FROM Empleados.Titulo WHERE ID = @Id)
 		BEGIN
@@ -463,9 +463,9 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_R_Guia_Habilitacion
-	@ID_Guia BIGINT,
-	@ID_Habilitacion BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaHabilitacion_Baja
+	@ID_Guia INT,
+	@ID_Habilitacion INT
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -505,9 +505,9 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_R_Guia_Especialidad
-	@ID_Guia BIGINT,
-	@ID_Especialidad BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaEspecialidad_Baja
+	@ID_Guia INT,
+	@ID_Especialidad INT
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -547,9 +547,9 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Borrar_R_Guia_Titulo
-	@ID_Guia BIGINT,
-	@ID_Titulo BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaTitulo_Baja
+	@ID_Guia INT,
+	@ID_Titulo INT
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -590,7 +590,7 @@ END
 GO
 
 --------------------CONSECIONES-----------------------
-create or alter procedure Concesiones.BorrarTipo_actividad @ID bigint as 
+CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Baja @ID INT as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -623,7 +623,7 @@ go
 --el borrado lo hago pero igual nunca se deberia usar ya que concesiones guarda el historico asi que nunca vas a poder borrar una empresa
 --que fue parte de una concesion pero bueno
 
-create or alter procedure Concesiones.BorrarEmpresa @ID bigint as
+CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Baja @ID INT as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -656,7 +656,7 @@ END;
 go
 
 --una concesion nunca se puede borrar, ya que deberia quedar el historico pero igual lo hago x las dudas
-create or alter procedure Concesiones.BorrarConcesion @ID bigint as
+CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Baja @ID INT as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(500) = ''
@@ -686,7 +686,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Concesiones.BorrarPago_mensual @ID bigint as
+CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Baja @ID INT as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(500) = ''
@@ -718,7 +718,7 @@ go
 --------------------VENTAS----------------------------
 CREATE OR ALTER PROCEDURE Ventas.SP_Cliente_Baja
 (
-	@ID BIGINT
+	@ID INT
 )
 AS
 BEGIN
@@ -756,7 +756,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_TipoVisitante_Baja
 (
-	@ID BIGINT
+	@ID INT
 )
 AS
 BEGIN
@@ -794,7 +794,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Baja
 (
-	@ID BIGINT
+	@ID INT
 )
 AS
 BEGIN
@@ -833,7 +833,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Baja
 (
-	@ID BIGINT
+	@ID INT
 )
 AS
 BEGIN
@@ -864,7 +864,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Baja
 (
-	@ID BIGINT
+	@ID INT
 )
 AS
 BEGIN
@@ -910,7 +910,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Baja
 (
-	@ID BIGINT
+	@ID INT
 )
 AS
 BEGIN
@@ -939,8 +939,8 @@ END
 GO 
 
 --------------------ATRACCIONES-----------------------
-CREATE OR ALTER PROCEDURE Atracciones.Tour_Borrar
-    @ID_Tour BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_Tour_Baja
+    @ID_Tour INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -985,9 +985,9 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Entrada
-    @ID_Tour BIGINT,
-    @ID_Entrada BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_TourEntrada_Baja
+    @ID_Tour INT,
+    @ID_Entrada INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1026,9 +1026,9 @@ BEGIN
     END CATCH;
 END;
 GO
-CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Guia
-    @ID_Tour BIGINT,
-    @ID_Guia BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_TourGuia_Baja
+    @ID_Tour INT,
+    @ID_Guia INT
 AS
 BEGIN
     SET NOCOUNT ON;
