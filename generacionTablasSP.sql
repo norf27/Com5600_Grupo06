@@ -60,7 +60,6 @@ END
 GO
 ------------------ CREACIÓN DE TABLAS -------------------
 --------------------PARQUE-----------------------
---------------------inicio - nico----------------
 IF OBJECT_ID('Parque.Tipo_parque', 'U') IS NULL
 BEGIN
 	CREATE TABLE Parque.Tipo_parque
@@ -115,8 +114,7 @@ BEGIN
 		CONSTRAINT check_Estado CHECK (Estado IN ('i','a','l','v'))
 	);
 END
---------------------continua en conseciones - nico----------------
--------------------------FEDE--------------------------------------
+
 IF OBJECT_ID('Empleados.Guardaparque', 'U') IS NULL
 BEGIN
 	CREATE TABLE Empleados.Guardaparque 
@@ -146,7 +144,7 @@ BEGIN
 	);
 END
 
--------------------------THIAGO--------------------------------------
+
 IF OBJECT_ID('Empleados.Guia', 'U') IS NULL
 BEGIN
 	CREATE TABLE Empleados.Guia 
@@ -221,9 +219,9 @@ BEGIN
 		CONSTRAINT FK_GuiaTitulo_Titulo FOREIGN KEY (ID_Titulo) REFERENCES Empleados.Titulo(ID)
 	);
 END
--------------------------THIAGO--------------------------------------
+
 --------------------CONSECIONES-----------------------
------------------------- continua - nico----------------------
+
 IF OBJECT_ID('Concesiones.Tipo_actividad', 'U') IS NULL
 BEGIN
 	CREATE TABLE Concesiones.Tipo_actividad
@@ -245,10 +243,10 @@ BEGIN
 		CONSTRAINT check_CUIT CHECK (CUIT LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
 	);
 END
------------------------- fin - nico----------------------
+
 IF OBJECT_ID('Concesiones.Concesion', 'U') IS NULL
 BEGIN
-	CREATE TABLE Concesiones.Concesion  --ver estados posibles para agregar check
+	CREATE TABLE Concesiones.Concesion
 	(
 		ID BIGINT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Fecha_inicio DATE NOT NULL,
@@ -264,10 +262,10 @@ END
 
 IF OBJECT_ID('Concesiones.Pago_mensual', 'U') IS NULL
 BEGIN
-	CREATE TABLE Concesiones.Pago_mensual --ver estados posibles para check
+	CREATE TABLE Concesiones.Pago_mensual 
 	(
 		ID BIGINT PRIMARY KEY CLUSTERED IDENTITY(1,1),
-		Fecha DATE NOT NULL DEFAULT DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1), --por default es el ultimo primer del mes actual
+		Fecha DATE NOT NULL DEFAULT DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1), --por default es el primer del mes actual
 		Monto DECIMAL(11,2) NOT NULL,
 		Metodo VARCHAR(100) NOT NULL,
 		ID_concesion BIGINT NOT NULL,
@@ -277,7 +275,6 @@ BEGIN
 END
 
 --------------------VENTAS-----------------------
--------------------------GRASSO--------------------------------------
 IF OBJECT_ID('Ventas.Tipo_visitante', 'U') IS NULL
 BEGIN
 	CREATE TABLE Ventas.Tipo_visitante
@@ -363,7 +360,6 @@ BEGIN
 END
 
 --------------------ATRACCIONES-----------------------
--------------------------FEDE--------------------------------------
 IF OBJECT_ID('Atracciones.Tour', 'U') IS NULL
 BEGIN
 	CREATE TABLE Atracciones.Tour 

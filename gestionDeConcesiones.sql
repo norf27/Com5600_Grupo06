@@ -14,8 +14,7 @@ CREATE OR ALTER PROCEDURE Concesiones.SP_RegistrarConcesion
     @IDTipoActividad BIGINT,
     @IDParque BIGINT,
     @FechaInicio DATE,
-    @FechaFin DATE,
-    @Estado CHAR(1) = 'A' -- Por defecto Activa si no se envía
+    @FechaFin DATE
 )
 AS
 BEGIN
@@ -48,9 +47,6 @@ BEGIN
     IF @FechaFin <= @FechaInicio
         SET @Errores += CHAR(13) + '- La fecha de finalización debe ser posterior a la fecha de inicio.';
 
-    IF @Estado NOT IN ('A', 'F', 'S')
-        SET @Errores += CHAR(13) + '- Estado inválido. Valores permitidos: A (Activa), F (Finalizada), S (Suspendida).';
-
     ---------------------------------------------------
     -- VALIDACIONES DE INTEGRIDAD
     ---------------------------------------------------
@@ -60,7 +56,6 @@ BEGIN
         FROM Concesiones.Concesion
         WHERE ID_parque = @IDParque 
           AND ID_tipo = @IDTipoActividad
-          AND Estado IN ('A', 'S') 
           AND (
                 @FechaInicio BETWEEN Fecha_inicio AND Fecha_fin
                 OR @FechaFin BETWEEN Fecha_inicio AND Fecha_fin
@@ -89,7 +84,6 @@ BEGIN
         (
             Fecha_inicio,
             Fecha_fin,
-            Estado,
             ID_empresa,
             ID_tipo,
             ID_parque
@@ -98,7 +92,6 @@ BEGIN
         (
             @FechaInicio,
             @FechaFin,
-            @Estado,
             @IDEmpresa,
             @IDTipoActividad,
             @IDParque
