@@ -8,7 +8,7 @@ GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
 --------------------PARQUE-----------------------
-create or alter procedure Parque.AñadirTipo_parque @Nombre varchar(100), @Descripcion varchar(250) as
+CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Alta @Nombre varchar(100), @Descripcion varchar(250) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -36,7 +36,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Parque.AñadirProvincia @Nombre varchar(100) as
+CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Alta @Nombre varchar(100) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -63,7 +63,7 @@ BEGIN
     END CATCH;
 END;
 go
-create or alter procedure Parque.AñadirParque @Superficie int, @Nombre varchar(100), @ID_tipo bigint, @ID_provincia bigint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie int, @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -106,8 +106,8 @@ go
 --------------------EMPLEADOS-----------------------
 
 -- Alta de guardaparque: registra como guardaparque a un empleado existente.
-CREATE OR ALTER PROCEDURE Empleados.AnadirGuardaparque
-    @ID_Empleado BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Guardaparque_Alta
+    @ID_Empleado int
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -148,9 +148,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.AnadirR_Guardaparque_Parque
-    @ID_Guardaparque BIGINT,
-    @ID_Parque BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_GuardaparqueParque_Alta
+    @ID_Guardaparque int,
+    @ID_Parque int,
     @Fecha_ingreso DATE,
     @Fecha_egreso DATE = NULL,
     @Motivo_egreso VARCHAR(255) = NULL
@@ -224,13 +224,13 @@ END;
 GO
 
 
-create or alter procedure Empleados.AñadirEmpleado 
+CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Alta
 @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
 @Sueldo decimal(11,2),
 @Estado char(1),
-@ID_parque bigint,
+@ID_parque int,
 @CUIL varchar(13) as
 BEGIN
     SET NOCOUNT ON;
@@ -286,18 +286,18 @@ END;
 go
 
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_Guia
+CREATE OR ALTER PROCEDURE Empleados.SP_Guia_Alta
     @Nombre VARCHAR(100),
     @DNI VARCHAR(8),
     @CUIL VARCHAR(13),
     @Nacimiento DATE,
     @Sueldo DECIMAL(11,2),
     @Estado CHAR(1),
-    @ID_Parque BIGINT
+    @ID_Parque int
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @ID_Empleado BIGINT;
+        DECLARE @ID_Empleado int;
 
         -- Llamada al agregado de Empleado. 
         EXEC @ID_Empleado = Empleados.AñadirEmpleado 
@@ -329,13 +329,13 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_Habilitacion
+CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Alta
     @Detalles VARCHAR(100),
     @Fecha DATE
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @Id BIGINT;
+        DECLARE @Id int;
         SET @Detalles = TRIM(@Detalles);
 
         IF @Detalles = '' OR LEN(@Detalles) > 100 OR @Detalles IS NULL
@@ -375,12 +375,12 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_Especialidad
+CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad_Alta
     @Nombre VARCHAR(100)
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @Id BIGINT;
+        DECLARE @Id int;
         SET @Nombre = TRIM(@Nombre);
 
         IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Nombre is null
@@ -409,14 +409,14 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_Titulo
+CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Alta
     @Nombre VARCHAR(100),
     @Fecha DATE,
     @Origen VARCHAR(100)
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @Id BIGINT;
+        DECLARE @Id int;
 
         SET @Nombre = TRIM(@Nombre);
         SET @Origen = TRIM(@Origen);
@@ -464,14 +464,14 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_R_Guia_Habilitacion
-    @ID_Guia BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaHabilitacion_Alta
+    @ID_Guia int,
     @Detalles VARCHAR(100),
     @Fecha DATE
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @ID_Habilitacion BIGINT;
+        DECLARE @ID_Habilitacion int;
 
         IF NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
         BEGIN
@@ -503,13 +503,13 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_R_Guia_Especialidad
-    @ID_Guia BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaEspecialidad_Alta
+    @ID_Guia int,
     @Nombre_Especialidad VARCHAR(100)
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @ID_Especialidad BIGINT;
+        DECLARE @ID_Especialidad int;
 
         IF NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
         BEGIN
@@ -540,15 +540,15 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Agr_R_Guia_Titulo
-    @ID_Guia BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaTitulo_Alta
+    @ID_Guia int,
     @Nombre_Titulo VARCHAR(100),
     @Fecha_Titulo DATE,
     @Origen_Titulo VARCHAR(100)
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @ID_Titulo BIGINT;
+        DECLARE @ID_Titulo int;
 
         IF NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
         BEGIN
@@ -581,7 +581,9 @@ BEGIN
 END
 GO
 --------------------CONSECIONES-----------------------
-create or alter procedure Concesiones.AñadirTipo_actividad @Nombre varchar(100), @Descripcion varchar(250) as
+CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Alta
+@Nombre varchar(100), 
+@Descripcion varchar(250) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -612,7 +614,7 @@ END;
 go
 
 
-create or alter procedure Concesiones.AñadirEmpresa 
+CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Alta
 @Nombre varchar(100),
 @CUIT varchar(13),
 @Correo varchar(100) as
@@ -651,12 +653,12 @@ END;
 go
 
 
-create or alter procedure Concesiones.AñadirConcesion 
+CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Alta
         @Fecha_inicio DATE,
 		@Fecha_fin DATE,
-		@ID_empresa BIGINT,
-		@ID_tipo BIGINT,
-		@ID_parque BIGINT as
+		@ID_empresa int,
+		@ID_tipo int,
+		@ID_parque int as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -700,11 +702,11 @@ go
 
 
 
-create or alter procedure Concesiones.AñadirPago_mensual 
+CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Alta
         @Fecha DATE,
 		@Monto DECIMAL(11,2),
 		@Metodo VARCHAR(100),
-		@ID_concesion BIGINT as
+		@ID_concesion int as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(500) = ''
@@ -861,8 +863,8 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Alta
 	@Fecha_desde DATE,
 	@Fecha_hasta DATE,
 	@Precio DECIMAL(11,2),
-	@ID_tipo_visitante BIGINT,
-	@ID_parque BIGINT
+	@ID_tipo_visitante int,
+	@ID_parque int
 )
 AS
 BEGIN
@@ -926,9 +928,9 @@ GO
 CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Alta
 (
 	@Fecha_acceso DATE,
-	@ID_cliente BIGINT,
-	@ID_tarifa BIGINT,
-	@ID_compra BIGINT
+	@ID_cliente int,
+	@ID_tarifa int,
+	@ID_compra int
 )
 AS
 BEGIN
@@ -1052,7 +1054,7 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Alta
 	@Metodo VARCHAR(100),
 	@Monto DECIMAL(11,2),
 	@Estado CHAR(1),
-	@ID_compra BIGINT
+	@ID_compra int
 )
 AS
 BEGIN
@@ -1118,7 +1120,7 @@ GO
 
 
 --------------------ATRACCIONES-----------------------
-CREATE OR ALTER PROCEDURE AnadirTour
+CREATE OR ALTER PROCEDURE Atracciones.SP_Tour_Alta
     @Costo DECIMAL(11,2),
     @Cupo_max INT,
     @Tipo CHAR(1),
@@ -1169,9 +1171,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE AnadirR_Tour_Guia
-    @ID_Tour BIGINT,
-    @ID_Guia BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_TourGuia_Alta
+    @ID_Tour int,
+    @ID_Guia int
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1214,9 +1216,9 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE AnadirR_Tour_Entrada
-    @ID_Tour BIGINT,
-    @ID_Entrada BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_TourEntrada_Alta
+    @ID_Tour int,
+    @ID_Entrada int
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1267,4 +1269,5 @@ BEGIN
     END CATCH;
 END;
 GO
+
 
