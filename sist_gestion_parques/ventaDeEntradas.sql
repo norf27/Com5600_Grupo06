@@ -14,7 +14,7 @@ CREATE OR ALTER PROCEDURE Ventas.SP_RegistrarVentaEntradas
     @TipoDoc VARCHAR(20),
     @Nombre VARCHAR(100),
     @Nacimiento DATE,
-    @ID_Tarifa BIGINT,
+    @ID_Tarifa INT,
     @CantidadEntradas INT,
     @MetodoPago VARCHAR(100),
     @FechaAcceso DATE,
@@ -25,9 +25,9 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @IDCliente BIGINT;
-    DECLARE @IDCompra BIGINT;
-    DECLARE @IDEntrada BIGINT;
+    DECLARE @IDCliente INT;
+    DECLARE @IDCompra INT;
+    DECLARE @IDEntrada INT;
     
     DECLARE @PrecioTarifa DECIMAL(11,2);
     DECLARE @CostoTours DECIMAL(11,2);
@@ -43,14 +43,14 @@ BEGIN
     IF EXISTS (
         SELECT 1 
         FROM STRING_SPLIT(@ListaTours, ',') 
-        WHERE TRY_CAST(value AS BIGINT) IS NULL
+        WHERE TRY_CAST(value AS INT) IS NULL
     )
         SET @Errores += CHAR(13) + '- La lista de tours contiene valores o caracteres inválidos.';
 
     IF EXISTS (
         SELECT value 
         FROM STRING_SPLIT(@ListaTours, ',') 
-        WHERE TRY_CAST(value AS BIGINT) IS NOT NULL
+        WHERE TRY_CAST(value AS INT) IS NOT NULL
         GROUP BY value 
         HAVING COUNT(*) > 1
     )
@@ -103,7 +103,7 @@ BEGIN
 
     IF @Errores = '' AND EXISTS (
         SELECT 1 
-        FROM (SELECT TRY_CAST(value AS BIGINT) ID_Tour FROM STRING_SPLIT(@ListaTours, ',')) T
+        FROM (SELECT TRY_CAST(value AS INT) ID_Tour FROM STRING_SPLIT(@ListaTours, ',')) T
         LEFT JOIN Atracciones.Tour TT ON TT.ID_Tour = T.ID_Tour
         WHERE TT.ID_Tour IS NULL
     )
@@ -113,7 +113,7 @@ BEGIN
     IF @Errores = '' AND EXISTS (
         SELECT 1
         FROM Atracciones.Tour T
-        JOIN (SELECT DISTINCT TRY_CAST(value AS BIGINT) ID_Tour FROM STRING_SPLIT(@ListaTours, ',')) X ON X.ID_Tour = T.ID_Tour
+        JOIN (SELECT DISTINCT TRY_CAST(value AS INT) ID_Tour FROM STRING_SPLIT(@ListaTours, ',')) X ON X.ID_Tour = T.ID_Tour
         WHERE (
             -- Cuenta las asignaciones activas exclusivamente para la misma fecha del evento
             SELECT COUNT(*)
@@ -139,7 +139,7 @@ BEGIN
 
     SELECT @CostoTours = ISNULL(SUM(Costo), 0)
     FROM Atracciones.Tour
-    WHERE ID_Tour IN (SELECT DISTINCT TRY_CAST(value AS BIGINT) FROM STRING_SPLIT(@ListaTours, ','));
+    WHERE ID_Tour IN (SELECT DISTINCT TRY_CAST(value AS INT) FROM STRING_SPLIT(@ListaTours, ','));
 
     SET @TotalPorEntrada = @PrecioTarifa + @CostoTours;
     SET @TotalCompra = @TotalPorEntrada * @CantidadEntradas;
@@ -185,7 +185,7 @@ BEGIN
             SET @IDEntrada = SCOPE_IDENTITY();
 
             INSERT INTO Atracciones.R_Tour_Entrada (ID_Tour, ID_Entrada)
-            SELECT DISTINCT TRY_CAST(value AS BIGINT), @IDEntrada
+            SELECT DISTINCT TRY_CAST(value AS INT), @IDEntrada
             FROM STRING_SPLIT(@ListaTours, ',');
 
             SET @i += 1;
