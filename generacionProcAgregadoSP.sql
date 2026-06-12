@@ -288,8 +288,8 @@ go
 
 CREATE OR ALTER PROCEDURE Empleados.Agr_Guia
     @Nombre VARCHAR(100),
-    @DNI VARCHAR(20),
-    @CUIL VARCHAR(20),
+    @DNI VARCHAR(8),
+    @CUIL VARCHAR(13),
     @Nacimiento DATE,
     @Sueldo DECIMAL(11,2),
     @Estado CHAR(1),
@@ -299,8 +299,8 @@ BEGIN
     BEGIN TRY
         DECLARE @ID_Empleado BIGINT;
 
-        -- Llamada al agregado de Empleado, pendiente. 
-        EXEC @ID_Empleado = Parque.Agr_Empleado
+        -- Llamada al agregado de Empleado. 
+        EXEC @ID_Empleado = Parque.AñadirEmpleado
             @Nombre = @Nombre,
             @DNI = @DNI,
             @CUIL = @CUIL,
