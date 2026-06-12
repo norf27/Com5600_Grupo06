@@ -8,63 +8,8 @@ GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
 --------------------PARQUE-----------------------
-create or alter procedure AñadirTipo_parque @Nombre varchar(100), @Descripcion varchar(250) as
-BEGIN
-    SET NOCOUNT ON;
-    declare @error varchar(max) = ''
-        if @Nombre is null
-            set @error = @error + 'El nombre no puede ser null' + char(10)
-        if @Descripcion is null
-            set @error = @error + 'La descripcion no puede ser null' + char(10)
-        if exists (select 1 from Parque.Tipo_parque where Nombre = @Nombre)
-            set @error += 'El tipo de parque "' + @Nombre +'" ya existe en la tabla' + char(10)
-        if @error != ''
-            throw 50001, @error, 1;
-    BEGIN TRANSACTION;
-    BEGIN TRY
-        insert into Parque.Tipo_parque(Nombre, Descripcion) values (@Nombre, @Descripcion)
-        COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
 
-        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
-        DECLARE @Num INT           = ERROR_NUMBER();
-        THROW;
-    END CATCH;
-END;
-go
-
-create or alter procedure AñadirProvincia @Nombre varchar(100) as
-BEGIN
-    SET NOCOUNT ON;
-    declare @error varchar(max) = ''
-        if @Nombre is null
-            set @error += 'El nombre no puede ser null' + char(10)
-        if exists (select 1 from Parque.Provincia where Nombre = @Nombre)
-            set @error += 'La provincia "' + @Nombre +'" ya existe en la tabla' + char(10)
-        if @error != ''
-            throw 50001, @error, 1;
-    BEGIN TRANSACTION;
-    BEGIN TRY
-        insert into Parque.Provincia(Nombre) values (@Nombre)
-        COMMIT;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-
-        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
-        DECLARE @Num INT           = ERROR_NUMBER();
-        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
-       
-        THROW;
-    END CATCH;
-END;
-go
-
-create or alter procedure AñadirParque @Superficie int, @Nombre varchar(100), @ID_tipo bigint, @ID_provincia bigint as
+create or alter procedure Parque.AñadirParque @Superficie int, @Nombre varchar(100), @ID_tipo bigint, @ID_provincia bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -107,7 +52,7 @@ go
 --------------------EMPLEADOS-----------------------
 
 -- Alta de guardaparque: registra como guardaparque a un empleado existente.
-CREATE OR ALTER PROCEDURE AnadirGuardaparque
+CREATE OR ALTER PROCEDURE Empleado.AnadirGuardaparque
     @ID_Empleado BIGINT
 AS
 BEGIN
@@ -149,7 +94,7 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE AnadirR_Guardaparque_Parque
+CREATE OR ALTER PROCEDURE Empleado.AnadirR_Guardaparque_Parque
     @ID_Guardaparque BIGINT,
     @ID_Parque BIGINT,
     @Fecha_ingreso DATE,
@@ -225,7 +170,7 @@ END;
 GO
 
 
-create or alter procedure AñadirEmpleado 
+create or alter procedure Empleado.AñadirEmpleado 
 @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
@@ -584,7 +529,7 @@ BEGIN
 END
 GO
 --------------------CONSECIONES-----------------------
-create or alter procedure AñadirTipo_actividad @Nombre varchar(100), @Descripcion varchar(250) as
+create or alter procedure Concesiones.AñadirTipo_actividad @Nombre varchar(100), @Descripcion varchar(250) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -615,7 +560,7 @@ END;
 go
 
 
-create or alter procedure AñadirEmpresa 
+create or alter procedure Concesiones.AñadirEmpresa 
 @Nombre varchar(100),
 @CUIT varchar(13),
 @Correo varchar(100) as
@@ -654,7 +599,7 @@ END;
 go
 
 
-create or alter procedure AñadirConcesion 
+create or alter procedure Concesiones.AñadirConcesion 
         @Fecha_inicio DATE,
 		@Fecha_fin DATE,
 		@ID_empresa BIGINT,
@@ -703,7 +648,7 @@ go
 
 
 
-create or alter procedure AñadirPago_mensual 
+create or alter procedure Concesiones.AñadirPago_mensual 
         @Fecha DATE,
 		@Monto DECIMAL(11,2),
 		@Metodo VARCHAR(100),
