@@ -10,7 +10,7 @@ CREATE OR ALTER PROCEDURE RegistrarActividad
     @Cupo_Max INT,
     @Tipo CHAR(1),
     @Duracion INT,
-    @ID_Guia BIGINT
+    @ID_Guia INT
 )
 AS
 BEGIN
@@ -96,7 +96,7 @@ BEGIN
             @Duracion
         );
 
-        DECLARE @ID_Tour BIGINT;
+        DECLARE @ID_Tour INT;
 
         SET @ID_Tour = SCOPE_IDENTITY();
 
