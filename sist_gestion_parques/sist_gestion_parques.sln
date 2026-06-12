@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# SQL Server Management Studio Version 21
+VisualStudioVersion = 17.14.36408.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		AsignacionDeGuias.sql = AsignacionDeGuias.sql
+		generacionProcAgregadoSP.sql = generacionProcAgregadoSP.sql
+		generacionProcBorradoSP.sql = generacionProcBorradoSP.sql
+		generacionProcModificacion.sql = generacionProcModificacion.sql
+		generacionTablasSP.sql = generacionTablasSP.sql
+		gestionDeConcesiones.sql = gestionDeConcesiones.sql
+		RegistroDeAactividades.sql = RegistroDeAactividades.sql
+		ventaDeEntradas.sql = ventaDeEntradas.sql
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Default = Default|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEB7687B-FB97-4ED6-BB3E-F4721BB5FD6C}.Default|Default.ActiveCfg = Default
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {74E37681-101A-42FD-A59A-497A6003D652}
+	EndGlobalSection
+EndGlobal
