@@ -983,47 +983,6 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Guia
-    @ID_Tour BIGINT,
-    @ID_Guia BIGINT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Elimina una asignacion puntual entre tour y guia.
-    DECLARE @error VARCHAR(MAX) = '';
-
-    IF @ID_Tour IS NULL
-        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
-    IF @ID_Guia IS NULL
-        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
-    IF NOT EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
-        SET @error += 'La asignacion indicada no existe' + CHAR(10);
-
-    IF @error != ''
-        THROW 50001, @error, 1;
-
-    BEGIN TRANSACTION;
-    BEGIN TRY
-        DELETE FROM Atracciones.R_Tour_Guia
-        WHERE ID_Tour = @ID_Tour
-          AND ID_Guia = @ID_Guia;
-
-        COMMIT;
-        PRINT 'Asignacion de guia al tour eliminada correctamente';
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-
-        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
-        DECLARE @Num INT = ERROR_NUMBER();
-        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
-
-        THROW;
-    END CATCH;
-END;
-GO
 
 
 CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Entrada
@@ -1054,6 +1013,47 @@ BEGIN
 
         COMMIT;
         PRINT 'Asignacion de entrada al tour eliminada correctamente';
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
+        DECLARE @Num INT = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+
+        THROW;
+    END CATCH;
+END;
+GO
+CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Guia
+    @ID_Tour BIGINT,
+    @ID_Guia BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Elimina una asignacion puntual entre tour y guia.
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Tour IS NULL
+        SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF NOT EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
+        SET @error += 'La asignacion indicada no existe' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        DELETE FROM Atracciones.R_Tour_Guia
+        WHERE ID_Tour = @ID_Tour
+          AND ID_Guia = @ID_Guia;
+
+        COMMIT;
+        PRINT 'Asignacion de guia al tour eliminada correctamente';
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
