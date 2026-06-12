@@ -10,9 +10,9 @@ GO
 
 CREATE OR ALTER PROCEDURE Concesiones.SP_RegistrarConcesion
 (
-    @IDEmpresa BIGINT,
-    @IDTipoActividad BIGINT,
-    @IDParque BIGINT,
+    @IDEmpresa INT,
+    @IDTipoActividad INT,
+    @IDParque INT,
     @FechaInicio DATE,
     @FechaFin DATE
 )
