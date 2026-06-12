@@ -107,8 +107,8 @@ END;
 go
 --------------------EMPLEADOS-----------------------
 	
-CREATE OR ALTER PROCEDURE Empleados.Guardaparque.Borrar
-    @ID_Empleado BIGINT
+CREATE OR ALTER PROCEDURE Empleados.Guardaparque_Borrar
+@ID_Empleado BIGINT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -148,7 +148,7 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE EmpleadosGuardaparque.Borrar_Parque
+CREATE OR ALTER PROCEDURE Empleados.Guardaparque_Borrar_Parque
     @ID_Guardaparque BIGINT,
     @ID_Parque BIGINT,
     @Fecha_ingreso DATE
@@ -938,7 +938,7 @@ END
 GO 
 
 --------------------ATRACCIONES-----------------------
-CREATE OR ALTER PROCEDURE Tour.Borrar
+CREATE OR ALTER PROCEDURE Atracciones.Tour_Borrar
     @ID_Tour BIGINT
 AS
 BEGIN
@@ -982,7 +982,7 @@ GO
 
 
 
-CREATE OR ALTER PROCEDURE R_Tour.Borrar_Guia
+CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Guia
     @ID_Tour BIGINT,
     @ID_Guia BIGINT
 AS
@@ -1025,7 +1025,7 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE R_Tour.Borrar_Entrada
+CREATE OR ALTER PROCEDURE Atracciones.R_Tour_Borrar_Entrada
     @ID_Tour BIGINT,
     @ID_Entrada BIGINT
 AS

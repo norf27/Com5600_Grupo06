@@ -300,7 +300,7 @@ BEGIN
         DECLARE @ID_Empleado BIGINT;
 
         -- Llamada al agregado de Empleado. 
-        EXEC @ID_Empleado = Parque.AñadirEmpleado
+        EXEC @ID_Empleado = Empleados.AñadirEmpleado 
             @Nombre = @Nombre,
             @DNI = @DNI,
             @CUIL = @CUIL,
@@ -338,7 +338,7 @@ BEGIN
         DECLARE @Id BIGINT;
         SET @Detalles = TRIM(@Detalles);
 
-        IF @Detalles = '' OR LEN(@Detalles) > 100
+        IF @Detalles = '' OR LEN(@Detalles) > 100 OR @Detalles IS NULL
         BEGIN
             PRINT('Los detalles de la habilitacion no son validos.');
             RAISERROR('.', 16, 1);
@@ -383,13 +383,11 @@ BEGIN
         DECLARE @Id BIGINT;
         SET @Nombre = TRIM(@Nombre);
 
-        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100
+        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Nombre is null
         BEGIN
             PRINT('El nombre de la especialidad no es valido.');
             RAISERROR('.', 16, 1);
         END
-
-        SELECT @Id = ID FROM Empleados.Especialidad WHERE Nombre = @Nombre;
         
         IF @Id IS NOT NULL
         BEGIN
@@ -423,13 +421,13 @@ BEGIN
         SET @Nombre = TRIM(@Nombre);
         SET @Origen = TRIM(@Origen);
 
-        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100
+        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Nombre IS NULL
         BEGIN
             PRINT('El nombre del titulo no es valido.');
             RAISERROR('.', 16, 1);
         END
 
-        IF @Origen = '' OR @Origen LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100
+        IF @Origen = '' OR @Origen LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Origen IS NULL
         BEGIN
             PRINT('El origen del titulo no es valido.');
             RAISERROR('.', 16, 1);
@@ -777,6 +775,8 @@ BEGIN
 	IF @Nacimiento > DATEADD(YEAR,-18,CAST(GETDATE() AS DATE))
 	SET @Errores += CHAR(13) + '- El cliente debe ser mayor de edad';
 	
+    IF @Nacimiento IS NULL
+	SET @Errores += CHAR(13) + '- El nacimiento es obligatorio';
 	IF EXISTS
 	(
 		SELECT 1
@@ -888,7 +888,7 @@ BEGIN
 	IF NOT EXISTS
 	(
 		SELECT 1
-		FROM Ventas.Parque
+		FROM Parque.Parque
 		WHERE ID=@ID_parque
 	)
 	SET @Errores += CHAR(13)+'- El parque no existe';
