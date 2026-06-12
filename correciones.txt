@@ -1,0 +1,5 @@
+Correcciones:
+
+Anotaciones:
+-  Hacer anotaciones del primer DER y el ultimo, explicar cambios y eso
+- 
