@@ -9,7 +9,7 @@ GO
 
 
 --------------------PARQUE-----------------------
-create or alter procedure Parque.ModificarTipo_parque @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
+CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Modificar @ID INT, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -43,7 +43,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Parque.ModificarProvincia @ID bigint, @NuevoNombre varchar(100) as
+CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Modificar @ID tinyint, @NuevoNombre varchar(100) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -75,7 +75,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Parque.ModificarParque @ID bigint, @NuevaSuperficie int, @NuevoNombre varchar(100), @NuevoID_tipo bigint, @NuevoID_provincia bigint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @NuevaSuperficie int, @NuevoNombre varchar(100), @NuevoID_tipo INT, @NuevoID_provincia tinyint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -119,9 +119,9 @@ go
 
 --------------------EMPLEADOS-----------------------
 
-CREATE OR ALTER PROCEDURE Empleados.ModificarGuardaparque
-    @ID_Empleado BIGINT,
-    @NuevoID_Empleado BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Guardaparque_Modificar
+    @ID_Empleado INT,
+    @NuevoID_Empleado INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -171,12 +171,12 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE Empleados.ModificarR_Guardaparque_Parque
-    @ID_Guardaparque BIGINT,
-    @ID_Parque BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_GuardaparqueParque_Modificar
+    @ID_Guardaparque INT,
+    @ID_Parque INT,
     @Fecha_ingreso DATE,
-    @NuevoID_Guardaparque BIGINT,
-    @NuevoID_Parque BIGINT,
+    @NuevoID_Guardaparque INT,
+    @NuevoID_Parque INT,
     @NuevaFecha_ingreso DATE,
     @NuevaFecha_egreso DATE = NULL,
     @NuevoMotivo_egreso VARCHAR(255) = NULL
@@ -259,12 +259,12 @@ END;
 GO
 
 	
-create or alter procedure Empleados.ModificarEmpleado @ID bigint, @Nacimiento date,
+CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Modificar@ID INT, @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
 @Sueldo decimal(11,2),
 @Estado char(1),
-@ID_parque bigint,
+@ID_parque INT,
 @CUIL varchar(13) as
 BEGIN
     SET NOCOUNT ON;
@@ -325,14 +325,14 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Empleados.Modificar_Guia
-	@ID_Empleado BIGINT
+CREATE OR ALTER PROCEDURE Empleados.SP_Guia_Modificar
+	@ID_Empleado INT
 AS
 BEGIN
 	BEGIN TRY
 		SET NOCOUNT ON;
 
-		DECLARE @Id_Validacion BIGINT;
+		DECLARE @Id_Validacion INT;
 
 		SELECT @Id_Validacion = ID_Empleado
 		FROM Empleados.Guia
@@ -360,8 +360,8 @@ BEGIN
 	END CATCH
 END
 GO
-CREATE OR ALTER PROCEDURE Empleados.Modificar_Habilitacion
-	@ID BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Modificar
+	@ID INT,
 	@Detalles VARCHAR(100) = NULL,
 	@Fecha DATE = NULL
 AS
@@ -431,8 +431,8 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Modificar_Especialidad
-	@ID BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad_Modificar
+	@ID INT,
 	@Nombre VARCHAR(100) = NULL
 AS
 BEGIN
@@ -497,8 +497,8 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Modificar_Titulo
-	@ID BIGINT,
+CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Modificar
+	@ID INT,
 	@Nombre VARCHAR(100) = NULL,
 	@Fecha DATE = NULL,
 	@Origen VARCHAR(100) = NULL
@@ -603,15 +603,15 @@ GO
 --Las tablas de relacion solo tienen de campo los claves de las tablas que unen
 --funciones de modificacion son redundantes, pero fueron realizadas en caso de 
 --que se decida añadir algun atributo a futuro.
-CREATE OR ALTER PROCEDURE Empleados.Modificar_R_Guia_Habilitacion
-	@ID_Guia BIGINT,
-	@ID_Habilitacion BIGINT = NULL
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaHabilitacion_Modificar
+	@ID_Guia INT,
+	@ID_Habilitacion INT = NULL
 AS
 BEGIN
 	BEGIN TRY
 		SET NOCOUNT ON;
 
-		DECLARE @Id_Validacion BIGINT;
+		DECLARE @Id_Validacion INT;
 
 		SELECT TOP 1 @Id_Validacion = ID_Guia
 		FROM Empleados.R_Guia_Habilitacion
@@ -649,15 +649,15 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Modificar_R_Guia_Especialidad
-	@ID_Guia BIGINT,
-	@ID_Especialidad BIGINT = NULL
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaEspecialidad_Modificar
+	@ID_Guia INT,
+	@ID_Especialidad INT = NULL
 AS
 BEGIN
 	BEGIN TRY
 		SET NOCOUNT ON;
 
-		DECLARE @Id_Validacion BIGINT;
+		DECLARE @Id_Validacion INT;
 
 		SELECT TOP 1 @Id_Validacion = ID_Guia
 		FROM Empleados.R_Guia_Especialidad
@@ -695,15 +695,15 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.Modificar_R_Guia_Titulo
-	@ID_Guia BIGINT,
-	@ID_Titulo BIGINT = NULL
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaTitulo_Modificar
+	@ID_Guia INT,
+	@ID_Titulo INT = NULL
 AS
 BEGIN
 	BEGIN TRY
 		SET NOCOUNT ON;
 
-		DECLARE @Id_Validacion BIGINT;
+		DECLARE @Id_Validacion INT;
 
 		SELECT TOP 1 @Id_Validacion = ID_Guia
 		FROM Empleados.R_Guia_Titulo
@@ -741,7 +741,7 @@ BEGIN
 END
 GO
 --------------------CONSECIONES-----------------------
-create or alter procedure Concesiones.ModificarTipo_actividad @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
+CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Modificar @ID INT, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -775,7 +775,7 @@ BEGIN
 END;
 go
 
-create or alter procedure Concesiones.ModificarEmpresa @ID bigint,
+CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Modificar @ID INT,
 @NuevoNombre varchar(100),
 @NuevoCUIT varchar(13),
 @NuevoCorreo varchar(100) as
@@ -816,13 +816,13 @@ BEGIN
 END;
 go
 
-create or alter procedure Concesiones.ModificarConcesion
-        @ID BIGINT,
+CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Modificar
+        @ID INT,
         @Fecha_inicio DATE,
 		@Fecha_fin DATE,
-		@ID_empresa BIGINT,
-		@ID_tipo BIGINT,
-		@ID_parque BIGINT as
+		@ID_empresa INT,
+		@ID_tipo INT,
+		@ID_parque INT as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -870,12 +870,12 @@ END;
 go
 
 
-create or alter procedure Concesiones.ModificarPago_mensual 
-        @ID bigint, 
+CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Modificar
+        @ID INT, 
         @Fecha DATE,
 		@Monto DECIMAL(11,2),
 		@Metodo VARCHAR(100),
-		@ID_concesion BIGINT as
+		@ID_concesion INT as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(500) = ''
@@ -920,7 +920,7 @@ go
 --------------------VENTAS----------------------------
 CREATE OR ALTER PROCEDURE Ventas.SP_Cliente_Modificar
 (
-	@ID BIGINT,
+	@ID INT,
 	@Nombre VARCHAR(100),
 	@Documento VARCHAR(20),
 	@Tipo_doc VARCHAR(20),
@@ -971,7 +971,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_TipoVisitante_Modificar
 (
-@ID BIGINT,
+@ID INT,
 @Nombre VARCHAR(100)
 )
 AS
@@ -1015,7 +1015,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Modificar
 (
-	@ID BIGINT,
+	@ID INT,
 	@Fecha_desde DATE,
 	@Fecha_hasta DATE,
 	@Precio DECIMAL(11,2)
@@ -1058,10 +1058,10 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Modificar
 (
-	@ID BIGINT,
+	@ID INT,
 	@Fecha_acceso DATE,
-	@ID_cliente BIGINT,
-	@ID_tarifa BIGINT
+	@ID_cliente INT,
+	@ID_tarifa INT
 )
 AS
 BEGIN
@@ -1115,7 +1115,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Modificar
 (
-	@ID BIGINT,
+	@ID INT,
 	@Fecha DATETIME,
 	@Total DECIMAL(11,2),
 	@Cantidad INT,
@@ -1167,7 +1167,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Modificar
 (
-	@ID BIGINT,
+	@ID INT,
 	@Metodo VARCHAR(100),
 	@Monto DECIMAL(11,2),
 	@Estado CHAR(1)
@@ -1214,8 +1214,8 @@ GO
 
 --------------------ATRACCIONES-----------------------
 
-CREATE OR ALTER PROCEDURE ModificarTour
-    @ID_Tour BIGINT,
+CREATE OR ALTER PROCEDURE Atracciones.SP_Tour_Modificar
+    @ID_Tour INT,
     @Costo DECIMAL(11,2),
     @Cupo_max INT,
     @Tipo CHAR(1),
@@ -1279,11 +1279,11 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE ModificarR_Tour_Guia
-    @ID_Tour BIGINT,
-    @ID_Guia BIGINT,
-    @NuevoID_Tour BIGINT,
-    @NuevoID_Guia BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_TourGuia_Modificar
+    @ID_Tour INT,
+    @ID_Guia INT,
+    @NuevoID_Tour INT,
+    @NuevoID_Guia INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1343,11 +1343,11 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE ModificarR_Tour_Entrada
-    @ID_Tour BIGINT,
-    @ID_Entrada BIGINT,
-    @NuevoID_Tour BIGINT,
-    @NuevoID_Entrada BIGINT
+CREATE OR ALTER PROCEDURE Atracciones.SP_TourEntrada_Modificar
+    @ID_Tour INT,
+    @ID_Entrada INT,
+    @NuevoID_Tour INT,
+    @NuevoID_Entrada INT
 AS
 BEGIN
     SET NOCOUNT ON;
