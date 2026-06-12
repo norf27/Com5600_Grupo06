@@ -8,7 +8,7 @@ GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
 --------------------PARQUE-----------------------
-create or alter procedure ModificarTipo_parque @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
+create or alter procedure Parque.ModificarTipo_parque @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -42,7 +42,7 @@ BEGIN
 END;
 go
 
-create or alter procedure ModificarProvincia @ID bigint, @NuevoNombre varchar(100) as
+create or alter procedure Parque.ModificarProvincia @ID bigint, @NuevoNombre varchar(100) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -74,7 +74,7 @@ BEGIN
 END;
 go
 
-create or alter procedure ModificarParque @ID bigint, @NuevaSuperficie int, @NuevoNombre varchar(100), @NuevoID_tipo bigint, @NuevoID_provincia bigint as
+create or alter procedure Parque.ModificarParque @ID bigint, @NuevaSuperficie int, @NuevoNombre varchar(100), @NuevoID_tipo bigint, @NuevoID_provincia bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -118,7 +118,7 @@ go
 
 --------------------EMPLEADOS-----------------------
 
-CREATE OR ALTER PROCEDURE ModificarGuardaparque
+CREATE OR ALTER PROCEDURE Empleados.ModificarGuardaparque
     @ID_Empleado BIGINT,
     @NuevoID_Empleado BIGINT
 AS
@@ -170,7 +170,7 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE ModificarR_Guardaparque_Parque
+CREATE OR ALTER PROCEDURE Empleados.ModificarR_Guardaparque_Parque
     @ID_Guardaparque BIGINT,
     @ID_Parque BIGINT,
     @Fecha_ingreso DATE,
@@ -258,7 +258,7 @@ END;
 GO
 
 	
-create or alter procedure ModificarEmpleado @ID bigint, @Nacimiento date,
+create or alter procedure Empleados.ModificarEmpleado @ID bigint, @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
 @Sueldo decimal(11,2),
@@ -740,7 +740,7 @@ BEGIN
 END
 GO
 --------------------CONSECIONES-----------------------
-create or alter procedure ModificarTipo_actividad @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
+create or alter procedure Concesiones.ModificarTipo_actividad @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -774,7 +774,7 @@ BEGIN
 END;
 go
 
-create or alter procedure ModificarEmpresa @ID bigint,
+create or alter procedure Concesiones.ModificarEmpresa @ID bigint,
 @NuevoNombre varchar(100),
 @NuevoCUIT varchar(13),
 @NuevoCorreo varchar(100) as
@@ -815,7 +815,7 @@ BEGIN
 END;
 go
 
-create or alter procedure ModificarConcesion
+create or alter procedure Concesiones.ModificarConcesion
         @ID BIGINT,
         @Fecha_inicio DATE,
 		@Fecha_fin DATE,
@@ -869,7 +869,7 @@ END;
 go
 
 
-create or alter procedure ModificarPago_mensual 
+create or alter procedure Concesiones.ModificarPago_mensual 
         @ID bigint, 
         @Fecha DATE,
 		@Monto DECIMAL(11,2),
