@@ -106,7 +106,7 @@ go
 --------------------EMPLEADOS-----------------------
 
 -- Alta de guardaparque: registra como guardaparque a un empleado existente.
-CREATE OR ALTER PROCEDURE Empleado.AnadirGuardaparque
+CREATE OR ALTER PROCEDURE Empleados.AnadirGuardaparque
     @ID_Empleado BIGINT
 AS
 BEGIN
@@ -148,7 +148,7 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE Empleado.AnadirR_Guardaparque_Parque
+CREATE OR ALTER PROCEDURE Empleados.AnadirR_Guardaparque_Parque
     @ID_Guardaparque BIGINT,
     @ID_Parque BIGINT,
     @Fecha_ingreso DATE,
@@ -224,7 +224,7 @@ END;
 GO
 
 
-create or alter procedure Empleado.AñadirEmpleado 
+create or alter procedure Empleados.AñadirEmpleado 
 @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
