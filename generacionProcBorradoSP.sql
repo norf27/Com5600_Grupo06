@@ -8,7 +8,7 @@ GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
 --------------------PARQUE-----------------------
-create or alter procedure BorrarTipo_parque @ID bigint as 
+create or alter procedure Parque.BorrarTipo_parque @ID bigint as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -38,7 +38,7 @@ BEGIN
 END;
 go
 
-create or alter procedure BorrarProvincia @ID bigint as
+create or alter procedure Parque.BorrarProvincia @ID bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -68,7 +68,7 @@ BEGIN
 END;
 go
 
-create or alter procedure BorrarParque @ID bigint as
+create or alter procedure Parque.BorrarParque @ID bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -107,7 +107,7 @@ END;
 go
 --------------------EMPLEADOS-----------------------
 	
-CREATE OR ALTER PROCEDURE Guardaparque.Borrar
+CREATE OR ALTER PROCEDURE Empleados.Guardaparque.Borrar
     @ID_Empleado BIGINT
 AS
 BEGIN
@@ -148,7 +148,7 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE Guardaparque.Borrar_Parque
+CREATE OR ALTER PROCEDURE EmpleadosGuardaparque.Borrar_Parque
     @ID_Guardaparque BIGINT,
     @ID_Parque BIGINT,
     @Fecha_ingreso DATE
@@ -201,7 +201,7 @@ END;
 GO
 
 	
-create or alter procedure BorrarEmpleado @ID bigint as --es borrado logico
+create or alter procedure EmpleadosBorrarEmpleado @ID bigint as --es borrado logico
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -589,7 +589,7 @@ END
 GO
 
 --------------------CONSECIONES-----------------------
-create or alter procedure BorrarTipo_actividad @ID bigint as 
+create or alter procedure Concesiones.BorrarTipo_actividad @ID bigint as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -622,7 +622,7 @@ go
 --el borrado lo hago pero igual nunca se deberia usar ya que concesiones guarda el historico asi que nunca vas a poder borrar una empresa
 --que fue parte de una concesion pero bueno
 
-create or alter procedure BorrarEmpresa @ID bigint as
+create or alter procedure Concesiones.BorrarEmpresa @ID bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -655,7 +655,7 @@ END;
 go
 
 --una concesion nunca se puede borrar, ya que deberia quedar el historico pero igual lo hago x las dudas
-create or alter procedure BorrarConcesion @ID bigint as
+create or alter procedure Concesiones.BorrarConcesion @ID bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(500) = ''
@@ -685,7 +685,7 @@ BEGIN
 END;
 go
 
-create or alter procedure BorrarPago_mensual @ID bigint as
+create or alter procedure Concesiones.BorrarPago_mensual @ID bigint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(500) = ''
