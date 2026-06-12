@@ -8,7 +8,61 @@ GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
 --------------------PARQUE-----------------------
+create or alter procedure Parque.AñadirTipo_parque @Nombre varchar(100), @Descripcion varchar(250) as
+BEGIN
+    SET NOCOUNT ON;
+    declare @error varchar(max) = ''
+        if @Nombre is null
+            set @error = @error + 'El nombre no puede ser null' + char(10)
+        if @Descripcion is null
+            set @error = @error + 'La descripcion no puede ser null' + char(10)
+        if exists (select 1 from Parque.Tipo_parque where Nombre = @Nombre)
+            set @error += 'El tipo de parque "' + @Nombre +'" ya existe en la tabla' + char(10)
+        if @error != ''
+            throw 50001, @error, 1;
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        insert into Parque.Tipo_parque(Nombre, Descripcion) values (@Nombre, @Descripcion)
+        COMMIT;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        THROW;
+    END CATCH;
+END;
+go
+
+create or alter procedure Parque.AñadirProvincia @Nombre varchar(100) as
+BEGIN
+    SET NOCOUNT ON;
+    declare @error varchar(max) = ''
+        if @Nombre is null
+            set @error += 'El nombre no puede ser null' + char(10)
+        if exists (select 1 from Parque.Provincia where Nombre = @Nombre)
+            set @error += 'La provincia "' + @Nombre +'" ya existe en la tabla' + char(10)
+        if @error != ''
+            throw 50001, @error, 1;
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        insert into Parque.Provincia(Nombre) values (@Nombre)
+        COMMIT;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+       
+        THROW;
+    END CATCH;
+END;
+go
 create or alter procedure Parque.AñadirParque @Superficie int, @Nombre varchar(100), @ID_tipo bigint, @ID_provincia bigint as
 BEGIN
     SET NOCOUNT ON;
