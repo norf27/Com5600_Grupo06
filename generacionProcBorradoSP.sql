@@ -7,6 +7,7 @@ USE sist_gestion_parques
 GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
+
 --------------------PARQUE-----------------------
 create or alter procedure Parque.BorrarTipo_parque @ID bigint as 
 BEGIN

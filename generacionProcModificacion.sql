@@ -7,6 +7,7 @@ USE sist_gestion_parques
 GO
 ------------- CREACION DE STORE PROCEDURE -------------
 
+
 --------------------PARQUE-----------------------
 create or alter procedure Parque.ModificarTipo_parque @ID bigint, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
 BEGIN

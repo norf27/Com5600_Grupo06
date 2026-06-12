@@ -893,6 +893,7 @@ BEGIN
 	)
 	SET @Errores += CHAR(13)+'- El parque no existe';
 	
+
 	-- ERRORES
 	
 	IF @Errores<>''
