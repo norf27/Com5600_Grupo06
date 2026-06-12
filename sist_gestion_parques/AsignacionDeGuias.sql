@@ -6,8 +6,8 @@ Procedimiento de negocio para la asignacion de guias a tours existentes.
 */
 CREATE OR ALTER PROCEDURE Atracciones.AsignarGuiaTour
 (
-    @ID_Guia BIGINT,
-    @ID_Tour BIGINT
+    @ID_Guia INT,
+    @ID_Tour INT
 )
 AS
 BEGIN
