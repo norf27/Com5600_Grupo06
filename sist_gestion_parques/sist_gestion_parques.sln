@@ -6,9 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		AsignacionDeGuias.sql = AsignacionDeGuias.sql
-		generacionProcAgregadoSP.sql = generacionProcAgregadoSP.sql
-		generacionProcBorradoSP.sql = generacionProcBorradoSP.sql
-		generacionProcModificacion.sql = generacionProcModificacion.sql
+		generacionProcAltaSP.sql = generacionProcAltaSP.sql
+		generacionProcBajaSP.sql = generacionProcBajaSP.sql
+		generacionProcModificar.sql = generacionProcModificar.sql
 		generacionTablasSP.sql = generacionTablasSP.sql
 		gestionDeConcesiones.sql = gestionDeConcesiones.sql
 		RegistroDeAactividades.sql = RegistroDeAactividades.sql
@@ -20,7 +20,7 @@ Global
 		Default|Default = Default|Default
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BEB7687B-FB97-4ED6-BB3E-F4721BB5FD6C}.Default|Default.ActiveCfg = Default
+		{D99285E4-31F2-40CC-AAE3-4132601EBB64}.Default|Default.ActiveCfg = Default
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
