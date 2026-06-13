@@ -66,7 +66,9 @@ BEGIN
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Nombre VARCHAR(100) NOT NULL,
-		Descripcion VARCHAR(250) NOT NULL
+		Descripcion VARCHAR(250) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tipo_parque CHECK (Estado in ('A', 'I'))
 	);
 END
 
@@ -75,7 +77,9 @@ BEGIN
 	CREATE TABLE Parque.Provincia
 	(
 		ID TINYINT PRIMARY KEY CLUSTERED IDENTITY(1,1), --no usar INT, usar tinyint
-		Nombre VARCHAR(100) NOT NULL UNIQUE
+		Nombre VARCHAR(100) NOT NULL UNIQUE,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Provincia CHECK (Estado in ('A', 'I'))
 	);
 END
 
@@ -88,6 +92,8 @@ BEGIN
 		Nombre VARCHAR(100) NOT NULL,
 		ID_tipo INT NOT NULL,
 		ID_provincia TINYINT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Parque CHECK (Estado in ('A', 'I')),
 		CONSTRAINT check_superficie CHECK (superficie > 0),
 		CONSTRAINT FK_tipo_parque FOREIGN KEY (ID_tipo) REFERENCES Parque.Tipo_parque(ID),
 		CONSTRAINT FK_provincia FOREIGN KEY (ID_provincia) REFERENCES Parque.Provincia(ID)
@@ -111,13 +117,13 @@ BEGIN
 		CONSTRAINT check_sueldo CHECK (sueldo > 0),
 		CONSTRAINT check_nacimiento CHECK (nacimiento <= DATEADD(YEAR, -18, CAST(GETDATE() AS DATE))), 
 		CONSTRAINT check_CUIL CHECK (CUIL LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'),
-		CONSTRAINT check_Estado CHECK (Estado IN ('i','a','l','v'))
+		CONSTRAINT check_Estado_Empleado CHECK (Estado IN ('i','a','l','v'))
 	);
 END
 
 IF OBJECT_ID('Empleados.Guardaparque', 'U') IS NULL
 BEGIN
-	CREATE TABLE Empleados.Guardaparque 
+	CREATE TABLE Empleados.Guardaparque --no tiene estado porque el estado de guardaparque se maneja desde empleado
 	(
 		ID_Empleado INT PRIMARY KEY,
 		CONSTRAINT FK_Guardaparque_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleados.Empleado(ID) ON DELETE CASCADE
@@ -126,7 +132,7 @@ END
     
 IF OBJECT_ID('Empleados.R_Guardaparque_Parque', 'U') IS NULL
 BEGIN
-	CREATE TABLE Empleados.R_Guardaparque_Parque 
+	CREATE TABLE Empleados.R_Guardaparque_Parque --no tiene estado porque el estado de guardaparque se maneja desde empleado
 	(
 		ID_Guardaparque INT,
 		ID_Parque INT, 
@@ -147,7 +153,7 @@ END
 
 IF OBJECT_ID('Empleados.Guia', 'U') IS NULL
 BEGIN
-	CREATE TABLE Empleados.Guia 
+	CREATE TABLE Empleados.Guia --no tiene estado porque el estado de guia se maneja desde empleado
 	(
 		ID_Empleado INT PRIMARY KEY,
 		CONSTRAINT FK_Guia_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleados.Empleado(ID) ON DELETE CASCADE
@@ -160,7 +166,9 @@ BEGIN
 	(
 		ID INT IDENTITY(1,1) PRIMARY KEY,
 		Detalles VARCHAR(100) NOT NULL,
-		Fecha DATE NOT NULL
+		Fecha DATE NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Habilitacion CHECK (Estado in ('A', 'I'))
 	);
 END
     
@@ -170,6 +178,8 @@ BEGIN
 	(
 		ID_Guia INT,
 		ID_Habilitacion INT,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado CHECK (Estado in ('A', 'I')),
 		PRIMARY KEY (ID_Guia, ID_Habilitacion),
 		CONSTRAINT FK_GuiaHabilitacion_Guia FOREIGN KEY (ID_Guia) REFERENCES Empleados.Guia(ID_Empleado),
 		CONSTRAINT FK_GuiaHabilitacion_Habilitacion FOREIGN KEY (ID_Habilitacion) REFERENCES Empleados.Habilitacion(ID)
@@ -181,7 +191,9 @@ BEGIN
 	CREATE TABLE Empleados.Especialidad 
 	(
 		ID INT IDENTITY(1,1) PRIMARY KEY,
-		Nombre VARCHAR(100) NOT NULL
+		Nombre VARCHAR(100) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Especialidad CHECK (Estado in ('A', 'I'))
 	);
 END
     
@@ -204,7 +216,9 @@ BEGIN
 		ID INT IDENTITY(1,1) PRIMARY KEY,
 		Nombre VARCHAR(100) NOT NULL,
 		Fecha DATE NOT NULL,
-		Origen VARCHAR(100) NOT NULL
+		Origen VARCHAR(100) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Titulo CHECK (Estado in ('A', 'I'))
 	);
 END
 
@@ -228,7 +242,9 @@ BEGIN
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Nombre VARCHAR(100) NOT NULL UNIQUE,
-		Descripcion VARCHAR(250) NOT NULL
+		Descripcion VARCHAR(250) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tipo_actividad CHECK (Estado in ('A', 'I'))
 	);
 END
 
@@ -240,7 +256,9 @@ BEGIN
 		Nombre VARCHAR(100) NOT NULL,
 		CUIT VARCHAR(13) NOT NULL UNIQUE,
 		Correo VARCHAR(100) NOT NULL,
-		CONSTRAINT check_CUIT CHECK (CUIT LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Empresa CHECK (Estado in ('A', 'I')),
+		CONSTRAINT check_CUIT CHECK (CUIT LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'),
 	);
 END
 
@@ -254,6 +272,9 @@ BEGIN
 		ID_empresa INT NOT NULL,
 		ID_tipo INT NOT NULL,
 		ID_parque INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo. no hace referencia a si se encuentra en proceso actualmente
+		--sino a si se debe tener en cuenta al recorrer la tabla o no
+		CONSTRAINT check_Estado_Concesion CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_empresa FOREIGN KEY (ID_empresa) REFERENCES Concesiones.Empresa(ID),
 		CONSTRAINT FK_tipo_actividad FOREIGN KEY (ID_tipo) REFERENCES Concesiones.Tipo_actividad(ID),
 		CONSTRAINT FK_parque FOREIGN KEY (ID_parque) REFERENCES Parque.Parque(ID)
@@ -269,6 +290,9 @@ BEGIN
 		Monto DECIMAL(11,2) NOT NULL,
 		Metodo VARCHAR(100) NOT NULL,
 		ID_concesion INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo. no hace referencia al estado del pago mensual (EJ: adeudado o pago)
+		--solo hace referencia a si se debe tener en cuenta al recorrer la tabla
+		CONSTRAINT check_Estado_Pago_mensual CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_concesion FOREIGN KEY (ID_concesion) REFERENCES Concesiones.Concesion(ID),
 		CONSTRAINT check_monto CHECK (monto > 0),
 	);
@@ -280,7 +304,9 @@ BEGIN
 	CREATE TABLE Ventas.Tipo_visitante
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
-		Nombre VARCHAR(100) NOT NULL UNIQUE
+		Nombre VARCHAR(100) NOT NULL UNIQUE,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tipo_visitante CHECK (Estado in ('A', 'I'))
 	);
 END
 
@@ -293,6 +319,8 @@ BEGIN
 		Documento VARCHAR(20) NOT NULL UNIQUE,
 		Tipo_doc VARCHAR(20) NOT NULL,
 		Nacimiento DATE NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Cliente CHECK (Estado in ('A', 'I')),
 		CONSTRAINT CK_cliente_nacimiento CHECK (Nacimiento <= CAST(GETDATE() AS DATE)),
 		CONSTRAINT CK_cliente_documento CHECK (Documento LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
 	);
@@ -300,14 +328,17 @@ END
 
 IF OBJECT_ID('Ventas.Tarifa', 'U') IS NULL
 BEGIN
-	CREATE TABLE Ventas.Tarifa
+	CREATE TABLE Ventas.Tarifa  
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Fecha_desde DATE NOT NULL,
-		Fecha_hasta DATE NOT NULL,
+		Fecha_hasta DATE NULL,
 		Precio DECIMAL(11,2) NOT NULL,
 		ID_tipo_visitante INT NOT NULL,
 		ID_parque INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo. no hace referencia a si se encuentra actualmente activa el tipo de tarifa
+		--eso se ve usando fecha_hasta, es solo para ver si se toma en cuenta al recorrer la tabla o no
+		CONSTRAINT check_Estado_Tarifa CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_tarifa_tipo_visitante FOREIGN KEY (ID_tipo_visitante) REFERENCES Ventas.Tipo_visitante(ID),
 		CONSTRAINT FK_tarifa_parque FOREIGN KEY (ID_parque) REFERENCES Parque.Parque(ID),
 		CONSTRAINT CK_tarifa_precio CHECK (Precio > 0),
@@ -324,6 +355,8 @@ BEGIN
 		Total DECIMAL(11,2) NOT NULL,
 		Cantidad INT NOT NULL,
 		Punto_venta VARCHAR(100) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Compra CHECK (Estado in ('A', 'I')),
 		CONSTRAINT CK_compra_total CHECK (Total >= 0),
 		CONSTRAINT CK_compra_cantidad CHECK (Cantidad > 0)
 	);
@@ -340,7 +373,8 @@ BEGIN
 		ID_compra INT NOT NULL UNIQUE,
 		CONSTRAINT FK_pago_compra FOREIGN KEY (ID_compra) REFERENCES Ventas.Compra(ID),
 		CONSTRAINT CK_pago_monto CHECK (Monto > 0),
-		CONSTRAINT CK_pago_estado CHECK (Estado IN ('P','A','R')) -- Pendiente / Aprobado / Rechazado
+		CONSTRAINT CK_pago_estado_Pago CHECK (Estado IN ('P','C','R', 'A', 'I')) -- Pendiente / Confirmado / Rechazado / Activo / Inactivo
+		--activo e inactivo no son para ver el estado del pago, sino para ver si se debe tomar en cuenta la fila o no al recorrer la tabla
 	);
 END
 
@@ -353,6 +387,9 @@ BEGIN
 		ID_cliente INT NOT NULL,
 		ID_tarifa INT NOT NULL,
 		ID_compra INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo. no se refiere a si la entrada se puede usar en el parque o no
+		--solo a si se debe tener en cuenta a la hora de leer la tabla
+		CONSTRAINT check_Estado_Entrada CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_entrada_cliente FOREIGN KEY (ID_cliente) REFERENCES Ventas.Cliente(ID),
 		CONSTRAINT FK_entrada_tarifa FOREIGN KEY (ID_tarifa) REFERENCES Ventas.Tarifa(ID),
 		CONSTRAINT FK_entrada_compra FOREIGN KEY (ID_compra) REFERENCES Ventas.Compra(ID)
@@ -369,6 +406,8 @@ BEGIN
 		Cupo_max INT NOT NULL,
 		Tipo CHAR (1) NOT NULL,
 		Duracion INT NOT NULL, -- minutos
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tour CHECK (Estado in ('A', 'I')),
 		CONSTRAINT check_cupo CHECK (Cupo_max > 0),
 		CONSTRAINT check_duracion CHECK (Duracion > 0)
 	);
