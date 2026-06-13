@@ -7,7 +7,7 @@ Anotaciones:
 
 TAREAS:
   TP 5: 
-  - hacer que los borrados de los procedure sean logicos (cada uno el suyo)
+  - hacer que los borrados de los procedure sean logicos (cada uno el suyo) modificar baja y modificar
   - hacer casos de prueba de la logica de negocios (cada uno el suyo)
   TP 6:
   - FORMATOS: 2 CSV, 2 JSON
