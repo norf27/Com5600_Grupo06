@@ -9,7 +9,7 @@ GO
 
 
 --------------------PARQUE-----------------------
-CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Modificar @ID INT, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
+CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Modificar @ID INT, @NuevoNombre varchar(100),@NuevaDesc varchar(250), @Estado char(1) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -23,11 +23,15 @@ BEGIN
             set @error = @error + 'El nombre no puede ser null' + char(10)
         if exists(select 1 from Parque.Tipo_parque where Nombre = @NuevoNombre and ID != @ID)
             set @error += 'El tipo de parque "' + @NuevoNombre +'" ya existe en la tabla Tipo_parque' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Tipo_parque set Descripcion = @NuevaDesc, Nombre = @NuevoNombre where ID = @ID
+        update Parque.Tipo_parque set Descripcion = @NuevaDesc, Nombre = @NuevoNombre, Estado = @Estado where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -43,7 +47,7 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Modificar @ID tinyint, @NuevoNombre varchar(100) as
+CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Modificar @ID tinyint, @NuevoNombre varchar(100), @Estado char(1) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -55,11 +59,15 @@ BEGIN
             set @error += 'El nombre no puede ser null' + char(10)
         if exists (select 1 from Parque.Provincia where Nombre = @NuevoNombre and ID != @ID)
             set @error += 'El nombre ya existe' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Provincia set Nombre = @NuevoNombre where ID = @ID
+        update Parque.Provincia set Nombre = @NuevoNombre, Estado = @Estado where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -75,7 +83,7 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @NuevaSuperficie int, @NuevoNombre varchar(100), @NuevoID_tipo INT, @NuevoID_provincia tinyint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @NuevaSuperficie int, @NuevoNombre varchar(100), @NuevoID_tipo INT, @NuevoID_provincia tinyint, @Estado char(1) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -97,11 +105,15 @@ BEGIN
             set @error += 'El ID_provincia no puede ser null' + char(10)
         if not exists (select 1 from Parque.Provincia where ID = @NuevoID_provincia)
             set @error += 'El ID_provincia no existe' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Parque set Superficie = @NuevaSuperficie, Nombre = @NuevoNombre, ID_tipo = @NuevoID_tipo, ID_provincia = @NuevoID_provincia where ID = @ID
+        update Parque.Parque set Estado = @Estado, Superficie = @NuevaSuperficie, Nombre = @NuevoNombre, ID_tipo = @NuevoID_tipo, ID_provincia = @NuevoID_provincia where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -259,7 +271,7 @@ END;
 GO
 
 	
-CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Modificar@ID INT, @Nacimiento date,
+CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Modificar @ID INT, @Nacimiento date,
 @DNI varchar(8),
 @Nombre varchar(100),
 @Sueldo decimal(11,2),
@@ -363,7 +375,8 @@ GO
 CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Modificar
 	@ID INT,
 	@Detalles VARCHAR(100) = NULL,
-	@Fecha DATE = NULL
+	@Fecha DATE = NULL,
+	@Estado char(1)
 AS
 BEGIN
 	BEGIN TRY
@@ -417,6 +430,11 @@ BEGIN
 				WHERE ID = @ID;
 			END
 		END
+		IF @Estado IS NULL OR @Estado NOT IN ('A','I')
+		BEGIN
+			PRINT('El estado no es valido.');
+			RAISERROR('.', 16, 1);
+		END
 
 		PRINT('Habilitacion actualizada correctamente.');
 	END TRY
@@ -433,7 +451,8 @@ GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad_Modificar
 	@ID INT,
-	@Nombre VARCHAR(100) = NULL
+	@Nombre VARCHAR(100) = NULL,
+	@Estado char(1)
 AS
 BEGIN
 	BEGIN TRY
@@ -482,6 +501,12 @@ BEGIN
 				SET Nombre = @Nombre
 				WHERE ID = @ID;
 			END
+		END
+
+		IF @Estado IS NULL OR @Estado NOT IN ('A','I')
+		BEGIN
+			PRINT('El estado no es valido.');
+			RAISERROR('.', 16, 1);
 		END
 
 		PRINT('Especialidad actualizada correctamente.');
