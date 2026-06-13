@@ -823,7 +823,10 @@ BEGIN
 		WHERE Documento=@Documento
 	)
 	SET @Errores += CHAR(13) + '- Ya existe un cliente con ese documento';
-	
+
+	declare @ID int, @Estado char(1)
+	select @ID = ID, @Estado = Estado from Ventas.Cliente where Documento = @Documento AND Tipo_doc = @Tipo_doc
+
 	-- ERRORES
 	
 	IF @Errores <> ''
@@ -832,21 +835,23 @@ BEGIN
 	END
 	
 	-- INSERT
-	
-	INSERT INTO Ventas.Cliente
-	(
-		Nombre,
-		Documento,
-		Tipo_doc,
-		Nacimiento
-	)
-	VALUES
-	(
-		@Nombre,
-		@Documento,
-		@Tipo_doc,
-		@Nacimiento
-	);
+	if @ID is not NULL
+		update Ventas.Cliente set Estado='a' where ID = @ID
+	else 
+		INSERT INTO Ventas.Cliente
+		(
+			Nombre,
+			Documento,
+			Tipo_doc,
+			Nacimiento			
+		)
+		VALUES
+		(
+			@Nombre,
+			@Documento,
+			@Tipo_doc,
+			@Nacimiento
+		);
 	
 	PRINT 'Cliente registrado correctamente';
     RETURN SCOPE_IDENTITY();
@@ -876,7 +881,9 @@ BEGIN
 		WHERE Nombre=@Nombre
 	)
 	SET @Errores += CHAR(13) + '- Ya existe un tipo de visitante con ese nombre';
-	
+
+	declare @ID int, @Estado char(1)
+	select @ID = ID, @Estado = Estado from Ventas.Tipo_visitante where Nombre = @Nombre
 	
 	-- ERRORES
 	
@@ -886,9 +893,11 @@ BEGIN
 	END
 	
 	-- INSERT
-	
-	INSERT INTO Ventas.Tipo_visitante(Nombre)
-	VALUES(@Nombre);
+	if @ID is not NULL
+		update Ventas.Tipo_visitante set Estado='a' where ID = @ID
+	else 
+		INSERT INTO Ventas.Tipo_visitante(Nombre)
+		VALUES(@Nombre);
 	
 	PRINT 'Tipo de visitante registrado correctamente';
     RETURN SCOPE_IDENTITY();
@@ -932,7 +941,8 @@ BEGIN
 	)
 	SET @Errores += CHAR(13)+'- El parque no existe';
 	
-
+	declare @ID int, @Estado char(1)
+	select @ID = ID, @Estado = Estado from Ventas.Tarifa where ID_tipo_visitante = @ID_tipo_visitante AND ID_parque = @ID_parque
 	-- ERRORES
 	
 	IF @Errores<>''
@@ -941,23 +951,25 @@ BEGIN
 	END
 	
 	-- INSERT
-	
-	INSERT INTO Ventas.Tarifa
-	(
-		Fecha_desde,
-		Fecha_hasta,
-		Precio,
-		ID_tipo_visitante,
-		ID_parque
-	)
-	VALUES
-	(
-		@Fecha_desde,
-		@Fecha_hasta,
-		@Precio,
-		@ID_tipo_visitante,
-		@ID_parque
-	);
+	if @ID is not NULL
+		update Ventas.Tarifa set Estado='a' where ID = @ID
+	else 
+		INSERT INTO Ventas.Tarifa
+		(
+			Fecha_desde,
+			Fecha_hasta,
+			Precio,
+			ID_tipo_visitante,
+			ID_parque
+		)
+		VALUES
+		(
+			@Fecha_desde,
+			@Fecha_hasta,
+			@Precio,
+			@ID_tipo_visitante,
+			@ID_parque
+		);
     RETURN SCOPE_IDENTITY();
 END
 GO 
@@ -1002,7 +1014,10 @@ BEGIN
 	WHERE ID=@ID_compra
 	)
 	SET @Errores += CHAR(13) + '- La compra no existe';
-	
+
+	declare @ID int, @Estado char(1)
+	select @ID = ID, @Estado = Estado from Ventas.Entrada where ID_compra = @ID_compra AND ID_tarifa = @ID_tarifa AND ID_cliente = @ID_cliente
+
 	-- ERRORES
 	
 	IF @Errores <> ''
@@ -1011,21 +1026,23 @@ BEGIN
 	END
 	
 	-- INSERT
-	
-	INSERT INTO Ventas.Entrada
-	(
-	Fecha_acceso,
-	ID_cliente,
-	ID_tarifa,
-	ID_compra
-	)
-	VALUES
-	(
-	@Fecha_acceso,
-	@ID_cliente,
-	@ID_tarifa,
-	@ID_compra
-	);
+	if @ID is not NULL
+		update Ventas.Entrada set Estado='a' where ID = @ID
+	else 
+		INSERT INTO Ventas.Entrada
+		(
+		Fecha_acceso,
+		ID_cliente,
+		ID_tarifa,
+		ID_compra
+		)
+		VALUES
+		(
+		@Fecha_acceso,
+		@ID_cliente,
+		@ID_tarifa,
+		@ID_compra
+		);
 	
 	PRINT 'Entrada registrada correctamente';
     RETURN SCOPE_IDENTITY();
@@ -1058,7 +1075,10 @@ BEGIN
 	IF @Punto_venta IS NULL
 	OR LTRIM(RTRIM(@Punto_venta))=''
 	SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
-	
+
+	declare @ID int, @Estado char(1)
+	select @ID = ID, @Estado = Estado from Ventas.Compra where Punto_venta = @Punto_venta AND Total = @Total AND Fecha = @Fecha
+
 	-- ERRORES
 	
 	IF @Errores <> ''
@@ -1066,7 +1086,10 @@ BEGIN
 		THROW 50001, @Errores, 1;
 	END
 	
-	INSERT INTO Ventas.Compra
+	if @ID is not NULL
+			update Ventas.Compra set Estado='a' where ID = @ID
+		else 
+			INSERT INTO Ventas.Compra
 	(
 		Fecha,
 		Total,
@@ -1090,7 +1113,7 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Alta
 (
 	@Metodo VARCHAR(100),
 	@Monto DECIMAL(11,2),
-	@Estado CHAR(1),
+	@Estados CHAR(1),
 	@ID_compra int
 )
 AS
@@ -1107,7 +1130,7 @@ BEGIN
 	IF @Monto <= 0
 	SET @Errores += CHAR(13) + '- El monto debe ser mayor a cero';
 	
-	IF @Estado NOT IN ('P','A','R')
+	IF @Estados NOT IN ('P','A','R')
 	SET @Errores += CHAR(13) + '- Estado inválido (P=Pendiente, A=Aprobado, R=Rechazado)';
 	
 	IF NOT EXISTS
@@ -1125,7 +1148,9 @@ BEGIN
 		WHERE ID_compra=@ID_compra
 	)
 	SET @Errores += CHAR(13) + '- La compra ya posee un pago asociado';
-	
+
+	declare @ID int, @Estado char(1)
+	select @ID = ID, @Estado = Estado from Ventas.Pago where ID_compra = @ID_compra AND Monto = @Monto
 	-- ERRORES
 	
 	IF @Errores <> ''
@@ -1134,21 +1159,23 @@ BEGIN
 	END
 	
 	-- INSERT
-	
-	INSERT INTO Ventas.Pago
-	(
-		Metodo,
-		Monto,
-		Estado,
-		ID_compra
-	)
-	VALUES
-	(
-		@Metodo,
-		@Monto,
-		@Estado,
-		@ID_compra
-	);
+	if @ID is not NULL
+		update Ventas.Pago set Estado='a' where ID = @ID
+	else 
+		INSERT INTO Ventas.Pago
+		(
+			Metodo,
+			Monto,
+			Estado,
+			ID_compra
+		)
+		VALUES
+		(
+			@Metodo,
+			@Monto,
+			@Estados,
+			@ID_compra
+		);
 	
 	PRINT 'Pago registrado correctamente';
     RETURN SCOPE_IDENTITY();
