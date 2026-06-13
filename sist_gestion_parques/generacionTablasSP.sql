@@ -322,7 +322,6 @@ BEGIN
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		CONSTRAINT check_Estado_Cliente CHECK (Estado in ('A', 'I')),
 		CONSTRAINT CK_cliente_nacimiento CHECK (Nacimiento <= CAST(GETDATE() AS DATE)),
-		CONSTRAINT CK_cliente_documento CHECK (Documento LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
 	);
 END
 
@@ -404,7 +403,7 @@ BEGIN
 		ID_Tour INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Costo DECIMAL (11,2),
 		Cupo_max INT NOT NULL,
-		Tipo CHAR (1) NOT NULL,
+		Tipo CHAR (1) NOT NULL, --que seria esto?
 		Duracion INT NOT NULL, -- minutos
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		CONSTRAINT check_Estado_Tour CHECK (Estado in ('A', 'I')),

@@ -68,7 +68,7 @@ BEGIN
     END CATCH;
 END;
 go
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie int, @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint, @Estado char(1) = 'A' as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie int, @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -86,15 +86,11 @@ BEGIN
             set @error += 'El ID_provincia no puede ser null' + char(10)
         if not exists (select 1 from Parque.Provincia where ID = @ID_provincia)
             set @error += 'El ID_provincia no existe' + char(10)
-        if @Estado is null
-            set @error += 'El estado no puede ser null' + char(10)
-        if @Estado not in ('A', 'I')
-            set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia, Estado) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia, @Estado)
+        insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia)
         COMMIT;
         RETURN SCOPE_IDENTITY()
     END TRY
