@@ -740,10 +740,9 @@ BEGIN
 	BEGIN
 		THROW 50001, @Errores, 1;
 	END
-	
-	DELETE FROM Ventas.Cliente
-	WHERE ID=@ID;
-	
+
+    update Ventas.Cliente set Estado = 'i' where ID = @ID
+
 	PRINT 'Cliente eliminado correctamente';
 
 END
@@ -778,9 +777,9 @@ BEGIN
 	BEGIN
 		THROW 50001, @Errores, 1;
 	END
-	
-	DELETE FROM Ventas.Tipo_visitante
-	WHERE ID=@ID;
+
+    update Ventas.Tipo_visitante set Estado = 'i' where ID = @ID
+		
 	
 	PRINT 'Tipo de visitante eliminado correctamente';
 
@@ -816,10 +815,10 @@ BEGIN
 	BEGIN
 		THROW 50001, @Errores, 1;
 	END
-	
-	DELETE FROM Ventas.Tarifa
-	WHERE ID=@ID;
-	
+		
+	update Ventas.Tarifa set Estado = 'i' where ID = @ID
+
+		
 	PRINT 'Tarifa eliminada correctamente';
 
 END
@@ -849,9 +848,8 @@ BEGIN
 		THROW 50001, @Errores, 1;
 	END
 	
-	DELETE FROM Ventas.Entrada
-	WHERE ID=@ID;
-	
+    update Ventas.Entrada set Estado = 'i' where ID = @ID
+
 	PRINT 'Entrada eliminada correctamente';
 
 END
@@ -895,8 +893,7 @@ BEGIN
 		THROW 50001, @Errores, 1;
 	END
 	
-	DELETE FROM Ventas.Compra
-	WHERE ID=@ID;
+	update Ventas.Compra set Estado = 'i' where ID = @ID
 	
 	PRINT 'Compra eliminada correctamente';
 
@@ -924,10 +921,9 @@ BEGIN
 	BEGIN
 		THROW 50001, @Errores, 1;
 	END
-	
-	DELETE FROM Ventas.Pago
-	WHERE ID=@ID;
-	
+		
+	update Ventas.Pago set Estado = 'i' where ID = @ID
+
 	PRINT 'Pago eliminado correctamente';
 
 END
