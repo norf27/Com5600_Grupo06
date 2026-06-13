@@ -23,7 +23,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        delete from Parque.Tipo_parque where ID = @ID
+        update Parque.Tipo_parque set Estado = 'i' where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -53,7 +53,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        delete from Parque.Provincia where ID = @ID
+        update Parque.Provincia set Estado = 'i' where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -91,7 +91,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        delete from Parque.Parque where ID = @ID
+        update Parque.Parque set Estado = 'i' where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -248,7 +248,7 @@ BEGIN
 				FROM Empleados.R_Guia_Habilitacion 
 				WHERE ID_Guia = @ID_Empleado
 
-				EXEC Empleados.Borrar_R_Guia_Habilitacion
+				EXEC Empleados.SP_GuiaHabilitacion_Baja
 					@ID_Empleado, @Id_Aux
 			END
 
@@ -258,7 +258,7 @@ BEGIN
 				FROM Empleados.R_Guia_Especialidad 
 				WHERE ID_Guia = @ID_Empleado
 
-				EXEC Empleados.Borrar_R_Guia_Especialidad
+				EXEC Empleados.SP_GuiaEspecialidad_Baja
 					@ID_Empleado, @Id_Aux
 			END
 
@@ -268,7 +268,7 @@ BEGIN
 				FROM Empleados.R_Guia_Titulo 
 				WHERE ID_Guia = @ID_Empleado
 
-				EXEC Empleados.Borrar_R_Guia_Titulo
+				EXEC Empleados.SP_GuiaEspecialidad_Baja
 					@ID_Empleado, @Id_Aux
 			END
 
@@ -321,7 +321,7 @@ BEGIN
 				FROM Empleados.R_Guia_Habilitacion 
 				WHERE ID_Habilitacion = @Id
 
-				EXEC Empleados.Borrar_R_Guia_Habilitacion
+				EXEC Empleados.SP_GuiaHabilitacion_Baja
 					@Id_Guia, @Id
 			END
 
@@ -374,7 +374,7 @@ BEGIN
 				FROM Empleados.R_Guia_Especialidad 
 				WHERE ID_Especialidad = @Id
 
-				EXEC Empleados.Borrar_R_Guia_Especialidad
+				EXEC Empleados.SP_GuiaEspecialidad_Baja
 					@Id_Guia, @Id
 			END
 
@@ -427,7 +427,7 @@ BEGIN
 				FROM Empleados.R_Guia_Titulo 
 				WHERE ID_Titulo = @Id
 
-				EXEC Empleados.Borrar_R_Guia_Titulo
+				EXEC Empleados.SP_GuiaTitulo_Baja
 					@Id_Guia, @Id
 			END
 
@@ -604,7 +604,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        delete from Concesiones.Tipo_actividad where ID = @ID
+        update Concesiones.Tipo_actividad set Estado = 'i' where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -619,9 +619,6 @@ BEGIN
     END CATCH;
 END;
 go
-
---el borrado lo hago pero igual nunca se deberia usar ya que concesiones guarda el historico asi que nunca vas a poder borrar una empresa
---que fue parte de una concesion pero bueno
 
 CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Baja @ID INT as
 BEGIN
@@ -637,9 +634,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        Delete from Concesiones.Empresa where ID = @ID 
-        --esto nunca se deberia ejecutar en teoria, salvo que haya una empresa sin concesion
-        --aunque en ese caso, porque estaria en la base?
+        update Concesiones.Empresa set Estado = 'i' where ID = @ID 
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -655,7 +650,7 @@ BEGIN
 END;
 go
 
---una concesion nunca se puede borrar, ya que deberia quedar el historico pero igual lo hago x las dudas
+
 CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Baja @ID INT as
 BEGIN
     SET NOCOUNT ON;
@@ -670,7 +665,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        delete from Concesiones.Concesion where ID = @ID
+        update Concesiones.Concesion set Estado = 'i' where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -699,7 +694,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        delete from Concesiones.Pago_mensual where ID = @ID
+        update Concesiones.Pago_mensual set Estado = 'i' where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH

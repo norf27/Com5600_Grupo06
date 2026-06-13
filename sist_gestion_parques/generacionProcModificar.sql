@@ -375,8 +375,7 @@ GO
 CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Modificar
 	@ID INT,
 	@Detalles VARCHAR(100) = NULL,
-	@Fecha DATE = NULL,
-	@Estado char(1)
+	@Fecha DATE = NULL
 AS
 BEGIN
 	BEGIN TRY
@@ -430,11 +429,6 @@ BEGIN
 				WHERE ID = @ID;
 			END
 		END
-		IF @Estado IS NULL OR @Estado NOT IN ('A','I')
-		BEGIN
-			PRINT('El estado no es valido.');
-			RAISERROR('.', 16, 1);
-		END
 
 		PRINT('Habilitacion actualizada correctamente.');
 	END TRY
@@ -451,8 +445,7 @@ GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad_Modificar
 	@ID INT,
-	@Nombre VARCHAR(100) = NULL,
-	@Estado char(1)
+	@Nombre VARCHAR(100) = NULL
 AS
 BEGIN
 	BEGIN TRY
@@ -503,11 +496,6 @@ BEGIN
 			END
 		END
 
-		IF @Estado IS NULL OR @Estado NOT IN ('A','I')
-		BEGIN
-			PRINT('El estado no es valido.');
-			RAISERROR('.', 16, 1);
-		END
 
 		PRINT('Especialidad actualizada correctamente.');
 	END TRY
@@ -766,7 +754,7 @@ BEGIN
 END
 GO
 --------------------CONSECIONES-----------------------
-CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Modificar @ID INT, @NuevoNombre varchar(100),@NuevaDesc varchar(250) as 
+CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Modificar @ID INT, @NuevoNombre varchar(100),@NuevaDesc varchar(250), @Estado char(1) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -780,11 +768,15 @@ BEGIN
             set @error = @error + 'El nombre no puede ser null' + char(10)
         if exists(select 1 from Concesiones.Tipo_actividad where Nombre = @NuevoNombre and ID != @ID)
             set @error += 'El tipo de actividad "' + @NuevoNombre + '" ya existe en la tabla Tipo_actividad' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Concesiones.Tipo_actividad set Descripcion = @NuevaDesc, Nombre = @NuevoNombre where ID = @ID
+        update Concesiones.Tipo_actividad set Estado = @Estado, Descripcion = @NuevaDesc, Nombre = @NuevoNombre where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -803,7 +795,7 @@ go
 CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Modificar @ID INT,
 @NuevoNombre varchar(100),
 @NuevoCUIT varchar(13),
-@NuevoCorreo varchar(100) as
+@NuevoCorreo varchar(100), @Estado char(1) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -821,11 +813,15 @@ BEGIN
             set @error += 'El correo no puede ser null' + char(10)
         if @NuevoCUIT not like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'
             set @error += 'El CUIT es invalido' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Concesiones.Empresa set Nombre = @NuevoNombre, Correo = @NuevoCorreo, CUIT = @NuevoCUIT where ID = @ID
+        update Concesiones.Empresa set Estado = @Estado, Nombre = @NuevoNombre, Correo = @NuevoCorreo, CUIT = @NuevoCUIT where ID = @ID
         COMMIT;
     END TRY
     BEGIN CATCH
@@ -847,7 +843,7 @@ CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Modificar
 		@Fecha_fin DATE,
 		@ID_empresa INT,
 		@ID_tipo INT,
-		@ID_parque INT as
+		@ID_parque INT, @Estado char(1) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -873,11 +869,15 @@ BEGIN
             set @error += 'El ID_parque no existe' + char(10)
         if @Fecha_fin < @Fecha_inicio
             set @error += 'La fecha de fin no puede ser anterior a la fecha de inicio' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Concesiones.Concesion set Fecha_fin = @Fecha_fin, Fecha_inicio = @Fecha_inicio, ID_empresa = @ID_empresa, ID_tipo = @ID_tipo,
+        update Concesiones.Concesion set Estado = @Estado, Fecha_fin = @Fecha_fin, Fecha_inicio = @Fecha_inicio, ID_empresa = @ID_empresa, ID_tipo = @ID_tipo,
         ID_parque = @ID_parque where ID = @ID
         COMMIT;
     END TRY
@@ -900,6 +900,7 @@ CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Modificar
         @Fecha DATE,
 		@Monto DECIMAL(11,2),
 		@Metodo VARCHAR(100),
+		@Estado char(1),
 		@ID_concesion INT as
 BEGIN
     SET NOCOUNT ON;
@@ -922,6 +923,10 @@ BEGIN
             set @Fecha = DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1)
         if exists (select 1 from Concesiones.Concesion where ID = @ID_concesion and Fecha_inicio > @Fecha)
             set @error += 'La fecha no puede ser menor al inicio de su concesion' + char(10)
+		if @Estado is null
+			set @error += 'El estado no puede ser null' + char(10)
+		if @Estado not in ('a','i')
+			set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;

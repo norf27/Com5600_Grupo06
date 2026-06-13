@@ -6,9 +6,11 @@ Descripcion: Script de genaracion de procedure de agregado
 USE sist_gestion_parques
 GO
 ------------- CREACION DE STORE PROCEDURE -------------
+--siempre se da de alta con estado activo la tabla
+
 
 --------------------PARQUE-----------------------
-CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Alta @Nombre varchar(100), @Descripcion varchar(250) as
+CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Alta @Nombre varchar(100), @Descripcion varchar(250)as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -24,6 +26,7 @@ BEGIN
     BEGIN TRY
         insert into Parque.Tipo_parque(Nombre, Descripcion) values (@Nombre, @Descripcion)
         COMMIT;
+        RETURN SCOPE_IDENTITY()
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -36,7 +39,7 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Alta @Nombre varchar(100) as
+CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Alta @Nombre varchar(100)as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -50,6 +53,8 @@ BEGIN
     BEGIN TRY
         insert into Parque.Provincia(Nombre) values (@Nombre)
         COMMIT;
+
+        RETURN SCOPE_IDENTITY()
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -63,7 +68,7 @@ BEGIN
     END CATCH;
 END;
 go
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie int, @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie int, @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint, @Estado char(1) = 'A' as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -81,12 +86,17 @@ BEGIN
             set @error += 'El ID_provincia no puede ser null' + char(10)
         if not exists (select 1 from Parque.Provincia where ID = @ID_provincia)
             set @error += 'El ID_provincia no existe' + char(10)
+        if @Estado is null
+            set @error += 'El estado no puede ser null' + char(10)
+        if @Estado not in ('A', 'I')
+            set @error += 'Estado invalido. A: activo, I: inactivo' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia)
+        insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia, Estado) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia, @Estado)
         COMMIT;
+        RETURN SCOPE_IDENTITY()
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -133,6 +143,7 @@ BEGIN
         VALUES (@ID_Empleado);
 
         COMMIT;
+        RETURN SCOPE_IDENTITY()
         PRINT 'Guardaparque registrado correctamente';
     END TRY
     BEGIN CATCH
@@ -208,6 +219,7 @@ BEGIN
         );
 
         COMMIT;
+        RETURN SCOPE_IDENTITY();
         PRINT 'Asignacion de guardaparque al parque registrada correctamente';
     END TRY
     BEGIN CATCH
@@ -270,7 +282,9 @@ BEGIN
     BEGIN TRANSACTION;
     BEGIN TRY
         insert into Empleados.Empleado(Nacimiento, DNI, CUIL, Nombre, Sueldo, Estado, ID_parque) values (@Nacimiento, @DNI, @CUIL, @Nombre, @Sueldo, @Estado, @ID_parque)
+  
         COMMIT;
+        RETURN SCOPE_IDENTITY();
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -300,7 +314,7 @@ BEGIN
         DECLARE @ID_Empleado int;
 
         -- Llamada al agregado de Empleado. 
-        EXEC @ID_Empleado = Empleados.AñadirEmpleado 
+        EXEC @ID_Empleado = Empleados.SP_Empleado_Alta 
             @Nombre = @Nombre,
             @DNI = @DNI,
             @CUIL = @CUIL,
@@ -331,7 +345,8 @@ GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Alta
     @Detalles VARCHAR(100),
-    @Fecha DATE
+    @Fecha DATE,
+    @Estado CHAR(1) = 'A'
 AS
 BEGIN
     BEGIN TRY
@@ -347,6 +362,12 @@ BEGIN
         IF @Fecha IS NULL OR @Fecha > GETDATE()
         BEGIN
             PRINT('La fecha de habilitacion no es valida.');
+            RAISERROR('.', 16, 1);
+        END
+
+        IF @Estado IS NULL OR @Estado NOT IN ('A', 'I')
+        BEGIN
+            PRINT('El estado de la habilitacion no es valido.');
             RAISERROR('.', 16, 1);
         END
 
@@ -376,7 +397,7 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad_Alta
-    @Nombre VARCHAR(100)
+    @Nombre VARCHAR(100), @Estado char(1) = 'A'
 AS
 BEGIN
     BEGIN TRY
@@ -389,6 +410,12 @@ BEGIN
             RAISERROR('.', 16, 1);
         END
         
+        IF @Estado IS NULL OR @Estado NOT IN ('A','I')
+        BEGIN
+            PRINT('El estado de la especialidad no es valido.');
+            RAISERROR('.', 16, 1);
+        END
+
         IF @Id IS NOT NULL
         BEGIN
             RETURN @Id;
@@ -412,7 +439,8 @@ GO
 CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Alta
     @Nombre VARCHAR(100),
     @Fecha DATE,
-    @Origen VARCHAR(100)
+    @Origen VARCHAR(100),
+    @Estado char(1) = 'A'
 AS
 BEGIN
     BEGIN TRY
@@ -436,6 +464,12 @@ BEGIN
         IF @Fecha IS NULL OR @Fecha > GETDATE()
         BEGIN
             PRINT('La fecha del titulo no es valida.');
+            RAISERROR('.', 16, 1);
+        END
+
+        IF @Estado IS NULL OR @Estado NOT IN ('A', 'I')
+        BEGIN
+            PRINT('El estado del titulo no es valido.');
             RAISERROR('.', 16, 1);
         END
 
@@ -479,7 +513,7 @@ BEGIN
             RAISERROR('.', 16, 1);
         END
 
-        EXEC @ID_Habilitacion = Empleados.Agr_Habilitacion
+        EXEC @ID_Habilitacion = Empleados.SP_Habilitacion_Alta
             @Detalles = @Detalles,
             @Fecha = @Fecha;
 
@@ -500,6 +534,7 @@ BEGIN
 
     INSERT INTO Empleados.R_Guia_Habilitacion (ID_Guia, ID_Habilitacion)
     VALUES (@ID_Guia, @ID_Habilitacion);
+    RETURN SCOPE_IDENTITY();
 END
 GO
 
@@ -517,7 +552,7 @@ BEGIN
             RAISERROR('.', 16, 1);
         END
 
-        EXEC @ID_Especialidad = Empleados.Agr_Especialidad
+        EXEC @ID_Especialidad = Empleados.SP_Especialidad_Alta
             @Nombre = @Nombre_Especialidad;
 
         IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad)
@@ -537,6 +572,7 @@ BEGIN
 
     INSERT INTO Empleados.R_Guia_Especialidad (ID_Guia, ID_Especialidad)
     VALUES (@ID_Guia, @ID_Especialidad);
+    RETURN SCOPE_IDENTITY();
 END
 GO
 
@@ -556,7 +592,7 @@ BEGIN
             RAISERROR('.', 16, 1);
         END
 
-        EXEC @ID_Titulo = Empleados.Agr_Titulo
+        EXEC @ID_Titulo = Empleados.SP_Titulo_Alta
             @Nombre = @Nombre_Titulo,
             @Fecha = @Fecha_Titulo,
             @Origen = @Origen_Titulo;
@@ -578,6 +614,7 @@ BEGIN
 
     INSERT INTO Empleados.R_Guia_Titulo (ID_Guia, ID_Titulo)
     VALUES (@ID_Guia, @ID_Titulo);
+    RETURN SCOPE_IDENTITY();
 END
 GO
 --------------------CONSECIONES-----------------------
@@ -610,6 +647,7 @@ BEGIN
        
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 go
 
@@ -649,6 +687,7 @@ BEGIN
        
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 go
 
@@ -697,6 +736,7 @@ BEGIN
        
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 go
 
@@ -741,6 +781,7 @@ BEGIN
        
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 go
 
@@ -812,7 +853,7 @@ BEGIN
 	);
 	
 	PRINT 'Cliente registrado correctamente';
-
+    RETURN SCOPE_IDENTITY();
 END
 GO 
 
@@ -854,7 +895,7 @@ BEGIN
 	VALUES(@Nombre);
 	
 	PRINT 'Tipo de visitante registrado correctamente';
-
+    RETURN SCOPE_IDENTITY();
 END
 GO 
 
@@ -921,7 +962,7 @@ BEGIN
 		@ID_tipo_visitante,
 		@ID_parque
 	);
-
+    RETURN SCOPE_IDENTITY();
 END
 GO 
 
@@ -991,7 +1032,7 @@ BEGIN
 	);
 	
 	PRINT 'Entrada registrada correctamente';
-
+    RETURN SCOPE_IDENTITY();
 END
 GO 
 
@@ -1045,7 +1086,7 @@ BEGIN
 	);
 	
 	PRINT 'Compra registrada correctamente';
-
+    RETURN SCOPE_IDENTITY();
 END
 GO 
 
@@ -1114,7 +1155,7 @@ BEGIN
 	);
 	
 	PRINT 'Pago registrado correctamente';
-
+    RETURN SCOPE_IDENTITY();
 END
 GO 
 
@@ -1168,6 +1209,7 @@ BEGIN
 
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 GO
 
@@ -1213,6 +1255,7 @@ BEGIN
 
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 GO
 
@@ -1267,6 +1310,7 @@ BEGIN
 
         THROW;
     END CATCH;
+    RETURN SCOPE_IDENTITY();
 END;
 GO
 
