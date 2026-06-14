@@ -23,8 +23,9 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Tipo_parque set Estado = 'i' where ID = @ID
+        update Parque.Tipo_parque set Estado = 'i' where ID = @ID --ejemplo dar de baja borrado logico
         COMMIT;
+		print 'El tipo de parque fue dado de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -55,6 +56,7 @@ BEGIN
     BEGIN TRY
         update Parque.Provincia set Estado = 'i' where ID = @ID
         COMMIT;
+		print 'La provincia fue dada de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -93,6 +95,7 @@ BEGIN
     BEGIN TRY
         update Parque.Parque set Estado = 'i' where ID = @ID
         COMMIT;
+		print 'El parque fue dado de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -217,6 +220,7 @@ BEGIN
     BEGIN TRY   
         update Empleados.Empleado set Estado = 'i' where ID = @ID --borrado logico
         COMMIT;
+		print 'El empleado fue dado de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -230,6 +234,293 @@ BEGIN
     END CATCH;
 END;
 go
+
+
+
+
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaHabilitacion_Baja
+	@ID_Guia INT,
+	@ID_Habilitacion INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion)
+		BEGIN
+			DELETE
+			FROM Empleados.R_Guia_Habilitacion
+			WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la asignacion de habilitacion')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de asignacion de habilitacion',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Baja
+	@Id INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Guia INT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Habilitacion WHERE ID = @Id)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Habilitacion = @Id)
+			BEGIN
+				SELECT TOP 1 @Id_Guia = ID_Guia 
+				FROM Empleados.R_Guia_Habilitacion 
+				WHERE ID_Habilitacion = @Id
+
+				EXEC Empleados.SP_GuiaHabilitacion_Baja
+					@Id_Guia, @Id
+			END
+
+			DELETE
+			FROM Empleados.Habilitacion
+			WHERE ID = @Id
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la habilitacion')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de habilitacion',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaEspecialidad_Baja
+	@ID_Guia INT,
+	@ID_Especialidad INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad)
+		BEGIN
+			DELETE
+			FROM Empleados.R_Guia_Especialidad
+			WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la asignacion de especialidad')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de asignacion de especialidad',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad
+	@Id INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Guia INT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Especialidad WHERE ID = @Id)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Especialidad = @Id)
+			BEGIN
+				SELECT TOP 1 @Id_Guia = ID_Guia 
+				FROM Empleados.R_Guia_Especialidad 
+				WHERE ID_Especialidad = @Id
+
+				EXEC Empleados.SP_GuiaEspecialidad_Baja
+					@Id_Guia, @Id
+			END
+
+			DELETE
+			FROM Empleados.Especialidad
+			WHERE ID = @Id
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la especialidad')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de especialidad',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.SP_GuiaTitulo_Baja
+	@ID_Guia INT,
+	@ID_Titulo INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo)
+		BEGIN
+			DELETE
+			FROM Empleados.R_Guia_Titulo
+			WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe la asignacion de titulo')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de asignacion de titulo',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
+
+CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Baja
+	@Id INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+		BEGIN TRANSACTION
+		DECLARE @Id_Guia INT;
+
+		IF EXISTS(SELECT 1 FROM Empleados.Titulo WHERE ID = @Id)
+		BEGIN
+			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Titulo = @Id)
+			BEGIN
+				SELECT TOP 1 @Id_Guia = ID_Guia 
+				FROM Empleados.R_Guia_Titulo 
+				WHERE ID_Titulo = @Id
+
+				EXEC Empleados.SP_GuiaTitulo_Baja
+					@Id_Guia, @Id
+			END
+
+			DELETE
+			FROM Empleados.Titulo
+			WHERE ID = @Id
+		END 
+
+		ELSE
+
+		BEGIN
+			PRINT('No existe el titulo')
+			RAISERROR('.',16,1)
+		END
+	END TRY
+	BEGIN CATCH
+		IF ERROR_SEVERITY() > 10
+		BEGIN
+			RAISERROR('Ocurrio algo el borrado de titulo',16,1)
+			IF @@TRANCOUNT > 0
+			BEGIN
+				ROLLBACK TRANSACTION
+			END
+			RETURN;
+		END
+		IF ERROR_SEVERITY() = 10
+		BEGIN
+			COMMIT TRANSACTION
+			RETURN;
+		END
+	END CATCH
+	COMMIT TRANSACTION
+END
+GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Guia_Baja
 	@ID_Empleado INT
@@ -304,291 +595,6 @@ BEGIN
 END
 GO
 
-CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Baja
-	@Id INT
-AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRY
-		BEGIN TRANSACTION
-		DECLARE @Id_Guia INT;
-
-		IF EXISTS(SELECT 1 FROM Empleados.Habilitacion WHERE ID = @Id)
-		BEGIN
-			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Habilitacion = @Id)
-			BEGIN
-				SELECT TOP 1 @Id_Guia = ID_Guia 
-				FROM Empleados.R_Guia_Habilitacion 
-				WHERE ID_Habilitacion = @Id
-
-				EXEC Empleados.SP_GuiaHabilitacion_Baja
-					@Id_Guia, @Id
-			END
-
-			DELETE
-			FROM Empleados.Habilitacion
-			WHERE ID = @Id
-		END 
-
-		ELSE
-
-		BEGIN
-			PRINT('No existe la habilitacion')
-			RAISERROR('.',16,1)
-		END
-	END TRY
-	BEGIN CATCH
-		IF ERROR_SEVERITY() > 10
-		BEGIN
-			RAISERROR('Ocurrio algo el borrado de habilitacion',16,1)
-			IF @@TRANCOUNT > 0
-			BEGIN
-				ROLLBACK TRANSACTION
-			END
-			RETURN;
-		END
-		IF ERROR_SEVERITY() = 10
-		BEGIN
-			COMMIT TRANSACTION
-			RETURN;
-		END
-	END CATCH
-	COMMIT TRANSACTION
-END
-GO
-
-CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad
-	@Id INT
-AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRY
-		BEGIN TRANSACTION
-		DECLARE @Id_Guia INT;
-
-		IF EXISTS(SELECT 1 FROM Empleados.Especialidad WHERE ID = @Id)
-		BEGIN
-			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Especialidad = @Id)
-			BEGIN
-				SELECT TOP 1 @Id_Guia = ID_Guia 
-				FROM Empleados.R_Guia_Especialidad 
-				WHERE ID_Especialidad = @Id
-
-				EXEC Empleados.SP_GuiaEspecialidad_Baja
-					@Id_Guia, @Id
-			END
-
-			DELETE
-			FROM Empleados.Especialidad
-			WHERE ID = @Id
-		END 
-
-		ELSE
-
-		BEGIN
-			PRINT('No existe la especialidad')
-			RAISERROR('.',16,1)
-		END
-	END TRY
-	BEGIN CATCH
-		IF ERROR_SEVERITY() > 10
-		BEGIN
-			RAISERROR('Ocurrio algo el borrado de especialidad',16,1)
-			IF @@TRANCOUNT > 0
-			BEGIN
-				ROLLBACK TRANSACTION
-			END
-			RETURN;
-		END
-		IF ERROR_SEVERITY() = 10
-		BEGIN
-			COMMIT TRANSACTION
-			RETURN;
-		END
-	END CATCH
-	COMMIT TRANSACTION
-END
-GO
-
-CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Baja
-	@Id INT
-AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRY
-		BEGIN TRANSACTION
-		DECLARE @Id_Guia INT;
-
-		IF EXISTS(SELECT 1 FROM Empleados.Titulo WHERE ID = @Id)
-		BEGIN
-			WHILE EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Titulo = @Id)
-			BEGIN
-				SELECT TOP 1 @Id_Guia = ID_Guia 
-				FROM Empleados.R_Guia_Titulo 
-				WHERE ID_Titulo = @Id
-
-				EXEC Empleados.SP_GuiaTitulo_Baja
-					@Id_Guia, @Id
-			END
-
-			DELETE
-			FROM Empleados.Titulo
-			WHERE ID = @Id
-		END 
-
-		ELSE
-
-		BEGIN
-			PRINT('No existe el titulo')
-			RAISERROR('.',16,1)
-		END
-	END TRY
-	BEGIN CATCH
-		IF ERROR_SEVERITY() > 10
-		BEGIN
-			RAISERROR('Ocurrio algo el borrado de titulo',16,1)
-			IF @@TRANCOUNT > 0
-			BEGIN
-				ROLLBACK TRANSACTION
-			END
-			RETURN;
-		END
-		IF ERROR_SEVERITY() = 10
-		BEGIN
-			COMMIT TRANSACTION
-			RETURN;
-		END
-	END CATCH
-	COMMIT TRANSACTION
-END
-GO
-
-CREATE OR ALTER PROCEDURE Empleados.SP_GuiaHabilitacion_Baja
-	@ID_Guia INT,
-	@ID_Habilitacion INT
-AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRY
-		BEGIN TRANSACTION
-		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion)
-		BEGIN
-			DELETE
-			FROM Empleados.R_Guia_Habilitacion
-			WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion
-		END 
-
-		ELSE
-
-		BEGIN
-			PRINT('No existe la asignacion de habilitacion')
-			RAISERROR('.',16,1)
-		END
-	END TRY
-	BEGIN CATCH
-		IF ERROR_SEVERITY() > 10
-		BEGIN
-			RAISERROR('Ocurrio algo el borrado de asignacion de habilitacion',16,1)
-			IF @@TRANCOUNT > 0
-			BEGIN
-				ROLLBACK TRANSACTION
-			END
-			RETURN;
-		END
-		IF ERROR_SEVERITY() = 10
-		BEGIN
-			COMMIT TRANSACTION
-			RETURN;
-		END
-	END CATCH
-	COMMIT TRANSACTION
-END
-GO
-
-CREATE OR ALTER PROCEDURE Empleados.SP_GuiaEspecialidad_Baja
-	@ID_Guia INT,
-	@ID_Especialidad INT
-AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRY
-		BEGIN TRANSACTION
-		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad)
-		BEGIN
-			DELETE
-			FROM Empleados.R_Guia_Especialidad
-			WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad
-		END 
-
-		ELSE
-
-		BEGIN
-			PRINT('No existe la asignacion de especialidad')
-			RAISERROR('.',16,1)
-		END
-	END TRY
-	BEGIN CATCH
-		IF ERROR_SEVERITY() > 10
-		BEGIN
-			RAISERROR('Ocurrio algo el borrado de asignacion de especialidad',16,1)
-			IF @@TRANCOUNT > 0
-			BEGIN
-				ROLLBACK TRANSACTION
-			END
-			RETURN;
-		END
-		IF ERROR_SEVERITY() = 10
-		BEGIN
-			COMMIT TRANSACTION
-			RETURN;
-		END
-	END CATCH
-	COMMIT TRANSACTION
-END
-GO
-
-CREATE OR ALTER PROCEDURE Empleados.SP_GuiaTitulo_Baja
-	@ID_Guia INT,
-	@ID_Titulo INT
-AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRY
-		BEGIN TRANSACTION
-		IF EXISTS(SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo)
-		BEGIN
-			DELETE
-			FROM Empleados.R_Guia_Titulo
-			WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo
-		END 
-
-		ELSE
-
-		BEGIN
-			PRINT('No existe la asignacion de titulo')
-			RAISERROR('.',16,1)
-		END
-	END TRY
-	BEGIN CATCH
-		IF ERROR_SEVERITY() > 10
-		BEGIN
-			RAISERROR('Ocurrio algo el borrado de asignacion de titulo',16,1)
-			IF @@TRANCOUNT > 0
-			BEGIN
-				ROLLBACK TRANSACTION
-			END
-			RETURN;
-		END
-		IF ERROR_SEVERITY() = 10
-		BEGIN
-			COMMIT TRANSACTION
-			RETURN;
-		END
-	END CATCH
-	COMMIT TRANSACTION
-END
-GO
-
 --------------------CONSECIONES-----------------------
 CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Baja @ID INT as 
 BEGIN
@@ -606,6 +612,7 @@ BEGIN
     BEGIN TRY
         update Concesiones.Tipo_actividad set Estado = 'i' where ID = @ID
         COMMIT;
+		print 'El tipo de actividad fue dado de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -636,6 +643,7 @@ BEGIN
     BEGIN TRY
         update Concesiones.Empresa set Estado = 'i' where ID = @ID 
         COMMIT;
+		print 'La empresa fue dada de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -667,6 +675,7 @@ BEGIN
     BEGIN TRY
         update Concesiones.Concesion set Estado = 'i' where ID = @ID
         COMMIT;
+		print 'La concesion fue dada de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -696,6 +705,7 @@ BEGIN
     BEGIN TRY
         update Concesiones.Pago_mensual set Estado = 'i' where ID = @ID
         COMMIT;
+		print 'El pago mensual fue dado de baja con exito' 
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -709,6 +719,7 @@ BEGIN
     END CATCH;
 END;
 go
+
 
 --------------------VENTAS----------------------------
 CREATE OR ALTER PROCEDURE Ventas.SP_Cliente_Baja
