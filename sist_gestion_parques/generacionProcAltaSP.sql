@@ -7,6 +7,7 @@ USE sist_gestion_parques
 GO
 ------------- CREACION DE STORE PROCEDURE -------------
 --siempre se da de alta con estado activo la tabla
+--verificar si ya existe pero con estado = 'i', entonces cambiar a 'a'
 
 
 --------------------PARQUE-----------------------
@@ -18,15 +19,31 @@ BEGIN
             set @error = @error + 'El nombre no puede ser null' + char(10)
         if @Descripcion is null
             set @error = @error + 'La descripcion no puede ser null' + char(10)
-        if exists (select 1 from Parque.Tipo_parque where Nombre = @Nombre)
+
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Parque.Tipo_parque where Nombre = @Nombre
+
+        if @ID is not null and @Estado = 'A'
             set @error += 'El tipo de parque "' + @Nombre +'" ya existe en la tabla' + char(10)
+
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Parque.Tipo_parque(Nombre, Descripcion) values (@Nombre, @Descripcion)
+        declare @ret int
+        if @ID is not null
+        begin
+            update Parque.Tipo_parque set Estado = 'a', Descripcion = @Descripcion where ID = @ID
+            set @ret = @ID
+        end
+        else
+        begin
+            insert into Parque.Tipo_parque(Nombre, Descripcion) values (@Nombre, @Descripcion)
+            set @ret = SCOPE_IDENTITY()
+        end
         COMMIT;
-        RETURN SCOPE_IDENTITY()
+        print 'se inserto correctamente el tipo de parque "' + @Nombre +'"'
+        RETURN @ret
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -45,16 +62,33 @@ BEGIN
     declare @error varchar(max) = ''
         if @Nombre is null
             set @error += 'El nombre no puede ser null' + char(10)
-        if exists (select 1 from Parque.Provincia where Nombre = @Nombre)
+
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Parque.Provincia where Nombre = @Nombre
+
+        if @ID is not null and @Estado = 'A'
             set @error += 'La provincia "' + @Nombre +'" ya existe en la tabla' + char(10)
+        
+
         if @error != ''
             throw 50001, @error, 1;
+
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Parque.Provincia(Nombre) values (@Nombre)
+        declare @ret int
+        if @ID is not null
+        begin
+            update Parque.Provincia set Estado = 'a' where ID = @ID
+            set @ret = @ID
+        end
+        else
+        begin
+            insert into Parque.Provincia(Nombre) values (@Nombre)
+            set @ret = SCOPE_IDENTITY()
+        end
         COMMIT;
-
-        RETURN SCOPE_IDENTITY()
+        print 'se inserto correctamente la provincia "' + @Nombre +'"'
+        RETURN @ret
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -86,13 +120,32 @@ BEGIN
             set @error += 'El ID_provincia no puede ser null' + char(10)
         if not exists (select 1 from Parque.Provincia where ID = @ID_provincia)
             set @error += 'El ID_provincia no existe' + char(10)
+
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Parque.Parque where Nombre = @Nombre
+
+        if @ID is not null and @Estado = 'A'
+            set @error += 'El Parque de nombre "' + @Nombre + '" ya existe' + char(10)
+
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
+    declare @ret int
+    if @ID is not null
+    begin
+        update Parque.Parque set Superficie = @Superficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Estado = 'A' where ID = @ID
+        set @ret = @ID
+    end
+    else
+    begin
         insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia)
-        COMMIT;
-        RETURN SCOPE_IDENTITY()
+        set @ret = SCOPE_IDENTITY()
+    end
+    COMMIT;
+    print 'se inserto correctamente el parque "' + @Nombre +'"'
+    RETURN @ret
+
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -237,18 +290,18 @@ CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Alta
 @DNI varchar(8),
 @Nombre varchar(100),
 @Sueldo decimal(11,2),
-@Estado char(1),
 @ID_parque int,
 @CUIL varchar(13) as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
-        if @Estado is null
-            set @Estado = 'a'
         if @DNI is null
             set @error += 'El DNI no puede ser null' + char(10)
-        if exists(select 1 from Empleados.Empleado where DNI = @DNI)
-            set @error += 'El DNI "' + @DNI +'" ya esta siendo usado en la tabla' + char(10)
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Empleados.Empleado where DNI = @DNI
+
+        if @ID is not null and @Estado = 'A'
+            set @error += 'Ya existe un Empleado con el DNI"' + @DNI + '"' + char(10)
         if @Nacimiento is null
             set @error += 'La fecha de nacimiento no puede ser null' + char(10)
         if @Nacimiento > dateadd(year, -18, cast(getdate() as date))
@@ -267,7 +320,7 @@ BEGIN
             set @error += 'El ID_parque no existe' + char(10)
         if @CUIL is null
             set @error += 'El CUIL no puede ser null' + char(10)
-        if exists (select 1 from Empleados.Empleado where CUIL = @CUIL)
+        if exists (select 1 from Empleados.Empleado where CUIL = @CUIL and (ID != @ID or @ID is null))
             set @error += 'El CUIL no puede ser repetido' + char(10)
         if @DNI not like '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
             set @error += 'El DNI es invalido' + char(10)
@@ -277,10 +330,21 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Empleados.Empleado(Nacimiento, DNI, CUIL, Nombre, Sueldo, Estado, ID_parque) values (@Nacimiento, @DNI, @CUIL, @Nombre, @Sueldo, @Estado, @ID_parque)
-  
+        declare @ret int
+        if @ID is not null
+        begin
+            update Empleados.Empleado set Nombre = @Nombre, Nacimiento = @Nacimiento, DNI = @DNI, Sueldo = @Sueldo, Estado = 'a', ID_parque = @ID_parque, CUIL = @CUIL
+            where ID = @ID
+            set @ret = @ID
+        end
+        else
+        begin
+            insert into Empleados.Empleado(Nacimiento, DNI, CUIL, Nombre, Sueldo, ID_parque) values (@Nacimiento, @DNI, @CUIL, @Nombre, @Sueldo, @ID_parque)
+            set @ret = SCOPE_IDENTITY()
+        end
         COMMIT;
-        RETURN SCOPE_IDENTITY();
+        print 'se inserto correctamente el empleado de DNI "' + @DNI +'"'
+        RETURN @ret
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -622,16 +686,33 @@ BEGIN
     declare @error varchar(max) = ''
         if @Nombre is null
             set @error += 'El nombre no puede ser null' + char(10)
-        if exists(select 1 from Concesiones.Tipo_actividad where Nombre = @Nombre)
-            set @error += 'El tipo de actividad "' + @Nombre +'" ya existe en la tabla' + char(10)
         if @Descripcion is null
             set @error = @error + 'La descripcion no puede ser null' + char(10)
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Concesiones.Tipo_actividad where Nombre = @Nombre
+
+        if @ID is not null and @Estado = 'A'
+            set @error += 'El tipo de actividad "' + @Nombre +'" ya existe' + char(10)
+
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Concesiones.Tipo_actividad(Nombre, Descripcion) values (@Nombre, @Descripcion)
+        declare @ret int
+        if @ID is not null
+        begin
+            update Concesiones.Tipo_actividad set Descripcion=@Descripcion, Estado = 'a' where ID = @ID
+            set @ret = @ID
+        end
+        else
+        begin
+            insert into Concesiones.Tipo_actividad(Nombre, Descripcion) values (@Nombre, @Descripcion)
+            set @ret = SCOPE_IDENTITY()
+        end
         COMMIT;
+        print 'se inserto correctamente el tipo de actividad "' + @Nombre +'"'
+        RETURN @ret
+    
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -643,7 +724,6 @@ BEGIN
        
         THROW;
     END CATCH;
-    RETURN SCOPE_IDENTITY();
 END;
 go
 
@@ -659,19 +739,36 @@ BEGIN
             set @error += 'El nombre no puede ser null' + char(10)
         if @CUIT is null
             set @error += 'El CUIT no puede ser null' + char(10)
-        if exists(select 1 from Concesiones.Empresa where CUIT = @CUIT)
-            set @error += 'El CUIT "' + @CUIT + '" ya esta siendo usado en la tabla' + char(10)
         if @Correo is null
             set @error += 'El correo no puede ser null' + char(10)
         if @CUIT not like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'
             set @error += 'El CUIT es invalido' + char(10)
+
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Concesiones.Empresa where CUIT = @CUIT
+
+        if @ID is not null and @Estado = 'A'
+            set @error += 'Ya existe una empresa con el CUIT "' + @CUIT + '"' + char(10)
+
+
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Concesiones.Empresa(Nombre, CUIT, Correo) values (@Nombre, @CUIT, @Correo)
-
+        declare @ret int
+        if @ID is not null
+        begin
+            update Concesiones.Empresa set Nombre = @Nombre, Correo = @Correo, Estado = 'a' where ID = @ID
+            set @ret = @ID
+        end
+        else
+        begin
+            insert into Concesiones.Empresa(Nombre, CUIT, Correo) values (@Nombre, @CUIT, @Correo)
+            set @ret = SCOPE_IDENTITY()
+        end
         COMMIT;
+        print 'se inserto correctamente la empresa de CUIT "' + @CUIT +'"'
+        RETURN @ret
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -683,7 +780,6 @@ BEGIN
        
         THROW;
     END CATCH;
-    RETURN SCOPE_IDENTITY();
 END;
 go
 
@@ -715,12 +811,33 @@ BEGIN
             set @error += 'El ID_parque no existe' + char(10)
         if @Fecha_fin < @Fecha_inicio
             set @error += 'La fecha de fin no puede ser anterior a la fecha de inicio' + char(10)
+        
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Concesiones.Concesion where Fecha_inicio = @Fecha_inicio and Fecha_fin = @Fecha_fin and ID_empresa = @ID_empresa and ID_tipo = @ID_tipo and ID_parque = @ID_parque
+        if @ID is not null and @Estado = 'A'
+            set @error += 'Ya existe esta misma concesion' + char(10)
+
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        insert into Concesiones.Concesion(Fecha_inicio, Fecha_fin, ID_empresa, ID_tipo, ID_parque) values (@Fecha_inicio, @Fecha_fin, @ID_empresa, @ID_tipo, @ID_parque)
+        declare @ret int
+        if @ID is not null
+        begin
+            update Concesiones.Concesion set Estado = 'a' where ID = @ID
+            set @ret = @ID
+        end
+        else
+        begin
+            insert into Concesiones.Concesion(Fecha_inicio, Fecha_fin, ID_empresa, ID_tipo, ID_parque) values (@Fecha_inicio, @Fecha_fin, @ID_empresa, @ID_tipo, @ID_parque)
+            set @ret = SCOPE_IDENTITY()
+        end
         COMMIT;
+        print 'se inserto correctamente la concesion '
+        RETURN @ret
+
+        
+
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -732,13 +849,12 @@ BEGIN
        
         THROW;
     END CATCH;
-    RETURN SCOPE_IDENTITY();
 END;
 go
 
 
 
-CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Alta
+CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Alta --siempre se registra el pago como deudor 
         @Fecha DATE,
 		@Monto DECIMAL(11,2),
 		@Metodo VARCHAR(100),
@@ -757,15 +873,34 @@ BEGIN
         if not exists (select 1 from Concesiones.Concesion where ID = @ID_concesion)
             set @error += 'El ID_concesion no existe' + char(10)
         if @Fecha is null
-            set @Fecha = EOMONTH(GETDATE())
-        if exists (select 1 from Concesiones.Concesion where ID = @ID_concesion and Fecha_inicio > @Fecha)
-            set @error += 'La fecha no puede ser menor al inicio de su concesion' + char(10)
+            set @error += 'La fecha no puede ser null' + char(10)
+        if exists (select 1 from Concesiones.Concesion where ID = @ID_concesion and (Fecha_inicio > @Fecha or Fecha_fin < @Fecha))
+            set @error += 'La fecha escapa al rango de su concesion' + char(10)
+        declare @ID int, @Estado char(1)
+        select @ID = ID, @Estado = Estado from Concesiones.Pago_mensual where ID_concesion = @ID_concesion and @Fecha = Fecha
+        if @ID is not null and @Estado = 'A'
+            set @error += 'Ya hay un pago registrado para esa concesion y esa fecha ' + char(10)
+
+
+
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
+    declare @ret int
+    if @ID is not null
+    begin
+        update Concesiones.Pago_mensual set Pago = 'D', Fecha = @Fecha, Monto = @Monto, Metodo = @Metodo, ID_concesion = @ID_concesion where ID = @ID
+        set @ret = @ID
+    end
+    else
+    begin
         insert into Concesiones.Pago_mensual(Fecha, Monto, Metodo, ID_concesion) values (@Fecha, @Monto, @Metodo, @ID_concesion)
-        COMMIT;
+        set @ret = SCOPE_IDENTITY()
+    end
+    COMMIT;
+    print 'se inserto correctamente el pago para la concesion'
+    RETURN @ret
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -777,7 +912,7 @@ BEGIN
        
         THROW;
     END CATCH;
-    RETURN SCOPE_IDENTITY();
+  
 END;
 go
 
