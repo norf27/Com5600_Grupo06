@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		generacionTablasSP.sql = generacionTablasSP.sql
 		gestionDeConcesiones.sql = gestionDeConcesiones.sql
 		RegistroDeAactividades.sql = RegistroDeAactividades.sql
+		testing.sql = testing.sql
 		ventaDeEntradas.sql = ventaDeEntradas.sql
 	EndProjectSection
 EndProject
@@ -20,7 +21,7 @@ Global
 		Default|Default = Default|Default
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D99285E4-31F2-40CC-AAE3-4132601EBB64}.Default|Default.ActiveCfg = Default
+		{40C8DD36-54E5-447B-8CA7-53CC512975AF}.Default|Default.ActiveCfg = Default
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
