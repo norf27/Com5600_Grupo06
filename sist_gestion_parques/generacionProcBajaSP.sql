@@ -667,13 +667,12 @@ BEGIN
             set @error += 'El ID no puede ser null' + char(10)
         if not exists(select 1 from Concesiones.Concesion where ID = @ID)
             set @error += 'El ID no existe' + char(10)
-        if exists(select 1 from Concesiones.Pago_mensual where ID_concesion = @ID)
-            set @error += 'El ID esta siendo usado en la tabla Pago_mensual' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
         update Concesiones.Concesion set Estado = 'i' where ID = @ID
+		update Concesiones.Pago_mensual set Estado = 'i' where ID_concesion = @ID
         COMMIT;
 		print 'La concesion fue dada de baja con exito' 
     END TRY
