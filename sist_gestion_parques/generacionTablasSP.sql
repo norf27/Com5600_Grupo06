@@ -89,7 +89,7 @@ BEGIN
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Superficie INT NOT NULL,
-		Nombre VARCHAR(100) NOT NULL,
+		Nombre VARCHAR(100) NOT NULL UNIQUE,
 		ID_tipo INT NOT NULL,
 		ID_provincia TINYINT NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
@@ -123,9 +123,11 @@ END
 
 IF OBJECT_ID('Empleados.Guardaparque', 'U') IS NULL
 BEGIN
-	CREATE TABLE Empleados.Guardaparque --no tiene estado porque el estado de guardaparque se maneja desde empleado
+	CREATE TABLE Empleados.Guardaparque
 	(
 		ID_Empleado INT PRIMARY KEY,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Guardaparque CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_Guardaparque_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleados.Empleado(ID) ON DELETE CASCADE
 	);
 END
@@ -156,6 +158,8 @@ BEGIN
 	CREATE TABLE Empleados.Guia --no tiene estado porque el estado de guia se maneja desde empleado
 	(
 		ID_Empleado INT PRIMARY KEY,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Guia CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_Guia_Empleado FOREIGN KEY (ID_Empleado) REFERENCES Empleados.Empleado(ID) ON DELETE CASCADE
 	);
 END
@@ -286,15 +290,17 @@ BEGIN
 	CREATE TABLE Concesiones.Pago_mensual 
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
-		Fecha DATE NOT NULL DEFAULT DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1), --por default es el primer del mes actual
+		Fecha DATE NOT NULL,
 		Monto DECIMAL(11,2) NOT NULL,
 		Metodo VARCHAR(100) NOT NULL,
 		ID_concesion INT NOT NULL,
+		Pago char(1) NOT NULL default 'd', --P:pago, D: deudor
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo. no hace referencia al estado del pago mensual (EJ: adeudado o pago)
 		--solo hace referencia a si se debe tener en cuenta al recorrer la tabla
 		CONSTRAINT check_Estado_Pago_mensual CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_concesion FOREIGN KEY (ID_concesion) REFERENCES Concesiones.Concesion(ID),
 		CONSTRAINT check_monto CHECK (monto > 0),
+		CONSTRAINT check_pago CHECK (Pago in ('P', 'D')) 
 	);
 END
 
