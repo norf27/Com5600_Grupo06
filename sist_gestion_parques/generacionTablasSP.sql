@@ -424,6 +424,8 @@ BEGIN
 	(
 		ID_Tour INT NOT NULL,
 		ID_Guia INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tour_guia CHECK (Estado in ('A', 'I')),
 		CONSTRAINT PK_tour_guia PRIMARY KEY (ID_tour, ID_guia),
 		CONSTRAINT FK_tour_guia_t FOREIGN KEY (ID_tour) REFERENCES Atracciones.Tour(ID_Tour),
 		CONSTRAINT FK_tour_guia_g FOREIGN KEY (ID_guia) REFERENCES Empleados.Guia(ID_Empleado)
@@ -436,8 +438,23 @@ BEGIN
 	(
 		ID_Tour INT NOT NULL,
 		ID_Entrada INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tour_Entrada CHECK (Estado in ('A', 'I')),
 		CONSTRAINT PK_tour_entrada PRIMARY KEY (ID_Tour, ID_Entrada),
 		CONSTRAINT FK_tour_entrada_t FOREIGN KEY (ID_tour) REFERENCES Atracciones.Tour(ID_Tour),
 		CONSTRAINT FK_tour_entrada_e FOREIGN KEY (ID_entrada) REFERENCES Ventas.Entrada(ID)
+	);
+END
+IF OBJECT_ID('Atracciones.R_Tour_Parque', 'U') IS NULL
+BEGIN
+	CREATE TABLE Atracciones.R_Tour_Parque 
+	(
+		ID_Tour INT NOT NULL,
+		ID_Parque INT NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Estado_Tour_Parque CHECK (Estado in ('A', 'I')),
+		CONSTRAINT PK_tour_parque PRIMARY KEY (ID_Tour, ID_Parque),
+		CONSTRAINT FK_tour_parque_t FOREIGN KEY (ID_tour) REFERENCES Atracciones.Tour(ID_Tour),
+		CONSTRAINT FK_tour_parque_p FOREIGN KEY (ID_Parque) REFERENCES Parque.Parque(ID)
 	);
 END
