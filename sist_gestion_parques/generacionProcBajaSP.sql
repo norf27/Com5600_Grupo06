@@ -1069,36 +1069,3 @@ BEGIN
     END CATCH;
 END;
 GO
-create or alter procedure Atracciones.SP_TourParque_Baja @ID_tour int, @ID_parque int as
-begin
-    set nocount on;
-    declare @error varchar(8000) = ''
-    if @ID_parque is null
-        set @error += 'El ID_parque no puede ser null' + char(10)
-    if @ID_tour is null
-        set @error += 'El ID_tour no puede ser null' + char(10)
-    if not exists (select 1 from Parque.Parque where ID = @ID_parque and Estado = 'A')
-        set @error += 'No existe un parque con el ID_parque dado' + char(10)
-    if not exists (select 1 from Atracciones.Tour where ID_Tour = @ID_tour and Estado = 'A')
-        set @error += 'No existe un tour con el ID_tour dado' + char(10)
-	if not exists(select 1 from Atracciones.R_Tour_Parque where ID_parque = @ID_parque and ID_tour = @ID_tour)
-		set @error += 'No existe una relacion con los ID_tour y ID_parque dados' + char(10)
-    if @error != ''
-        throw 50001, @error, 1;
-    BEGIN TRANSACTION;
-    BEGIN TRY
-		update Atracciones.R_Tour_Parque set Estado = 'i' where ID_tour = @ID_tour and ID_parque = @ID_parque 
-    COMMIT;
-    print 'se borro correctamente la relacion tour-entrada'
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-
-        DECLARE @Msg NVARCHAR(500) = ERROR_MESSAGE();
-        DECLARE @Num INT           = ERROR_NUMBER();
-        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
-       
-        THROW;
-    END CATCH;
-end

@@ -407,6 +407,7 @@ BEGIN
 	CREATE TABLE Atracciones.Tour 
 	(
 		ID_Tour INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
+		ID_Parque INT NOT NULL,
 		Costo DECIMAL (11,2),
 		Cupo_max INT NOT NULL,
 		Tipo CHAR (1) NOT NULL, --que seria esto?
@@ -414,7 +415,8 @@ BEGIN
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		CONSTRAINT check_Estado_Tour CHECK (Estado in ('A', 'I')),
 		CONSTRAINT check_cupo CHECK (Cupo_max > 0),
-		CONSTRAINT check_duracion CHECK (Duracion > 0)
+		CONSTRAINT check_duracion CHECK (Duracion > 0),
+		CONSTRAINT FK_tour_parque FOREIGN KEY (ID_parque) REFERENCES Parque.Parque(ID)
 	);
 END
 
@@ -443,18 +445,5 @@ BEGIN
 		CONSTRAINT PK_tour_entrada PRIMARY KEY (ID_Tour, ID_Entrada),
 		CONSTRAINT FK_tour_entrada_t FOREIGN KEY (ID_tour) REFERENCES Atracciones.Tour(ID_Tour),
 		CONSTRAINT FK_tour_entrada_e FOREIGN KEY (ID_entrada) REFERENCES Ventas.Entrada(ID)
-	);
-END
-IF OBJECT_ID('Atracciones.R_Tour_Parque', 'U') IS NULL
-BEGIN
-	CREATE TABLE Atracciones.R_Tour_Parque 
-	(
-		ID_Tour INT NOT NULL,
-		ID_Parque INT NOT NULL,
-		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
-		CONSTRAINT check_Estado_Tour_Parque CHECK (Estado in ('A', 'I')),
-		CONSTRAINT PK_tour_parque PRIMARY KEY (ID_Tour, ID_Parque),
-		CONSTRAINT FK_tour_parque_t FOREIGN KEY (ID_tour) REFERENCES Atracciones.Tour(ID_Tour),
-		CONSTRAINT FK_tour_parque_p FOREIGN KEY (ID_Parque) REFERENCES Parque.Parque(ID)
 	);
 END

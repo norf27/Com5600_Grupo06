@@ -1323,7 +1323,8 @@ CREATE OR ALTER PROCEDURE Atracciones.SP_Tour_Alta
     @Costo DECIMAL(11,2),
     @Cupo_max INT,
     @Tipo CHAR(1),
-    @Duracion INT
+    @Duracion INT,
+    @ID_parque int
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1333,6 +1334,8 @@ BEGIN
 
     IF @Costo IS NULL
         SET @error += 'El costo no puede ser null' + CHAR(10);
+    IF @ID_parque IS NULL
+        SET @error += 'El ID_parque no puede ser null' + CHAR(10);
     IF @Costo IS NOT NULL AND @Costo < 0
         SET @error += 'El costo no puede ser menor a 0' + CHAR(10);
     IF @Cupo_max IS NULL
@@ -1345,14 +1348,15 @@ BEGIN
         SET @error += 'La duracion no puede ser null' + CHAR(10);
     IF @Duracion IS NOT NULL AND @Duracion <= 0
         SET @error += 'La duracion debe ser mayor a 0' + CHAR(10);
-
+    IF NOT EXISTS (SELECT 1 FROM Parque.Parque where ID = @ID_parque AND Estado = 'A')
+        SET @error += 'No existe ningun parque con el ID_parque enviado' + CHAR(10);
     IF @error != ''
         THROW 50001, @error, 1;
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        INSERT INTO Atracciones.Tour (Costo, Cupo_max, Tipo, Duracion)
-        VALUES (@Costo, @Cupo_max, @Tipo, @Duracion);
+        INSERT INTO Atracciones.Tour (Costo, Cupo_max, Tipo, Duracion, ID_parque)
+        VALUES (@Costo, @Cupo_max, @Tipo, @Duracion, @ID_parque);
 
         COMMIT;
         PRINT 'Tour registrado correctamente';
@@ -1469,46 +1473,3 @@ BEGIN
     END CATCH;
 END;
 GO
-create or alter procedure Atracciones.SP_TourParque_Alta @ID_tour int, @ID_parque int as
-begin
-    set nocount on;
-    declare @error varchar(8000) = ''
-    if @ID_parque is null
-        set @error += 'El ID_parque no puede ser null' + char(10)
-    if @ID_tour is null
-        set @error += 'El ID_tour no puede ser null' + char(10)
-    if not exists (select 1 from Parque.Parque where ID = @ID_parque and Estado = 'A')
-        set @error += 'No existe un parque con el ID_parque dado' + char(10)
-    if not exists (select 1 from Atracciones.Tour where ID_Tour = @ID_tour and Estado = 'A')
-        set @error += 'No existe un parque con el ID_tour dado' + char(10)
-    declare @ID_tour_2 int, @Estado char(1)
-    select @ID_tour_2 = ID_tour, @Estado = Estado from Atracciones.R_Tour_Parque where ID_tour = @ID_tour and ID_parque = @ID_parque
-    if @ID_tour_2 is not null and @Estado = 'A' --reviso solo @ID_tour_2 ya que si lo asigno es pq existe la relacion
-        set @error += 'Ya existe esta misma relacion' + char(10)
-    if @error != ''
-        throw 50001, @error, 1;
-    BEGIN TRANSACTION;
-    BEGIN TRY
-    if @ID_tour_2 is not null
-    begin
-        update Atracciones.SP_TourParque_Alta set @Estado = 'A' where ID_tour = @ID_tour and ID_parque = @ID_parque
-        set @ret = @ID
-    end
-    else
-    begin
-        insert into Atracciones.SP_TourParque_Alta(ID_parque, ID_tour) values (@ID_parque, @ID_tour)
-    end
-    COMMIT;
-    print 'se inserto correctamente la relacion tour-entrada'
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-
-        DECLARE @Msg NVARCHAR(500) = ERROR_MESSAGE();
-        DECLARE @Num INT           = ERROR_NUMBER();
-        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
-       
-        THROW;
-    END CATCH;
-end
