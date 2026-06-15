@@ -4,6 +4,7 @@ Anotaciones:
 -  Hacer anotaciones del primer DER y el ultimo, explicar cambios y eso
 -  Todo con borrado logico
 -  No usar BIGINT
+-  En la relacion guardaparque parque hacer motivo egreso opcional
 
 TAREAS:
   TP 5: 
