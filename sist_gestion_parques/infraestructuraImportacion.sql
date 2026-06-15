@@ -1,5 +1,6 @@
 USE sist_gestion_parques; 
-
+GO 
+    
 IF SCHEMA_ID('Staging') IS NULL
 BEGIN
     EXEC('CREATE SCHEMA Staging'); 
