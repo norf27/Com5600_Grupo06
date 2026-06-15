@@ -132,8 +132,7 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DELETE FROM Empleados.Guardaparque
-        WHERE ID_Empleado = @ID_Empleado;
+		update Empleados.Guardaparque set Estado = 'i' where ID_Empleados = @ID_Empleado --ejemplo dar de baja borrado logico
 
         COMMIT;
         PRINT 'Guardaparque eliminado correctamente';
@@ -185,6 +184,8 @@ BEGIN
     BEGIN TRY
         DELETE FROM Empleados.R_Guardaparque_Parque
         WHERE ID_Guardaparque = @ID_Guardaparque
+
+		--HACER BORRADO LOGICO
           AND ID_Parque = @ID_Parque
           AND Fecha_ingreso = @Fecha_ingreso;
 
@@ -963,9 +964,7 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DELETE FROM Atracciones.Tour
-        WHERE ID_Tour = @ID_Tour;
-
+		update Atracciones.Tour set Estado = 'i' where ID_Tour = @ID_Tour --ejemplo dar de baja borrado logico
         COMMIT;
         PRINT 'Tour eliminado correctamente';
     END TRY
@@ -1011,6 +1010,7 @@ BEGIN
         DELETE FROM Atracciones.R_Tour_Entrada
         WHERE ID_Tour = @ID_Tour
           AND ID_Entrada = @ID_Entrada;
+-- HACER BORRADO LOGICO
 
         COMMIT;
         PRINT 'Asignacion de entrada al tour eliminada correctamente';
@@ -1052,6 +1052,7 @@ BEGIN
         DELETE FROM Atracciones.R_Tour_Guia
         WHERE ID_Tour = @ID_Tour
           AND ID_Guia = @ID_Guia;
+--HACER BORRADO LOGICO
 
         COMMIT;
         PRINT 'Asignacion de guia al tour eliminada correctamente';
