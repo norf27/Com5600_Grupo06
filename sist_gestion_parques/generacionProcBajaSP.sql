@@ -182,13 +182,10 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DELETE FROM Empleados.R_Guardaparque_Parque
-        WHERE ID_Guardaparque = @ID_Guardaparque
-
-		--HACER BORRADO LOGICO
-          AND ID_Parque = @ID_Parque
-          AND Fecha_ingreso = @Fecha_ingreso;
-
+		UPDATE Empleados.R_Guardaparque_Parque SET Estado = 'i'
+		WHERE ID_Guardaparque = @ID_Guardaparque
+  		AND ID_Parque = @ID_Parque
+  		AND Fecha_ingreso = @Fecha_ingreso;
         COMMIT;
         PRINT 'Asignacion de guardaparque al parque eliminada correctamente';
     END TRY
@@ -1007,10 +1004,8 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DELETE FROM Atracciones.R_Tour_Entrada
-        WHERE ID_Tour = @ID_Tour
-          AND ID_Entrada = @ID_Entrada;
--- HACER BORRADO LOGICO
+		UPDATE Atracciones.R_Tour_Entrada SET Estado = 'i'
+		WHERE ID_Tour = @ID_Tour AND ID_Entrada = @ID_Entrada;
 
         COMMIT;
         PRINT 'Asignacion de entrada al tour eliminada correctamente';
@@ -1049,10 +1044,8 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DELETE FROM Atracciones.R_Tour_Guia
-        WHERE ID_Tour = @ID_Tour
-          AND ID_Guia = @ID_Guia;
---HACER BORRADO LOGICO
+		UPDATE Atracciones.R_Tour_Guia SET Estado = 'i'
+		WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia;
 
         COMMIT;
         PRINT 'Asignacion de guia al tour eliminada correctamente';
