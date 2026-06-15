@@ -4,6 +4,10 @@ Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas 
 Descripcion:
 Procedimiento de negocio para la asignacion de guias a tours existentes.
 */
+
+use sist_gestion_parques
+go
+
 CREATE OR ALTER PROCEDURE Atracciones.SP_AsignarGuiaTour
 (
     @ID_Guia INT,

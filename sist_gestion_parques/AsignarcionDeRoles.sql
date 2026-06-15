@@ -97,10 +97,11 @@ go
 
 -- importar datos
 -- permisos sobre el esquema staging
+/* comentado porque da error
 grant select, insert, update, delete on schema::Staging to Rol_Importador_Datos;
 grant execute on schema::Staging to Rol_Importador_Datos;
 go
-
+*/
 -- cajero (no puede hacer nada mas que ejecutar el procedure de registrar ventas)
 grant execute on Ventas.SP_RegistrarVenta to Rol_Cajero;
 go

@@ -4,6 +4,10 @@ Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas 
 Descripcion:
 Procedimiento de negocio para el registro de actividades (tours).
 */
+
+use sist_gestion_parques
+go
+
 CREATE OR ALTER PROCEDURE Atracciones.RegistrarActividad
 (
     @Costo DECIMAL(11,2),
