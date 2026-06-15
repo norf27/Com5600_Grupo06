@@ -410,7 +410,7 @@ BEGIN
 		ID_Parque INT NOT NULL,
 		Costo DECIMAL (11,2),
 		Cupo_max INT NOT NULL,
-		Tipo CHAR (1) NOT NULL, --que seria esto?
+		Tipo CHAR (1) NOT NULL,
 		Duracion INT NOT NULL, -- minutos
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		CONSTRAINT check_Estado_Tour CHECK (Estado in ('A', 'I')),
