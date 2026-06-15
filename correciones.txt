@@ -4,7 +4,8 @@ Anotaciones:
 -  Hacer anotaciones del primer DER y el ultimo, explicar cambios y eso
 -  Todo con borrado logico
 -  No usar BIGINT
--  En la relacion guardaparque parque hacer motivo egreso opcional
+-  En la relacion guardaparque parque hacer motivo egreso opcional LISTO
+-  Tenemos algunos ids de tablas que se llaman 'ID' y otros 'ID_(nombre tabla)' UNIFICAR
 
 TAREAS:
   TP 5: 
