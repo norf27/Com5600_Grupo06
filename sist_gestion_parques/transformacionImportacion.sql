@@ -1,3 +1,6 @@
+USE sist_gestion_parques; 
+GO 
+
 ---------------------------- CONVERSION DE MONEDAS ----------------------------
 
 DROP TABLE IF EXISTS Staging.Cotizaciones_Moneda;
@@ -72,7 +75,7 @@ AS
 BEGIN
     DECLARE @TextoLimpio VARCHAR(MAX) = TRIM(@TextoRaw);
     
-    – Transformar Falta de datos a NULL
+    -- Transformar Falta de datos a NULL
     IF UPPER(@TextoLimpio) IN ('NOT REPORTED', 'NOT APPLICABLE', '')
         SET @TextoLimpio = NULL;
 
