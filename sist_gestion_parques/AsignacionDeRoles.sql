@@ -14,7 +14,7 @@ create role Rol_Admin;
 -- programador: DDL en todos los esquemas
 create role Rol_Programador;
 
--- gerente de RRHH: empleados, guías, especializaciones, etc.
+-- gerente de RRHH: empleados, guÃ­as, especializaciones, etc.
 create role Rol_Gerente_RRHH;
 
 -- gerente de ventas: todo lo relacionado a entradas, tickets y ventas
@@ -23,7 +23,7 @@ create role Rol_Gerente_Ventas;
 -- gerente de concesiones: manejo de concesiones y sus pagos mensuales
 create role Rol_Gerente_Concesiones;
 
--- gerente de tours: atracciones, tours, guías asignados a tours, etc.
+-- gerente de tours: atracciones, tours, guÃ­as asignados a tours, etc.
 create role Rol_Gerente_Tours;
 
 -- gerente general: infraestructura de parques y tipos de parques
@@ -37,7 +37,7 @@ create role Rol_Cajero;
 go
 
 -- admin
--- agregar admin como dueño de la base de datos
+-- agregar admin como dueÃ±o de la base de datos
 alter role db_owner add member Rol_Admin;
 go
 
