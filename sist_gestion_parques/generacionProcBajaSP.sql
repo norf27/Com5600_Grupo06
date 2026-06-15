@@ -132,7 +132,7 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-		update Empleados.Guardaparque set Estado = 'i' where ID_Empleados = @ID_Empleado --ejemplo dar de baja borrado logico
+		update Empleados.Guardaparque set Estado = 'i' where ID_Empleado = @ID_Empleado --ejemplo dar de baja borrado logico
 
         COMMIT;
         PRINT 'Guardaparque eliminado correctamente';

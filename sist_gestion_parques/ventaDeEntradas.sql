@@ -4,7 +4,8 @@ Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas 
 Descripcion:
 Procedimiento de negocio para el registro de ventas de entradas.
 */
-
+use sist_gestion_parques
+go
 --se le tiene que mandar un varchar con el formato datos_persona;datos entrada; datos tours |
 --dar sin ningun espacio
 --@Nombre,@Documento,@tipo_doc,@nacimiento,@ID_tipo visitante;@ID_tour (pueden ser varios separados por ',')|otro visitante
@@ -37,7 +38,7 @@ si algun tour queda null es porque hubo un error
 
 
 
-create or alter procedure RegistrarVenta @ID_parque int, @Pedido varchar(max), @PuntoDeVenta varchar(100) as
+create or alter procedure Ventas.SP_RegistrarVenta @ID_parque int, @Pedido varchar(max), @PuntoDeVenta varchar(100) as
 begin
 	set nocount on
 	DECLARE @error varchar(500) = ''

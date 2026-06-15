@@ -1,4 +1,4 @@
-USE pruebasDB; 
+USE sist_gestion_parques; 
 GO 
 
 CREATE OR ALTER PROCEDURE Staging.SP_Importar_WDPA

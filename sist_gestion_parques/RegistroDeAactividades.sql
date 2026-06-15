@@ -4,7 +4,7 @@ Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas 
 Descripcion:
 Procedimiento de negocio para el registro de actividades (tours).
 */
-CREATE OR ALTER PROCEDURE RegistrarActividad
+CREATE OR ALTER PROCEDURE Atracciones.RegistrarActividad
 (
     @Costo DECIMAL(11,2),
     @Cupo_Max INT,

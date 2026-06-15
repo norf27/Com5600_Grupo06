@@ -141,6 +141,8 @@ BEGIN
 		Fecha_ingreso DATE NOT NULL,
 		Fecha_egreso DATE NULL,
 		Motivo_egreso VARCHAR(255) NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT CK_Estado_Guardaparque_parque CHECK (Estado in ('A', 'I')),
 		PRIMARY KEY (ID_Guardaparque, ID_Parque, Fecha_ingreso),
 		CONSTRAINT FK_GuardaparqueParque_Guardaparque FOREIGN KEY (ID_Guardaparque) REFERENCES Empleados.Guardaparque(ID_Empleado),
 		CONSTRAINT FK_GuardaparqueParque_Parque FOREIGN KEY (ID_Parque) REFERENCES Parque.Parque(ID),
