@@ -1121,7 +1121,7 @@ BEGIN
     declare @ret int
     if @ID is not null
     begin
-        update Concesiones.Pago_mensual set Pago = 'D', Fecha = @Fecha, Monto = @Monto, Metodo = @Metodo, ID_concesion = @ID_concesion where ID = @ID
+        update Concesiones.Pago_mensual set Estado = 'a',Pago = 'D', Fecha = @Fecha, Monto = @Monto, Metodo = @Metodo, ID_concesion = @ID_concesion where ID = @ID
         set @ret = @ID
     end
     else

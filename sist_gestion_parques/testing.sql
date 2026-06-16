@@ -1009,6 +1009,7 @@ end try
 begin catch
 print error_message()
 end catch
+print 'aca'
 --modificar datos
 exec Concesiones.SP_PagoMensual_Modificar @ID = @ID, @Fecha = '2024-03-02', @Monto = 190.33, @Metodo = 'Efectivo', @ID_concesion = 1, @Pago = 'P'
 select * from Concesiones.Pago_mensual
