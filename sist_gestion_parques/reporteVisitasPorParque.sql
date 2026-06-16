@@ -1,5 +1,5 @@
 /*
-Fecha: 03/07/2026
+Fecha: 10/07/2026
 Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
 Descripcion: Script para Reporte de visitas por semana, mes y año, por parque.
 */
