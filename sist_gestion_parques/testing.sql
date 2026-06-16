@@ -1189,3 +1189,485 @@ end try
 begin catch
 print error_message()
 end catch
+
+
+PRINT '================= TESTING GUARDAPARQUE / TOUR ================='
+
+DECLARE
+    @ID_TipoParque_ABM INT,
+    @ID_Provincia_ABM TINYINT,
+    @ID_Parque_ABM_1 INT,
+    @ID_Parque_ABM_2 INT,
+    @ID_Emp_GP_ABM_1 INT,
+    @ID_Emp_GP_ABM_2 INT,
+    @ID_Emp_GP_ABM_REL INT,
+    @ID_Emp_Guia_ABM_1 INT,
+    @ID_Emp_Guia_ABM_2 INT,
+    @ID_Emp_Guia_ABM_3 INT,
+    @ID_Tour_ABM INT,
+    @ID_Tour_ABM_Rel_1 INT,
+    @ID_Tour_ABM_Rel_2 INT,
+    @ID_Tour_ABM_Rel_3 INT,
+    @ID_TipoVisitante_ABM INT,
+    @ID_Tarifa_ABM INT,
+    @ID_Cliente_ABM_1 INT,
+    @ID_Cliente_ABM_2 INT,
+    @ID_Compra_ABM_1 INT,
+    @ID_Compra_ABM_2 INT,
+    @ID_Entrada_ABM_1 INT,
+    @ID_Entrada_ABM_2 INT;
+
+/* ---------------- Datos base para los casos ---------------- */
+PRINT '================= PREPARACION DE DATOS BASE ================='
+
+EXEC @ID_TipoParque_ABM = Parque.SP_TipoParque_Alta
+    @Nombre = 'TEST ABM Tipo Parque',
+    @Descripcion = 'Tipo de parque para testing ABM';
+
+EXEC @ID_Provincia_ABM = Parque.SP_Provincia_Alta
+    @Nombre = 'TEST ABM Provincia';
+
+EXEC @ID_Parque_ABM_1 = Parque.SP_Parque_Alta
+    @Superficie = 1000.00,
+    @Nombre = 'TEST ABM Parque 1',
+    @ID_tipo = @ID_TipoParque_ABM,
+    @ID_provincia = @ID_Provincia_ABM,
+    @Anio_Creacion = 2001,
+    @Ambiente_Ecoregion = 'Bosque',
+    @Fecha_Ultima_Actualizacion = NULL;
+
+EXEC @ID_Parque_ABM_2 = Parque.SP_Parque_Alta
+    @Superficie = 2000.00,
+    @Nombre = 'TEST ABM Parque 2',
+    @ID_tipo = @ID_TipoParque_ABM,
+    @ID_provincia = @ID_Provincia_ABM,
+    @Anio_Creacion = 2002,
+    @Ambiente_Ecoregion = 'Montania',
+    @Fecha_Ultima_Actualizacion = NULL;
+
+EXEC @ID_Emp_GP_ABM_1 = Empleados.SP_Empleado_Alta
+    @Nacimiento = '1980-01-01',
+    @DNI = '92000001',
+    @Nombre = 'TEST ABM Guardaparque Uno',
+    @Sueldo = 100000.00,
+    @ID_parque = @ID_Parque_ABM_1,
+    @CUIL = '20-92000001-1';
+
+EXEC @ID_Emp_GP_ABM_2 = Empleados.SP_Empleado_Alta
+    @Nacimiento = '1981-01-01',
+    @DNI = '92000002',
+    @Nombre = 'TEST ABM Guardaparque Dos',
+    @Sueldo = 110000.00,
+    @ID_parque = @ID_Parque_ABM_1,
+    @CUIL = '20-92000002-2';
+
+EXEC @ID_Emp_GP_ABM_REL = Empleados.SP_Empleado_Alta
+    @Nacimiento = '1982-01-01',
+    @DNI = '92000003',
+    @Nombre = 'TEST ABM Guardaparque Relacion',
+    @Sueldo = 120000.00,
+    @ID_parque = @ID_Parque_ABM_1,
+    @CUIL = '20-92000003-3';
+
+EXEC @ID_Emp_Guia_ABM_1 = Empleados.SP_Guia_Alta
+    @Nombre = 'TEST ABM Guia Uno',
+    @DNI = '92000004',
+    @CUIL = '20-92000004-4',
+    @Nacimiento = '1983-01-01',
+    @Sueldo = 130000.00,
+    @ID_Parque = @ID_Parque_ABM_1;
+
+EXEC @ID_Emp_Guia_ABM_2 = Empleados.SP_Guia_Alta
+    @Nombre = 'TEST ABM Guia Dos',
+    @DNI = '92000005',
+    @CUIL = '20-92000005-5',
+    @Nacimiento = '1984-01-01',
+    @Sueldo = 140000.00,
+    @ID_Parque = @ID_Parque_ABM_1;
+
+EXEC @ID_Emp_Guia_ABM_3 = Empleados.SP_Guia_Alta
+    @Nombre = 'TEST ABM Guia Tres',
+    @DNI = '92000006',
+    @CUIL = '20-92000006-6',
+    @Nacimiento = '1985-01-01',
+    @Sueldo = 150000.00,
+    @ID_Parque = @ID_Parque_ABM_1;
+
+EXEC @ID_TipoVisitante_ABM = Ventas.SP_TipoVisitante_Alta
+    @Nombre = 'TEST ABM Visitante';
+
+EXEC @ID_Tarifa_ABM = Ventas.SP_Tarifa_Alta
+    @Fecha_desde = '2026-01-01',
+    @Fecha_hasta = NULL,
+    @Precio = 1000.00,
+    @ID_tipo_visitante = @ID_TipoVisitante_ABM,
+    @ID_parque = @ID_Parque_ABM_1;
+
+EXEC @ID_Cliente_ABM_1 = Ventas.SP_Cliente_Alta
+    @Nombre = 'TEST ABM Cliente Uno',
+    @Documento = '92000007',
+    @Tipo_doc = 'DNI',
+    @Nacimiento = '1990-01-01';
+
+EXEC @ID_Cliente_ABM_2 = Ventas.SP_Cliente_Alta
+    @Nombre = 'TEST ABM Cliente Dos',
+    @Documento = '92000008',
+    @Tipo_doc = 'DNI',
+    @Nacimiento = '1991-01-01';
+
+EXEC @ID_Compra_ABM_1 = Ventas.SP_Compra_Alta
+    @Fecha = '2026-01-01',
+    @Total = 1000.00,
+    @Cantidad = 1,
+    @Punto_venta = 'TEST ABM Punto 1';
+
+EXEC @ID_Compra_ABM_2 = Ventas.SP_Compra_Alta
+    @Fecha = '2026-01-02',
+    @Total = 1000.00,
+    @Cantidad = 1,
+    @Punto_venta = 'TEST ABM Punto 2';
+
+EXEC @ID_Entrada_ABM_1 = Ventas.SP_Entrada_Alta
+    @Fecha_acceso = '2026-12-01',
+    @ID_cliente = @ID_Cliente_ABM_1,
+    @ID_tarifa = @ID_Tarifa_ABM,
+    @ID_compra = @ID_Compra_ABM_1;
+
+EXEC @ID_Entrada_ABM_2 = Ventas.SP_Entrada_Alta
+    @Fecha_acceso = '2026-12-01',
+    @ID_cliente = @ID_Cliente_ABM_2,
+    @ID_tarifa = @ID_Tarifa_ABM,
+    @ID_compra = @ID_Compra_ABM_2;
+
+SELECT 'Datos base Parque' AS Evidencia, * FROM Parque.Parque WHERE ID IN (@ID_Parque_ABM_1, @ID_Parque_ABM_2);
+SELECT 'Datos base Empleado' AS Evidencia, * FROM Empleados.Empleado WHERE ID IN (@ID_Emp_GP_ABM_1, @ID_Emp_GP_ABM_2, @ID_Emp_GP_ABM_REL, @ID_Emp_Guia_ABM_1, @ID_Emp_Guia_ABM_2, @ID_Emp_Guia_ABM_3);
+SELECT 'Datos base Guia' AS Evidencia, * FROM Empleados.Guia WHERE ID_Empleado IN (@ID_Emp_Guia_ABM_1, @ID_Emp_Guia_ABM_2, @ID_Emp_Guia_ABM_3);
+SELECT 'Datos base Entrada' AS Evidencia, * FROM Ventas.Entrada WHERE ID IN (@ID_Entrada_ABM_1, @ID_Entrada_ABM_2);
+
+/* ---------------- Guardaparque ---------------- */
+PRINT '================= GUARDAPARQUE - ALTA / MODIFICACION / BAJA ================='
+
+EXEC Empleados.SP_Guardaparque_Alta @ID_Empleado = @ID_Emp_GP_ABM_1;
+SELECT 'Guardaparque despues de alta' AS Evidencia, * FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Emp_GP_ABM_1;
+
+EXEC Empleados.SP_Guardaparque_Modificar
+    @ID_Empleado = @ID_Emp_GP_ABM_1,
+    @NuevoID_Empleado = @ID_Emp_GP_ABM_2;
+SELECT 'Guardaparque despues de modificar PK' AS Evidencia, * FROM Empleados.Guardaparque WHERE ID_Empleado IN (@ID_Emp_GP_ABM_1, @ID_Emp_GP_ABM_2);
+
+EXEC Empleados.SP_Guardaparque_Baja @ID_Empleado = @ID_Emp_GP_ABM_2;
+SELECT 'Guardaparque despues de baja' AS Evidencia, * FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Emp_GP_ABM_2;
+
+BEGIN TRY
+    PRINT 'Validacion Guardaparque Alta: empleado null';
+    EXEC Empleados.SP_Guardaparque_Alta @ID_Empleado = NULL;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion Guardaparque Modificar: nuevo empleado inexistente';
+    EXEC Empleados.SP_Guardaparque_Modificar @ID_Empleado = @ID_Emp_GP_ABM_2, @NuevoID_Empleado = 999999;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion Guardaparque Baja: guardaparque inexistente';
+    EXEC Empleados.SP_Guardaparque_Baja @ID_Empleado = 999999;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+/* ---------------- R_Guardaparque_Parque ---------------- */
+PRINT '================= R_GUARDAPARQUE_PARQUE - ALTA / MODIFICACION / BAJA ================='
+
+EXEC Empleados.SP_Guardaparque_Alta @ID_Empleado = @ID_Emp_GP_ABM_REL;
+
+EXEC Empleados.SP_GuardaparqueParque_Alta
+    @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+    @ID_Parque = @ID_Parque_ABM_1,
+    @Fecha_ingreso = '2026-01-01',
+    @Fecha_egreso = '2026-06-30',
+    @Motivo_egreso = 'Fin de temporada';
+SELECT 'Relacion guardaparque-parque despues de alta' AS Evidencia, *
+FROM Empleados.R_Guardaparque_Parque
+WHERE ID_Guardaparque = @ID_Emp_GP_ABM_REL;
+
+BEGIN TRY
+    EXEC Empleados.SP_GuardaparqueParque_Modificar
+        @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @ID_Parque = @ID_Parque_ABM_1,
+        @Fecha_ingreso = '2026-01-01',
+        @NuevoID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @NuevoID_Parque = @ID_Parque_ABM_2,
+        @NuevaFecha_ingreso = '2026-07-01',
+        @NuevaFecha_egreso = '2026-12-31',
+        @NuevoMotivo_egreso = 'Rotacion de parque';
+END TRY
+BEGIN CATCH
+    PRINT 'Validacion detectada al modificar R_Guardaparque_Parque:';
+    PRINT ERROR_MESSAGE();
+END CATCH
+SELECT 'Relacion guardaparque-parque despues de modificar' AS Evidencia, *
+FROM Empleados.R_Guardaparque_Parque
+WHERE ID_Guardaparque = @ID_Emp_GP_ABM_REL;
+
+IF EXISTS
+(
+    SELECT 1
+    FROM Empleados.R_Guardaparque_Parque
+    WHERE ID_Guardaparque = @ID_Emp_GP_ABM_REL
+      AND ID_Parque = @ID_Parque_ABM_2
+      AND Fecha_ingreso = '2026-07-01'
+)
+BEGIN
+    EXEC Empleados.SP_GuardaparqueParque_Baja
+        @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @ID_Parque = @ID_Parque_ABM_2,
+        @Fecha_ingreso = '2026-07-01';
+END
+ELSE
+BEGIN
+    EXEC Empleados.SP_GuardaparqueParque_Baja
+        @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @ID_Parque = @ID_Parque_ABM_1,
+        @Fecha_ingreso = '2026-01-01';
+END
+SELECT 'Relacion guardaparque-parque despues de baja' AS Evidencia, *
+FROM Empleados.R_Guardaparque_Parque
+WHERE ID_Guardaparque = @ID_Emp_GP_ABM_REL;
+
+BEGIN TRY
+    PRINT 'Validacion R_Guardaparque_Parque Alta: fecha ingreso null';
+    EXEC Empleados.SP_GuardaparqueParque_Alta
+        @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @ID_Parque = @ID_Parque_ABM_1,
+        @Fecha_ingreso = NULL;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion R_Guardaparque_Parque Modificar: fecha egreso anterior al ingreso';
+    EXEC Empleados.SP_GuardaparqueParque_Modificar
+        @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @ID_Parque = @ID_Parque_ABM_1,
+        @Fecha_ingreso = '2026-01-01',
+        @NuevoID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @NuevoID_Parque = @ID_Parque_ABM_1,
+        @NuevaFecha_ingreso = '2026-05-01',
+        @NuevaFecha_egreso = '2026-04-01',
+        @NuevoMotivo_egreso = 'Fecha invalida';
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion R_Guardaparque_Parque Baja: asignacion inexistente';
+    EXEC Empleados.SP_GuardaparqueParque_Baja
+        @ID_Guardaparque = @ID_Emp_GP_ABM_REL,
+        @ID_Parque = @ID_Parque_ABM_1,
+        @Fecha_ingreso = '1900-01-01';
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+/* ---------------- Tour ---------------- */
+PRINT '================= TOUR - ALTA / MODIFICACION / BAJA ================='
+
+EXEC @ID_Tour_ABM = Atracciones.SP_Tour_Alta
+    @Costo = 2500.00,
+    @Cupo_max = 20,
+    @Tipo = 'D',
+    @Duracion = 90,
+    @ID_parque = @ID_Parque_ABM_1;
+SELECT 'Tour despues de alta' AS Evidencia, * FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour_ABM;
+
+EXEC Atracciones.SP_Tour_Modificar
+    @ID_Tour = @ID_Tour_ABM,
+    @Costo = 3000.00,
+    @Cupo_max = 25,
+    @Tipo = 'N',
+    @Duracion = 120,
+    @ID_parque = @ID_Parque_ABM_2;
+SELECT 'Tour despues de modificacion' AS Evidencia, * FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour_ABM;
+
+EXEC Atracciones.SP_Tour_Baja @ID_Tour = @ID_Tour_ABM;
+SELECT 'Tour despues de baja' AS Evidencia, * FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour_ABM;
+
+BEGIN TRY
+    PRINT 'Validacion Tour Alta: costo negativo y cupo cero';
+    EXEC Atracciones.SP_Tour_Alta
+        @Costo = -1,
+        @Cupo_max = 0,
+        @Tipo = 'D',
+        @Duracion = 90,
+        @ID_parque = @ID_Parque_ABM_1;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion Tour Modificar: tour inexistente';
+    EXEC Atracciones.SP_Tour_Modificar
+        @ID_Tour = 999999,
+        @Costo = 1000.00,
+        @Cupo_max = 10,
+        @Tipo = 'D',
+        @Duracion = 60,
+        @ID_parque = @ID_Parque_ABM_1;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion Tour Baja: tour inexistente';
+    EXEC Atracciones.SP_Tour_Baja @ID_Tour = 999999;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+/* ---------------- R_Tour_Guia ---------------- */
+PRINT '================= R_TOUR_GUIA - ALTA / MODIFICACION / BAJA ================='
+
+EXEC @ID_Tour_ABM_Rel_1 = Atracciones.SP_Tour_Alta
+    @Costo = 1500.00,
+    @Cupo_max = 10,
+    @Tipo = 'D',
+    @Duracion = 60,
+    @ID_parque = @ID_Parque_ABM_1;
+
+EXEC @ID_Tour_ABM_Rel_2 = Atracciones.SP_Tour_Alta
+    @Costo = 1800.00,
+    @Cupo_max = 10,
+    @Tipo = 'N',
+    @Duracion = 75,
+    @ID_parque = @ID_Parque_ABM_1;
+
+EXEC Atracciones.SP_TourGuia_Alta
+    @ID_Tour = @ID_Tour_ABM_Rel_1,
+    @ID_Guia = @ID_Emp_Guia_ABM_1;
+SELECT 'Relacion tour-guia despues de alta' AS Evidencia, *
+FROM Atracciones.R_Tour_Guia
+WHERE ID_Tour = @ID_Tour_ABM_Rel_1 AND ID_Guia = @ID_Emp_Guia_ABM_1;
+
+EXEC Atracciones.SP_TourGuia_Modificar
+    @ID_Tour = @ID_Tour_ABM_Rel_1,
+    @ID_Guia = @ID_Emp_Guia_ABM_1,
+    @NuevoID_Tour = @ID_Tour_ABM_Rel_2,
+    @NuevoID_Guia = @ID_Emp_Guia_ABM_2;
+SELECT 'Relacion tour-guia despues de modificacion' AS Evidencia, *
+FROM Atracciones.R_Tour_Guia
+WHERE (ID_Tour = @ID_Tour_ABM_Rel_1 AND ID_Guia = @ID_Emp_Guia_ABM_1)
+   OR (ID_Tour = @ID_Tour_ABM_Rel_2 AND ID_Guia = @ID_Emp_Guia_ABM_2);
+
+EXEC Atracciones.SP_TourGuia_Baja
+    @ID_Tour = @ID_Tour_ABM_Rel_2,
+    @ID_Guia = @ID_Emp_Guia_ABM_2;
+SELECT 'Relacion tour-guia despues de baja' AS Evidencia, *
+FROM Atracciones.R_Tour_Guia
+WHERE ID_Tour = @ID_Tour_ABM_Rel_2 AND ID_Guia = @ID_Emp_Guia_ABM_2;
+
+BEGIN TRY
+    PRINT 'Validacion R_Tour_Guia Alta: guia inexistente';
+    EXEC Atracciones.SP_TourGuia_Alta @ID_Tour = @ID_Tour_ABM_Rel_1, @ID_Guia = 999999;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion R_Tour_Guia Modificar: asignacion original inexistente';
+    EXEC Atracciones.SP_TourGuia_Modificar
+        @ID_Tour = @ID_Tour_ABM_Rel_1,
+        @ID_Guia = @ID_Emp_Guia_ABM_1,
+        @NuevoID_Tour = @ID_Tour_ABM_Rel_2,
+        @NuevoID_Guia = @ID_Emp_Guia_ABM_2;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion R_Tour_Guia Baja: asignacion inexistente';
+    EXEC Atracciones.SP_TourGuia_Baja @ID_Tour = @ID_Tour_ABM_Rel_1, @ID_Guia = @ID_Emp_Guia_ABM_1;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+/* ---------------- R_Tour_Entrada ---------------- */
+PRINT '================= R_TOUR_ENTRADA - ALTA / MODIFICACION / BAJA ================='
+
+EXEC @ID_Tour_ABM_Rel_3 = Atracciones.SP_Tour_Alta
+    @Costo = 2100.00,
+    @Cupo_max = 2,
+    @Tipo = 'D',
+    @Duracion = 80,
+    @ID_parque = @ID_Parque_ABM_1;
+
+EXEC Atracciones.SP_TourEntrada_Alta
+    @ID_Tour = @ID_Tour_ABM_Rel_1,
+    @ID_Entrada = @ID_Entrada_ABM_1;
+SELECT 'Relacion tour-entrada despues de alta' AS Evidencia, *
+FROM Atracciones.R_Tour_Entrada
+WHERE ID_Tour = @ID_Tour_ABM_Rel_1 AND ID_Entrada = @ID_Entrada_ABM_1;
+
+EXEC Atracciones.SP_TourEntrada_Modificar
+    @ID_Tour = @ID_Tour_ABM_Rel_1,
+    @ID_Entrada = @ID_Entrada_ABM_1,
+    @NuevoID_Tour = @ID_Tour_ABM_Rel_3,
+    @NuevoID_Entrada = @ID_Entrada_ABM_2;
+SELECT 'Relacion tour-entrada despues de modificacion' AS Evidencia, *
+FROM Atracciones.R_Tour_Entrada
+WHERE (ID_Tour = @ID_Tour_ABM_Rel_1 AND ID_Entrada = @ID_Entrada_ABM_1)
+   OR (ID_Tour = @ID_Tour_ABM_Rel_3 AND ID_Entrada = @ID_Entrada_ABM_2);
+
+EXEC Atracciones.SP_TourEntrada_Baja
+    @ID_Tour = @ID_Tour_ABM_Rel_3,
+    @ID_Entrada = @ID_Entrada_ABM_2;
+SELECT 'Relacion tour-entrada despues de baja' AS Evidencia, *
+FROM Atracciones.R_Tour_Entrada
+WHERE ID_Tour = @ID_Tour_ABM_Rel_3 AND ID_Entrada = @ID_Entrada_ABM_2;
+
+BEGIN TRY
+    PRINT 'Validacion R_Tour_Entrada Alta: entrada inexistente';
+    EXEC Atracciones.SP_TourEntrada_Alta @ID_Tour = @ID_Tour_ABM_Rel_1, @ID_Entrada = 999999;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion R_Tour_Entrada Modificar: nuevo tour inexistente';
+    EXEC Atracciones.SP_TourEntrada_Modificar
+        @ID_Tour = @ID_Tour_ABM_Rel_1,
+        @ID_Entrada = @ID_Entrada_ABM_1,
+        @NuevoID_Tour = 999999,
+        @NuevoID_Entrada = @ID_Entrada_ABM_2;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+BEGIN TRY
+    PRINT 'Validacion R_Tour_Entrada Baja: asignacion inexistente';
+    EXEC Atracciones.SP_TourEntrada_Baja @ID_Tour = @ID_Tour_ABM_Rel_1, @ID_Entrada = @ID_Entrada_ABM_1;
+END TRY
+BEGIN CATCH
+    PRINT ERROR_MESSAGE();
+END CATCH
+
+PRINT '================= FIN TESTING ABM GUARDAPARQUE / TOUR ================='
+
+
