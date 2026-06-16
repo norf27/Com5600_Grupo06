@@ -165,54 +165,114 @@ go
 
 
 --------------------EMPLEADOS-----------------------
-
--- Alta de guardaparque: registra como guardaparque a un empleado existente.
 CREATE OR ALTER PROCEDURE Empleados.SP_Guardaparque_Alta
-    @ID_Empleado int
+    @ID_Empleado INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Variable utilizada para acumular mensajes de validacion.
     DECLARE @error VARCHAR(MAX) = '';
 
+    -- Variable para conocer si el guardaparque ya existe
+    -- y si se encuentra activo o inactivo.
+    DECLARE @Estado CHAR(1);
+
+    -- Busca el estado actual del guardaparque.
+    SELECT @Estado = Estado
+    FROM Empleados.Guardaparque
+    WHERE ID_Empleado = @ID_Empleado;
+
+    ------------------------------------------------------------------
+    -- VALIDACIONES
+    ------------------------------------------------------------------
+
+    -- Verifica que se haya informado un empleado.
     IF @ID_Empleado IS NULL
         SET @error += 'El ID_Empleado no puede ser null' + CHAR(10);
-    IF @ID_Empleado IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Empleado WHERE ID = @ID_Empleado)
+
+    -- Verifica que el empleado exista.
+    IF @ID_Empleado IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM Empleados.Empleado
+            WHERE ID = @ID_Empleado
+       )
         SET @error += 'El empleado indicado no existe' + CHAR(10);
-    IF @ID_Empleado IS NOT NULL AND EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Empleado)
-        SET @error += 'El empleado indicado ya esta registrado como guardaparque' + CHAR(10);
-    IF @ID_Empleado IS NOT NULL AND EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado)
+
+    -- Impide que una misma persona sea guia y guardaparque a la vez.
+    IF @ID_Empleado IS NOT NULL
+       AND EXISTS (
+            SELECT 1
+            FROM Empleados.Guia
+            WHERE ID_Empleado = @ID_Empleado
+              AND Estado = 'A'
+       )
         SET @error += 'El empleado indicado ya esta registrado como guia' + CHAR(10);
 
-    IF @error != ''
+    -- Verifica si ya existe un guardaparque activo.
+    IF @Estado = 'A'
+        SET @error += 'El empleado indicado ya esta registrado como guardaparque' + CHAR(10);
+
+    -- Si hubo errores se cancela la operacion.
+    IF @error <> ''
         THROW 50001, @error, 1;
 
-    -- La operacion se ejecuta en transaccion para asegurar consistencia.
+    ------------------------------------------------------------------
+    -- TRANSACCION
+    ------------------------------------------------------------------
+
     BEGIN TRANSACTION;
+
     BEGIN TRY
-        INSERT INTO Empleados.Guardaparque (ID_Empleado)
-        VALUES (@ID_Empleado);
+
+        -- Si existe pero fue dado de baja logicamente,
+        -- se reactiva el registro.
+        IF @Estado = 'I'
+        BEGIN
+            UPDATE Empleados.Guardaparque
+            SET Estado = 'A'
+            WHERE ID_Empleado = @ID_Empleado;
+        END
+
+        -- Si no existe, se crea un nuevo registro.
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.Guardaparque
+            (
+                ID_Empleado
+            )
+            VALUES
+            (
+                @ID_Empleado
+            );
+        END
 
         COMMIT;
-        RETURN SCOPE_IDENTITY()
+
         PRINT 'Guardaparque registrado correctamente';
+
     END TRY
     BEGIN CATCH
+
+        -- Ante cualquier error se deshacen los cambios.
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
 
         DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
         DECLARE @Num INT = ERROR_NUMBER();
+
         PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
 
         THROW;
+
     END CATCH;
 END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_GuardaparqueParque_Alta
-    @ID_Guardaparque int,
-    @ID_Parque int,
+    @ID_Guardaparque INT,
+    @ID_Parque INT,
     @Fecha_ingreso DATE,
     @Fecha_egreso DATE = NULL,
     @Motivo_egreso VARCHAR(255) = NULL
@@ -220,85 +280,132 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Alta de asignacion de guardaparque a parque, con fechas de permanencia.
     DECLARE @error VARCHAR(MAX) = '';
+    DECLARE @Estado CHAR(1);
+
+    SELECT @Estado = Estado
+    FROM Empleados.R_Guardaparque_Parque
+    WHERE ID_Guardaparque = @ID_Guardaparque
+      AND ID_Parque = @ID_Parque
+      AND Fecha_ingreso = @Fecha_ingreso;
 
     IF @ID_Guardaparque IS NULL
         SET @error += 'El ID_Guardaparque no puede ser null' + CHAR(10);
+
     IF @ID_Parque IS NULL
         SET @error += 'El ID_Parque no puede ser null' + CHAR(10);
+
     IF @Fecha_ingreso IS NULL
         SET @error += 'La fecha de ingreso no puede ser null' + CHAR(10);
-    IF @ID_Guardaparque IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guardaparque WHERE ID_Empleado = @ID_Guardaparque)
+
+    IF @ID_Guardaparque IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM Empleados.Guardaparque
+            WHERE ID_Empleado = @ID_Guardaparque
+              AND Estado = 'A'
+       )
         SET @error += 'El guardaparque indicado no existe' + CHAR(10);
-    IF @ID_Parque IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Parque.Parque WHERE ID = @ID_Parque)
+
+    IF @ID_Parque IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM Parque.Parque
+            WHERE ID = @ID_Parque
+              AND Estado = 'A'
+       )
         SET @error += 'El parque indicado no existe' + CHAR(10);
-    IF @Fecha_egreso IS NOT NULL AND @Fecha_ingreso IS NOT NULL AND @Fecha_egreso < @Fecha_ingreso
+
+    IF @Fecha_egreso IS NOT NULL
+       AND @Fecha_ingreso IS NOT NULL
+       AND @Fecha_egreso < @Fecha_ingreso
         SET @error += 'La fecha de egreso no puede ser anterior a la fecha de ingreso' + CHAR(10);
-    -- Si hay egreso, debe existir motivo; si no hay egreso, no debe existir motivo.
-    IF (@Fecha_egreso IS NULL AND @Motivo_egreso IS NOT NULL) OR (@Fecha_egreso IS NOT NULL AND (@Motivo_egreso IS NULL OR LTRIM(RTRIM(@Motivo_egreso)) = ''))
+
+    IF (@Fecha_egreso IS NULL AND @Motivo_egreso IS NOT NULL)
+       OR
+       (@Fecha_egreso IS NOT NULL
+        AND (@Motivo_egreso IS NULL OR LTRIM(RTRIM(@Motivo_egreso)) = ''))
         SET @error += 'Debe informar fecha y motivo de egreso juntos, o dejar ambos vacios' + CHAR(10);
+
+    IF @Estado = 'A'
+        SET @error += 'Ya existe esa asignacion de guardaparque al parque' + CHAR(10);
+
     IF EXISTS (
         SELECT 1
         FROM Empleados.R_Guardaparque_Parque
         WHERE ID_Guardaparque = @ID_Guardaparque
-          AND ID_Parque = @ID_Parque
-          AND Fecha_ingreso = @Fecha_ingreso
-    )
-        SET @error += 'Ya existe esa asignacion de guardaparque al parque' + CHAR(10);
-    
-    IF EXISTS ( --agregue esta verificacion para que no se pisen asignaciones
-        SELECT 1
-        FROM Empleados.R_Guardaparque_Parque
-        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND Estado = 'A'
           AND (
-            -- si fecha de ingreso se encuentra en el rango de otra asignacion
-            (@Fecha_ingreso >= Fecha_ingreso AND (@Fecha_ingreso <= Fecha_egreso OR Fecha_egreso IS NULL)) 
-            OR 
-            -- si la fecha de ingreso es valida mira a ver si la fecha de egreso es valida 
-            (@Fecha_egreso IS NOT NULL AND @Fecha_egreso >= Fecha_ingreso AND (@Fecha_egreso <= Fecha_egreso OR Fecha_egreso IS NULL)) 
-            OR
-            -- mira que no "encierre" otra asignacion adentro
-            (@Fecha_ingreso <= Fecha_ingreso AND (@Fecha_egreso >= Fecha_egreso OR @Fecha_egreso IS NULL AND Fecha_egreso IS NOT NULL))
-          )
+                (@Fecha_ingreso >= Fecha_ingreso
+                    AND (@Fecha_ingreso <= Fecha_egreso OR Fecha_egreso IS NULL))
+                OR
+                (@Fecha_egreso IS NOT NULL
+                    AND @Fecha_egreso >= Fecha_ingreso
+                    AND (@Fecha_egreso <= Fecha_egreso OR Fecha_egreso IS NULL))
+                OR
+                (@Fecha_ingreso <= Fecha_ingreso
+                    AND (
+                        @Fecha_egreso >= Fecha_egreso
+                        OR (@Fecha_egreso IS NULL AND Fecha_egreso IS NOT NULL)
+                    ))
+              )
     )
         SET @error += 'El guardaparque ya tiene una asignacion activa o superpuesta en ese rango de fechas.' + CHAR(10);
-    
-    IF @error != ''
+
+    IF @error <> ''
         THROW 50001, @error, 1;
 
     BEGIN TRANSACTION;
+
     BEGIN TRY
-        INSERT INTO Empleados.R_Guardaparque_Parque
-        (
-            ID_Guardaparque,
-            ID_Parque,
-            Fecha_ingreso,
-            Fecha_egreso,
-            Motivo_egreso
-        )
-        VALUES
-        (
-            @ID_Guardaparque,
-            @ID_Parque,
-            @Fecha_ingreso,
-            @Fecha_egreso,
-            @Motivo_egreso
-        );
+
+        IF @Estado = 'I'
+        BEGIN
+            UPDATE Empleados.R_Guardaparque_Parque
+            SET Estado = 'A',
+                Fecha_egreso = @Fecha_egreso,
+                Motivo_egreso = @Motivo_egreso
+            WHERE ID_Guardaparque = @ID_Guardaparque
+              AND ID_Parque = @ID_Parque
+              AND Fecha_ingreso = @Fecha_ingreso;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.R_Guardaparque_Parque
+            (
+                ID_Guardaparque,
+                ID_Parque,
+                Fecha_ingreso,
+                Fecha_egreso,
+                Motivo_egreso
+            )
+            VALUES
+            (
+                @ID_Guardaparque,
+                @ID_Parque,
+                @Fecha_ingreso,
+                @Fecha_egreso,
+                @Motivo_egreso
+            );
+        END
 
         COMMIT;
-        RETURN SCOPE_IDENTITY();
+
         PRINT 'Asignacion de guardaparque al parque registrada correctamente';
+
     END TRY
     BEGIN CATCH
+
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
 
         DECLARE @Msg NVARCHAR(MAX) = ERROR_MESSAGE();
         DECLARE @Num INT = ERROR_NUMBER();
+
         PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
 
         THROW;
+
     END CATCH;
 END;
 GO
