@@ -120,7 +120,9 @@ BEGIN
             set @error += 'El ID_provincia no puede ser null' + char(10)
         if not exists (select 1 from Parque.Provincia where ID = @ID_provincia and Estado = 'A')
             set @error += 'El ID_provincia no existe' + char(10)
-
+		if @Fecha_Ultima_Actualizacion is null
+    		set @Fecha_Ultima_Actualizacion = getdate()
+		
         declare @ID int, @Estado char(1)
         select @ID = ID, @Estado = Estado from Parque.Parque where Nombre = @Nombre
 
