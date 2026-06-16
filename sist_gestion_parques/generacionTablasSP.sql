@@ -231,7 +231,7 @@ BEGIN
 		Detalles VARCHAR(100) NOT NULL,
 		Nombre VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
-		CONSTRAINT check_Nombre_Hab CHECK (NOMBRE LIKE '%[^a-zA-Z ]%'),
+		CONSTRAINT check_Nombre_Hab CHECK (NOMBRE LIKE '%[a-zA-Z ]%'),
 		CONSTRAINT check_Estado_Habilitacion CHECK (Estado in ('A', 'I'))
 	);
 END
@@ -261,7 +261,7 @@ BEGIN
 		Nombre VARCHAR(100) NOT NULL,
 		Detalles VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
-		CONSTRAINT check_Nombre_Esp CHECK (Nombre LIKE '%[^a-zA-Z ]%'),
+		CONSTRAINT check_Nombre_Esp CHECK (Nombre LIKE '%[a-zA-Z ]%'),
 		CONSTRAINT check_Estado_Especialidad CHECK (Estado in ('A', 'I'))
 	);
 END
@@ -289,7 +289,7 @@ BEGIN
 		ID INT IDENTITY(1,1) PRIMARY KEY,
 		Nombre VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
-		CONSTRAINT check_Nombre_Titulo CHECK (NOMBRE LIKE '%[^a-zA-Z ]%'),
+		CONSTRAINT check_Nombre_Titulo CHECK (NOMBRE LIKE '%[a-zA-Z ]%'),
 		CONSTRAINT check_Estado_Titulo CHECK (Estado in ('A', 'I'))
 	);
 END
