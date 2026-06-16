@@ -139,11 +139,17 @@ BEGIN
 	CREATE TABLE Parque.Parque
 	(
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
-		Superficie INT NOT NULL,
+		Superficie DECIMAL(12,2) NOT NULL,
 		Nombre VARCHAR(100) NOT NULL UNIQUE,
-		ID_tipo INT NOT NULL,
-		ID_provincia TINYINT NOT NULL,
+		ID_tipo INT NULL,
+		ID_provincia TINYINT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+	
+		-- Columnas opcionales para contener información externa
+	    Anio_Creacion INT NULL, 
+	    Ambiente_Ecoregion VARCHAR(255) NULL,
+	    Fecha_Ultima_Actualizacion DATETIME DEFAULT GETDATE(),
+	
 		CONSTRAINT check_Estado_Parque CHECK (Estado in ('A', 'I')),
 		CONSTRAINT check_superficie CHECK (superficie > 0),
 		CONSTRAINT FK_tipo_parque FOREIGN KEY (ID_tipo) REFERENCES Parque.Tipo_parque(ID),
