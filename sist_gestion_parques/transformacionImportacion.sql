@@ -1,3 +1,9 @@
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Descripcion: Script de tranformacion para la importacion de archivos
+*/
+
 USE sist_gestion_parques; 
 GO 
 
