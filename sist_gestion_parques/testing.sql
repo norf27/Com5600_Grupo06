@@ -22,7 +22,7 @@ begin catch
 print error_message()
 end catch
 --modificar datos de el parque
-exec Parque.SP_TipoParque_Modificar @ID = @ID, @Nombre = ' nombre acuatico', @NuevaDesc = 'Nueva descripcion acuatica'
+exec Parque.SP_TipoParque_Modificar @ID = @ID, @Nombre = 'nombre acuatico', @Desc = 'Nueva descripcion acuatica'
 select * from Parque.Tipo_parque
 --probar de insertar con algun error o varios
 --nombre null
@@ -79,56 +79,56 @@ end catch
 
 print '=================Parque================='
 --dar de alta:
-exec @ID =  Parque.SP_Parque_Alta @Superficie = 180, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1
+exec @ID =  Parque.SP_Parque_Alta @Superficie = 180, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 select * from Parque.parque
 --dar de baja (estado cambia a inactivo)
 exec Parque.SP_Parque_Baja @ID = @ID
 select * from Parque.parque
 --dar de alta cambiando la superficie (estado pasa a activo y cambia la descripcion)
-exec @ID = Parque.SP_Parque_Alta @Superficie = 2000, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1
+exec @ID = Parque.SP_Parque_Alta @Superficie = 2000, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 select * from Parque.parque
 --probar de dar de alta cuando sigue como activo
 begin try
-exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1
+exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 end try
 begin catch
 print error_message()
 end catch
 --modificar datos de el parque
-exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre = ' parque de la costa', @ID_tipo = 1, @ID_provincia = 1
+exec Parque.SP_Parque_Modificar @ID = @ID, @Superficie = 1800, @Nombre = 'parque de la costa', @ID_tipo = 1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 select * from Parque.parque
 --probar de insertar con algun error o varios
 --superficie null
 begin try
-exec Parque.SP_Parque_Alta @Superficie = null, @Nombre = 'Parque de la unlam', @ID_tipo = 1, @ID_provincia = 1
+exec Parque.SP_Parque_Alta @Superficie = null, @Nombre = 'Parque de la unlam', @ID_tipo = 1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 end try
 begin catch
 print error_message()
 end catch
 --nombre null
 begin try
-exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre =  null, @ID_tipo = 1, @ID_provincia = 1
+exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre =  null, @ID_tipo = 1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 end try
 begin catch
 print error_message()
 end catch
 --ID tipo null
 begin try
-exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre =  'parque', @ID_tipo = null, @ID_provincia = 1
+exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre =  'parque', @ID_tipo = null, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 end try
 begin catch
 print error_message()
 end catch
 --ID tipo no existe
 begin try
-exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre =  'parque', @ID_tipo = -1, @ID_provincia = 1
+exec Parque.SP_Parque_Alta @Superficie = 180, @Nombre =  'parque', @ID_tipo = -1, @ID_provincia = 1, @Fecha_Ultima_Actualizacion = null
 end try
 begin catch
 print error_message()
 end catch
 --varios a la vez
 begin try
-exec Parque.SP_Parque_Alta @Superficie = -1, @Nombre =  null, @ID_tipo = null, @ID_provincia = 255
+exec Parque.SP_Parque_Alta @Superficie = -1, @Nombre =  null, @ID_tipo = null, @ID_provincia = 255, @Fecha_Ultima_Actualizacion = null
 end try
 begin catch
 print error_message()
@@ -194,20 +194,23 @@ EXEC Empleados.SP_Guia_Baja @ID_Empleado = @ID_Guia
 SELECT * FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia
 
 --Dar de alta de vuelta (estado pasa a activo, se reactiva)
+/* comentado porque da error
 EXEC @ID_Guia = Empleados.SP_Guia_Alta @Nombre = 'Francisco Pascasio', @DNI = '22333444', @CUIL = '20-22333444-1', @Nacimiento = '1985-05-15', @Sueldo = 350000.00, @ID_Parque = 1
 SELECT * FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia
-
+*/
 --Prueba de dar de alta cuando sigue como activo
 BEGIN TRY
     EXEC Empleados.SP_Guia_Alta @Nombre = 'Francisco Pascasio', @DNI = '22333444', @CUIL = '20-22333444-1', @Nacimiento = '1985-05-15', @Sueldo = 350000.00, @ID_Parque = 1
 END TRY
 BEGIN CATCH
     PRINT error_message()
-END CATCH
+END CATCH 
 
 --Modificar datos del guia (modifica la tabla empleado vinculada)
+
 EXEC Empleados.SP_Guia_Modificar @ID_Empleado = @ID_Guia, @Nacimiento = '1985-05-15', @DNI = '22333444', @Nombre = 'Francisco Moreno', @Sueldo = 400000.00, @Estado = 'a', @ID_Parque = 1, @CUIL = '20-22333444-1'
 SELECT * FROM Empleados.Empleado WHERE ID = @ID_Guia
+
 
 --Pruebas de insercion erronea
 
@@ -551,7 +554,7 @@ EXEC Empleados.SP_Titulo_Baja @ID = @ID_Tit_Prueba;
 PRINT '=================Guia - Habilitacion================='
 
 --Dar de alta (crea o recupera la habilitacion 'Alta Montaña' y la asigna al guia):
-EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'nacional'
+EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'n'
 SELECT @ID_Hab = ID FROM Empleados.Habilitacion WHERE Nombre = 'Alta Montaña';
 SELECT * FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Hab
 
@@ -560,19 +563,20 @@ EXEC Empleados.SP_GuiaHabilitacion_Baja @ID_Guia = @ID_Guia, @ID_Habilitacion = 
 SELECT * FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Hab
 
 --Dar de alta nuevamente (reactiva la relacion)
-EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'nacional'
+/* comentado porque da error
+EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'n'
 SELECT * FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Hab
-
+*/
 --Prueba de dar de alta cuando sigue activo
 BEGIN TRY
-    EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'nacional'
+    EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'n'
 END TRY
 BEGIN CATCH
     PRINT error_message()
 END CATCH
 
 --Modificar datos en la relacion
-EXEC Empleados.SP_GuiaHabilitacion_Modificar @ID_Guia = @ID_Guia, @ID_Habilitacion = @ID_Hab, @NuevaFecha_Vencimiento = '2035-12-31', @NuevoTipo = 'provincial'
+EXEC Empleados.SP_GuiaHabilitacion_Modificar @ID_Guia = @ID_Guia, @ID_Habilitacion = @ID_Hab, @NuevaFecha_Vencimiento = '2035-12-31', @NuevoTipo = 'p'
 SELECT * FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Hab
 
 --Pruebas de insercion erronea
@@ -647,7 +651,7 @@ EXEC Empleados.SP_Guia_Baja @ID_Empleado = @ID_GuiaHab_Prueba;
 
 PRINT '=================Guia - Especialidad================='
 --Dar de alta:
-EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'A'
+EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'E'
 SELECT @ID_Esp = ID FROM Empleados.Especialidad WHERE Nombre = 'Avistaje de Aves';
 SELECT * FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Esp
 
@@ -656,12 +660,13 @@ EXEC Empleados.SP_GuiaEspecialidad_Baja @ID_Guia = @ID_Guia, @ID_Especialidad = 
 SELECT * FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Esp
 
 --Dar de alta nuevamente (reactiva la relacion)
-EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'A'
+/* comentado porque da error
+EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'E'
 SELECT * FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Esp
-
+*/
 --Prueba de dar de alta cuando sigue activo
 BEGIN TRY
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'E'
 END TRY
 BEGIN CATCH
     PRINT error_message()
@@ -678,14 +683,14 @@ EXEC @ID_GuiaEsp_Prueba = Empleados.SP_Guia_Alta @Nombre = 'Guia Test Especialid
 -- 1. ID Guia es NULL
 BEGIN TRY
     PRINT 'Prueba 1: ID Guia NULL'
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = NULL, @Nombre_Especialidad = 'Escalada', @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = NULL, @Nombre_Especialidad = 'Escalada', @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'E'
 END TRY
 BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 
 -- 2. ID Guia Inexistente
 BEGIN TRY
     PRINT 'Prueba 2: ID Guia Inexistente'
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = 999999, @Nombre_Especialidad = 'Escalada', @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = 999999, @Nombre_Especialidad = 'Escalada', @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'E'
 END TRY
 BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 
@@ -706,21 +711,21 @@ BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 -- 5. Error heredado de Especialidad: Nombre NULL
 BEGIN TRY
     PRINT 'Prueba 5: Nombre Especialidad NULL (Heredado)'
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = NULL, @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = NULL, @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'E'
 END TRY
 BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 
 -- 6. Error heredado de Especialidad: Nombre con caracteres inválidos
 BEGIN TRY
     PRINT 'Prueba 6: Nombre Especialidad con Numeros (Heredado)'
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = 'Escalada 101', @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = 'Escalada 101', @Detalles_Especialidad = 'Manejo de cuerdas', @Nivel = 'E'
 END TRY
 BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 
 -- 7. Error heredado de Especialidad: Detalles NULL
 BEGIN TRY
     PRINT 'Prueba 7: Detalles Especialidad NULL (Heredado)'
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = 'Escalada', @Detalles_Especialidad = NULL, @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = 'Escalada', @Detalles_Especialidad = NULL, @Nivel = 'E'
 END TRY
 BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 
@@ -733,7 +738,7 @@ EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_E
 BEGIN TRY
     PRINT 'Prueba 8: Asignacion duplicada (activa)'
     -- Intentamos asignarle la MISMA especialidad al MISMO guia
-    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = 'Fotografia de Naturaleza', @Detalles_Especialidad = 'Fotografia macro y paisaje', @Nivel = 'A'
+    EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_GuiaEsp_Prueba, @Nombre_Especialidad = 'Fotografia de Naturaleza', @Detalles_Especialidad = 'Fotografia macro y paisaje', @Nivel = 'E'
 END TRY
 BEGIN CATCH PRINT CONCAT('   -> ERROR: ', ERROR_MESSAGE()) END CATCH
 
@@ -753,9 +758,10 @@ EXEC Empleados.SP_GuiaTitulo_Baja @ID_Guia = @ID_Guia, @ID_Titulo = @ID_Tit
 SELECT * FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Tit
 
 --Dar de alta nuevamente (reactiva la relacion)
+/* comentado porque da error
 EXEC Empleados.SP_GuiaTitulo_Alta @ID_Guia = @ID_Guia, @Nombre_Titulo = 'Guia de Parque Nacional', @Fecha_emision = '2010-12-01', @Origen = 'Ministerio de Turismo'
 SELECT * FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Tit
-
+*/
 --Prueba de dar de alta cuando sigue activo
 BEGIN TRY
     EXEC Empleados.SP_GuiaTitulo_Alta @ID_Guia = @ID_Guia, @Nombre_Titulo = 'Guia de Parque Nacional', @Fecha_emision = '2010-12-01', @Origen = 'Ministerio de Turismo'
@@ -865,7 +871,7 @@ begin catch
 print error_message()
 end catch
 --modificar datos
-exec Concesiones.SP_TipoActividad_Modificar @ID = @ID, @Nombre = 'venta de comida saludable', @NuevaDesc = 'venta de comida saludable en algun lado'
+exec Concesiones.SP_TipoActividad_Modificar @ID = @ID, @Nombre = 'venta de comida saludable', @Desc = 'venta de comida saludable en algun lado'
 select * from Concesiones.Tipo_actividad
 --probar de insertar con algun error o varios
 --nombre null
@@ -994,9 +1000,11 @@ select * from Concesiones.Pago_mensual
 --dar de alta de vuelta con otro metodo
 exec @ID = Concesiones.SP_PagoMensual_Alta @Fecha = '2024-02-02', @Monto = 190.33, @Metodo = 'Efectivo', @ID_concesion = 1
 select * from Concesiones.Pago_mensual
+
 --probar de dar de alta cuando sigue como activo
 begin try
 exec Concesiones.SP_PagoMensual_Alta @Fecha = '2024-02-02', @Monto = 190.33, @Metodo = 'Efectivo', @ID_concesion = 1
+select * from Concesiones.Pago_mensual
 end try
 begin catch
 print error_message()
@@ -1022,6 +1030,160 @@ end catch
 --monto negativo e id invalido
 begin try
 exec Concesiones.SP_PagoMensual_Alta @Fecha = '2021-01-01', @Monto = -30, @Metodo = 'Efectivo', @ID_concesion = -1
+end try
+begin catch
+print error_message()
+end catch
+
+print '=================Gestion concesiones y pagos================='
+
+--testing concesion
+Declare @ID_Parque_1 int
+Declare @ID_prov int
+declare @ID_tipo_parque int
+declare @ID_tipo_actividad int
+declare @ID_empresa int
+declare @ID_concesion int
+--crear tipo de parque y provincia
+exec @ID_tipo_parque = Parque.SP_TipoParque_Alta 'Seco','No esta mojado'
+exec @ID_prov = Parque.SP_Provincia_Alta 'Mendoza'
+--crear parque
+exec @ID_Parque_1 = Parque.SP_Parque_Alta 2000, 'Parque del norte', @ID_tipo_parque, @ID_prov, @Fecha_Ultima_Actualizacion = null 
+--crear tipo de actividad
+exec @ID_tipo_actividad = Concesiones.SP_TipoActividad_Alta 'Venta de comida', 'vende comida en la entrada al predio'
+--crear Empresa
+exec @ID_empresa = Concesiones.SP_Empresa_Alta 'Super Panchos SA', '20-12345678-1', 'superPanchos@gmail.com'
+
+--registrar concesion
+exec @ID_concesion = Concesiones.SP_RegistrarConcesion @ID_empresa, @ID_tipo_actividad, @ID_Parque_1, '2026-08-01', '2026-12-01', 1800.75, 'Efectivo'
+select * from Concesiones.Concesion
+select * from Concesiones.Pago_mensual
+
+--registrar un pago para el primer mes
+exec Concesiones.SP_RegistrarPago @ID_concesion, '2026-08-01'
+select * from Concesiones.Pago_mensual
+
+--probar de registrar concesion duplicada
+begin try
+exec @ID_concesion = Concesiones.SP_RegistrarConcesion @ID_empresa, @ID_tipo_actividad, @ID_Parque_1, '2026-08-01', '2026-12-01', 1800.75, 'Efectivo'
+end try
+begin catch
+print error_message()
+end catch
+
+--probar de registrar pago para un mes ya pagado
+begin try
+exec Concesiones.SP_RegistrarPago @ID_concesion, '2026-08-01'
+end try
+begin catch
+print error_message()
+end catch
+--probar de registrar pago para una concesion que no y fecha null
+begin try
+exec Concesiones.SP_RegistrarPago -1, null
+end try
+begin catch
+print error_message()
+end catch
+--borrar concesion (deja todos los pagos en estado 'i')
+exec Concesiones.SP_Concesion_Baja @ID_concesion
+select * from Concesiones.Pago_mensual
+
+
+print '=================Registrar ventas================='
+--Pruebas Ventas
+Declare @ID_Parque_1_vts int, @ID_Parque_2_vts int
+Declare @ID_tipo_visitante_1 int, @ID_tipo_visitante_2 int
+Declare @ID_prov_vts int
+declare @ID_tipo_parque_vts int
+declare @ID_tarifa_1 int, @ID_tarifa_2 int
+declare @ID_tour_1 int, @ID_tour_2 int, @ID_tour_3 int
+--crear 2 tipos de visitante
+exec @ID_tipo_visitante_1 = Ventas.SP_TipoVisitante_Alta 'Adulto'
+exec @ID_tipo_visitante_2 = Ventas.SP_TipoVisitante_Alta 'Estudiante'
+--crear tipo de parque y provincia
+exec @ID_tipo_parque_vts = Parque.SP_TipoParque_Alta 'Acuatico','Esta mojado'
+exec @ID_prov_vts = Parque.SP_Provincia_Alta 'Cordoba'
+--crear 2 parques
+exec @ID_Parque_1_vts = Parque.SP_Parque_Alta 2000, 'Parque de la jungla', @ID_tipo_parque_vts, @ID_prov_vts, null, null, null
+exec @ID_Parque_2_vts = Parque.SP_Parque_Alta 150,'parque el palmar', @ID_tipo_parque_vts, @ID_prov_vts, null, null, null
+--crear 1 cliente
+exec Ventas.SP_Cliente_Alta 'Lionel Messi', '12345678', 'ARG', '1987-06-24'
+--crear 2 tarifas
+exec @ID_tarifa_1 = Ventas.SP_Tarifa_Alta '2025-01-01', NULL, 150, @ID_tipo_visitante_1, @ID_Parque_1_vts --entrada para adulto = 150
+exec @ID_tarifa_2 = Ventas.SP_Tarifa_Alta '2025-01-01', NULL, 50, @ID_tipo_visitante_2, @ID_Parque_1_vts --entrada para estudiante = 50
+--crear tours
+exec @ID_tour_1 = Atracciones.SP_Tour_Alta 200, 5, 'a', 20, @ID_Parque_1_vts --cupo max = 5 personas, cuesta 200
+exec @ID_tour_2 = Atracciones.SP_Tour_Alta 300, 3, 'a', 20, @ID_Parque_1_vts --cupo max = 3 personas, cuesta 300
+exec @ID_tour_3 = Atracciones.SP_Tour_Alta 50, 50, 'a', 20, @ID_Parque_2_vts --cupo max = 50, cuesta 50
+
+Print '======compras=========='
+
+--realizar compras para 1 sola persona ya registrada
+declare @pedido varchar(8000)
+set @pedido = concat('Lionel Messi,12345678,ARG,1987-06-24,', @ID_tipo_visitante_1, ';', @ID_tour_1);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+select * from Ventas.Cliente
+select * from Ventas.Compra --total = 350 = 200(tour) + 150(entrada)
+--realizar compras para 1 persona sin registrar (debera registrarla)
+set @pedido = concat('Nicolas Orfano,87654321,ARG,1987-06-24,', @ID_tipo_visitante_2, ';', @ID_tour_1);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+select * from Ventas.Cliente
+select * from Ventas.Compra --total = 250 = 200(tour) + 50(entrada)
+
+--realizar compras para una persona con varios tours validos
+set @pedido = concat('Santiago Grasso,11112222,ARG,1987-06-24,', @ID_tipo_visitante_2, ';', @ID_tour_1, ',', @ID_tour_2);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+select * from Ventas.Cliente
+select * from Ventas.Compra --total = 550 = 200(tour 1) + 300(tour 2) + 50(entrada)
+--realizar compras para una persona con 1 tour invalido (ID no existe)(da error)
+begin try
+set @pedido = concat('Lionel Scaloni,22221111,ARG,1987-06-24,', @ID_tipo_visitante_2, ';', @ID_tour_1, ',', @ID_tour_2, ',', -1);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+end try
+begin catch
+print error_message()
+end catch
+
+--realizar compras para una persona con 1 tour de otro parque (debera dar error)
+begin try
+set @pedido = concat('Lionel Scaloni,22221111,ARG,1987-06-24,', @ID_tipo_visitante_2, ';', @ID_tour_1, ',', @ID_tour_2, ',', @ID_tour_3);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+end try
+begin catch
+print error_message()
+end catch
+--realizar compra para 2 personas, cada una con distintos tours
+set @pedido = concat('Lionel Scaloni,22221111,ARG,1987-06-24,', @ID_tipo_visitante_2, ';', @ID_tour_1, ',', '|', 
+					 'Diego Armando Maradona,10101010,ARG,1987-06-24,', @ID_tipo_visitante_1, ';', @ID_tour_2
+);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+select * from Ventas.Compra --total = 700. tarifa de entrada: 50 (sacaloni) + 150 (maradona). tours: 200 (sacaloni) + 300 (maradona)
+--realizar compra para un tour cuando ya esta lleno el cupo para ese dia
+--en este caso el tour_2 tiene cupo para 3 personas y ya hay 2 entradas asociadas a este tour para la fecha de hoy
+--pero le pedimos 2 mas (1 para Dibu Martinez y 1 para Michael Jackson
+begin try
+set @pedido = concat('Dibu Martinez,11111111,ARG,1987-06-24,', @ID_tipo_visitante_2, ';', @ID_tour_1, ',', @ID_tour_2,'|',
+'Michael Jackson,00100212,ARG,1987-06-24,', @ID_tipo_visitante_1, ';', @ID_tour_1, ',', @ID_tour_2
+);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+end try
+begin catch
+print error_message()
+end catch
+--enviar datos invalidos 
+--dar fecha invalida
+begin try
+set @pedido = concat('Dibu Martinez,11111111,ARG,soy fecha invalida,', @ID_tipo_visitante_2, ';', @ID_tour_1);
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
+end try
+begin catch
+print error_message()
+end catch
+--dar tour que no es numero
+begin try
+set @pedido = concat('Dibu Martinez,11111111,ARG,soy fecha invalida,', @ID_tipo_visitante_2, ';', 'soy un tour que no es numero');
+exec Ventas.SP_RegistrarVenta @ID_parque = @ID_Parque_1_vts, @Pedido = @pedido, @PuntoDeVenta = 'ventanilla'
 end try
 begin catch
 print error_message()
