@@ -102,7 +102,7 @@ BEGIN
     END CATCH;
 END;
 go
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie int, @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie DECIMAL(12,2), @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -113,7 +113,7 @@ BEGIN
         if @Nombre is null
             set @error += 'El nombre no puede ser null' + char(10)
         if @ID_tipo is null
-            set @error += 'El ID_tipo no puede ser null' + char(10)
+            set @error += 'El ID_tipo no puede ser null para altas manuales de usuario' + char(10)
         if not exists (select 1 from Parque.Tipo_parque where ID = @ID_tipo)
             set @error += 'El ID_tipo no existe' + char(10)
         if @ID_provincia is null
@@ -134,7 +134,7 @@ BEGIN
     declare @ret int
     if @ID is not null
     begin
-        update Parque.Parque set Superficie = @Superficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Estado = 'A' where ID = @ID
+        update Parque.Parque set Superficie = @Superficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Estado = 'A', Fecha_Ultima_Actualizacion = GETDATE() where ID = @ID
         set @ret = @ID
     end
     else
