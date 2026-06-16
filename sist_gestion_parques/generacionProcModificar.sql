@@ -79,7 +79,7 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @NuevaSuperficie int, @Nombre varchar(100), @ID_tipo INT, @ID_provincia tinyint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @NuevaSuperficie decimal(12,2), @Nombre varchar(100), @ID_tipo INT, @ID_provincia tinyint as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -94,7 +94,7 @@ BEGIN
         if @Nombre is null
             set @error += 'El nombre no puede ser null' + char(10)
         if @ID_tipo is null
-            set @error += 'El ID_tipo no puede ser null' + char(10)
+            set @error += 'El ID_tipo no puede ser null mediante modificaciones manuales.' + char(10)
         if not exists (select 1 from Parque.Tipo_parque where ID = @ID_tipo)
             set @error += 'El ID_tipo no existe' + char(10)
         if @ID_provincia is null
@@ -105,7 +105,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Parque set Superficie = @NuevaSuperficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia where ID = @ID
+        update Parque.Parque set Superficie = @NuevaSuperficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Fecha_Ultima_Actualizacion = GETDATE() where ID = @ID
         COMMIT;
 		print 'El parque fue modificado con exito' 
     END TRY
