@@ -1584,11 +1584,27 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        INSERT INTO Atracciones.Tour (Costo, Cupo_max, Tipo, Duracion, ID_parque)
-        VALUES (@Costo, @Cupo_max, @Tipo, @Duracion, @ID_parque);
+		INSERT INTO Atracciones.Tour
+        (
+            Costo,
+            Cupo_max,
+            Tipo,
+            Duracion,
+            ID_parque
+        )
+        VALUES
+        (
+            @Costo,
+            @Cupo_max,
+            @Tipo,
+            @Duracion,
+            @ID_parque
+        );
 
         COMMIT;
+
         PRINT 'Tour registrado correctamente';
+
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -1613,6 +1629,14 @@ BEGIN
 
     -- Asigna un guia existente a un tour existente.
     DECLARE @error VARCHAR(MAX) = '';
+------------------------
+	DECLARE @Estado CHAR(1);
+
+	SELECT @Estado = Estado
+	FROM Atracciones.R_Tour_Guia
+	WHERE ID_Tour = @ID_Tour
+  	AND ID_Guia = @ID_Guia;
+------------------------
 
     IF @ID_Tour IS NULL
         SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
@@ -1622,8 +1646,8 @@ BEGIN
         SET @error += 'El tour indicado no existe' + CHAR(10);
     IF @ID_Guia IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
         SET @error += 'El guia indicado no existe' + CHAR(10);
-    IF EXISTS (SELECT 1 FROM Atracciones.R_Tour_Guia WHERE ID_Tour = @ID_Tour AND ID_Guia = @ID_Guia)
-        SET @error += 'El guia ya esta asignado a ese tour' + CHAR(10);
+    IF @Estado = 'a'
+    	SET @error += 'El guia ya esta asignado a ese tour' + CHAR(10);
 
     IF @error != ''
         THROW 50001, @error, 1;
@@ -1659,6 +1683,14 @@ BEGIN
     -- Asigna una entrada existente a un tour existente.
     -- Se controla el cupo maximo antes de insertar.
     DECLARE @error VARCHAR(MAX) = '';
+	--------------------------------
+	DECLARE @Estado CHAR(1);
+
+	SELECT @Estado = Estado
+	FROM Atracciones.R_Tour_Entrada
+	WHERE ID_Tour = @ID_Tour
+  	AND ID_Entrada = @ID_Entrada;
+	--------------------------------
 
     IF @ID_Tour IS NULL
         SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
@@ -1668,9 +1700,8 @@ BEGIN
         SET @error += 'El tour indicado no existe' + CHAR(10);
     IF @ID_Entrada IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Ventas.Entrada WHERE ID = @ID_Entrada)
         SET @error += 'La entrada indicada no existe' + CHAR(10);
-    IF EXISTS (SELECT 1 FROM Atracciones.R_Tour_Entrada WHERE ID_Tour = @ID_Tour AND ID_Entrada = @ID_Entrada)
-        SET @error += 'La entrada ya esta asignada a ese tour' + CHAR(10);
-    -- Regla de negocio: no permitir mas entradas que el cupo maximo del tour.
+	IF @Estado = 'a'
+    	SET @error += 'La entrada ya esta asignada a ese tour' + CHAR(10);
     IF @ID_Tour IS NOT NULL AND EXISTS (
         SELECT 1
         FROM Atracciones.Tour
@@ -1684,8 +1715,27 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        INSERT INTO Atracciones.R_Tour_Entrada (ID_Tour, ID_Entrada)
-        VALUES (@ID_Tour, @ID_Entrada);
+		IF @Estado = 'I'
+		BEGIN
+    		UPDATE Atracciones.R_Tour_Entrada
+    		SET Estado = 'A'
+    		WHERE ID_Tour = @ID_Tour
+      		AND ID_Entrada = @ID_Entrada;
+		END
+		ELSE
+		BEGIN
+    		INSERT INTO Atracciones.R_Tour_Entrada
+    		(
+        		ID_Tour,
+        		ID_Entrada
+    		)
+    		VALUES
+    		(
+        		@ID_Tour,
+		        @ID_Entrada
+    		);
+		END
+		--------------
 
         COMMIT;
         PRINT 'Entrada asignada al tour correctamente';
