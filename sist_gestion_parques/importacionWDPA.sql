@@ -46,26 +46,27 @@ BEGIN
     UPDATE P
     SET 
         P.Anio_Creacion = TRY_CAST(Staging.FN_LimpiarTextoInternacional(S.STATUS_YR) AS INT),
-        P.Hectareas = Staging.FN_TransformarAreaAHectareas(S.GIS_AREA, 'KM2'),
+        P.Superficie = Staging.FN_TransformarAreaAHectareas(S.GIS_AREA, 'KM2'),
         P.Ambiente_Ecoregion = TRIM(S.DESIG),
         P.Fecha_Ultima_Actualizacion = GETDATE()
-    FROM Parque.ParqueNacional P
+    FROM Parque.Parque P
     INNER JOIN Staging.STG_WDPA_Areas S 
-        ON UPPER(TRIM(P.Nombre)) = UPPER(TRIM(S.NAME))
-    WHERE TRY_CAST(S.GIS_AREA AS DECIMAL(12,4)) IS NOT NULL;
+        ON UPPER(TRIM(P.Nombre)) = UPPER(TRIM(S.NAME)) 
+    WHERE TRY_CAST(S.GIS_AREA AS DECIMAL(12,4)) IS NOT NULL; 
 
-    INSERT INTO Parque.ParqueNacional (Nombre, Provincia, Anio_Creacion, Hectareas, Ambiente_Ecoregion)
+    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion)
     SELECT 
         TRIM(S.NAME), 
-        'Internacional / Sin Datos',        
+        Staging.FN_TransformarAreaAHectareas(S.GIS_AREA, 'KM2'), 
+        NULL, -- El CSV de la ONU no se mapea a los Tipos locales
+        NULL, -- El CSV de la ONU no especifica provincias locales
         TRY_CAST(Staging.FN_LimpiarTextoInternacional(S.STATUS_YR) AS INT), 
-        Staging.FN_TransformarAreaAHectareas(S.GIS_AREA, 'KM2'),
         TRIM(S.DESIG)
     FROM Staging.STG_WDPA_Areas S
     WHERE TRY_CAST(S.GIS_AREA AS DECIMAL(12,4)) IS NOT NULL
       AND NOT EXISTS (
           SELECT 1 
-          FROM Parque.ParqueNacional P 
+          FROM Parque.Parque P 
           WHERE UPPER(TRIM(P.Nombre)) = UPPER(TRIM(S.NAME))
       );
 END;
