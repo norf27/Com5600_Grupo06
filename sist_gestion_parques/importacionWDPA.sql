@@ -1,3 +1,9 @@
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Descripcion: Script de genaracion de procedure de importacion del dataset Internacional (WDPA)
+*/
+
 USE sist_gestion_parques; 
 GO 
 
