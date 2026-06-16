@@ -1654,11 +1654,32 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        INSERT INTO Atracciones.R_Tour_Guia (ID_Tour, ID_Guia)
-        VALUES (@ID_Tour, @ID_Guia);
 
-        COMMIT;
-        PRINT 'Guia asignado al tour correctamente';
+    	IF @Estado = 'I'
+    	BEGIN
+        	UPDATE Atracciones.R_Tour_Guia
+        	SET Estado = 'A'
+        	WHERE ID_Tour = @ID_Tour
+          	AND ID_Guia = @ID_Guia;
+    	END
+    	ELSE
+    	BEGIN
+        	INSERT INTO Atracciones.R_Tour_Guia
+        	(
+            	ID_Tour,
+            	ID_Guia
+        	)
+        	VALUES
+        	(
+            	@ID_Tour,
+            	@ID_Guia
+        	);
+    	END
+
+    	COMMIT;
+
+    	PRINT 'Guia asignado al tour correctamente';
+
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
