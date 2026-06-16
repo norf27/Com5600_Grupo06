@@ -9,7 +9,7 @@ GO
 --no deberian poder tocar estado desde modificar
 
 --------------------PARQUE-----------------------
-CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Modificar @ID INT, @Nombre varchar(100),@NuevaDesc varchar(250) as 
+CREATE OR ALTER PROCEDURE Parque.SP_TipoParque_Modificar @ID INT, @Nombre varchar(100),@Desc varchar(250) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -17,7 +17,7 @@ BEGIN
             set @error = @error + 'La ID no puede ser null' + char(10)
         if not exists (select 1 from Parque.Tipo_parque where ID = @ID)
             set @error = @error + 'No existe ID' + char(10)
-        if @NuevaDesc is null
+        if @Desc is null
             set @error = @error + 'La descripcion no puede ser null' + char(10)
         if @Nombre is null
             set @error = @error + 'El nombre no puede ser null' + char(10)
@@ -28,7 +28,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Tipo_parque set Descripcion = @NuevaDesc, Nombre = @Nombre where ID = @ID 
+        update Parque.Tipo_parque set Descripcion = @Desc, Nombre = @Nombre where ID = @ID 
         COMMIT;
 		print 'El tipo de parque fue modificado con exito' 
     END TRY
@@ -79,33 +79,37 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @NuevaSuperficie decimal(12,2), @Nombre varchar(100), @ID_tipo INT, @ID_provincia tinyint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Modificar @ID INT, @Superficie decimal(12,2), @Nombre varchar(100), @ID_tipo INT, @ID_provincia tinyint 
+,@Anio_Creacion int = null,
+@Ambiente_Ecoregion VARCHAR(255) = null, @Fecha_Ultima_Actualizacion date as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
          if @ID is null
             set @error += 'El ID no puede ser null' + char(10)
-        if not exists(select 1 from Parque.Parque where ID = @ID)
+        if not exists(select 1 from Parque.Parque where ID = @ID and Estado = 'A')
             set @error += 'No existe ID' + char(10)
-        if @NuevaSuperficie is null
+        if @Superficie is null
             set @error += 'La superficie no puede ser null' + char(10)
-        if @NuevaSuperficie <= 0
+        if @Superficie <= 0
             set @error += 'La superficie no puede ser <= 0' + char(10)
         if @Nombre is null
             set @error += 'El nombre no puede ser null' + char(10)
         if @ID_tipo is null
             set @error += 'El ID_tipo no puede ser null mediante modificaciones manuales.' + char(10)
-        if not exists (select 1 from Parque.Tipo_parque where ID = @ID_tipo)
+        if not exists (select 1 from Parque.Tipo_parque where ID = @ID_tipo and Estado = 'A')
             set @error += 'El ID_tipo no existe' + char(10)
         if @ID_provincia is null
             set @error += 'El ID_provincia no puede ser null' + char(10)
-        if not exists (select 1 from Parque.Provincia where ID = @ID_provincia)
+        if not exists (select 1 from Parque.Provincia where ID = @ID_provincia and Estado = 'A')
             set @error += 'El ID_provincia no existe' + char(10)
         if @error != ''
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Parque.Parque set Superficie = @NuevaSuperficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Fecha_Ultima_Actualizacion = GETDATE() where ID = @ID
+        update Parque.Parque set Superficie = @Superficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Estado = 'A' 
+        ,Anio_Creacion = @Anio_Creacion, Ambiente_Ecoregion = @Ambiente_Ecoregion, Fecha_Ultima_Actualizacion = @Fecha_Ultima_Actualizacion
+        where ID = @ID
         COMMIT;
 		print 'El parque fue modificado con exito' 
     END TRY
@@ -231,7 +235,23 @@ BEGIN
           AND NOT (ID_Guardaparque = @ID_Guardaparque AND ID_Parque = @ID_Parque AND Fecha_ingreso = @Fecha_ingreso)
     )
         SET @error += 'Ya existe otra asignacion con esos nuevos datos' + CHAR(10);
-
+    IF EXISTS ( --agregue esta verificacion para que no se pisen asignaciones
+    SELECT 1
+    FROM Empleados.R_Guardaparque_Parque
+    WHERE ID_Guardaparque = @ID_Guardaparque
+      AND (
+        -- si fecha de ingreso se encuentra en el rango de otra asignacion
+        (@Fecha_ingreso >= Fecha_ingreso AND (@Fecha_ingreso <= Fecha_egreso OR Fecha_egreso IS NULL)) 
+        OR 
+        -- si la fecha de ingreso es valida mira a ver si la fecha de egreso es valida 
+        (@NuevaFecha_ingreso IS NOT NULL AND @NuevaFecha_ingreso >= Fecha_ingreso AND (@NuevaFecha_ingreso <= Fecha_egreso OR Fecha_egreso IS NULL)) 
+        OR
+        -- mira que no "encierre" otra asignacion adentro
+        (@Fecha_ingreso <= Fecha_ingreso AND (@NuevaFecha_ingreso >= Fecha_egreso OR @NuevaFecha_ingreso IS NULL AND Fecha_egreso IS NOT NULL))
+      )
+)
+    SET @error += 'El guardaparque ya tiene una asignacion activa o superpuesta en ese rango de fechas.' + CHAR(10);
+    
     IF @error != ''
         THROW 50001, @error, 1;
 
@@ -670,7 +690,7 @@ BEGIN
 END;
 GO
 --------------------CONSECIONES-----------------------
-CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Modificar @ID INT, @Nombre varchar(100),@NuevaDesc varchar(250) as 
+CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Modificar @ID INT, @Nombre varchar(100),@Desc varchar(250) as 
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -678,7 +698,7 @@ BEGIN
             set @error = @error + 'La ID no puede ser null' + char(10)
         if not exists (select 1 from Concesiones.Tipo_actividad where ID = @ID)
             set @error = @error + 'No existe ID' + char(10)
-        if @NuevaDesc is null
+        if @Desc is null
             set @error = @error + 'La descripcion no puede ser null' + char(10)
         if @Nombre is null
             set @error = @error + 'El nombre no puede ser null' + char(10)
@@ -688,7 +708,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Concesiones.Tipo_actividad set Descripcion = @NuevaDesc, Nombre = @Nombre where ID = @ID
+        update Concesiones.Tipo_actividad set Descripcion = @Desc, Nombre = @Nombre where ID = @ID
         COMMIT;
 		print 'El tipo de actividad fue modificado con exito' 
     END TRY
@@ -714,7 +734,7 @@ BEGIN
     declare @error varchar(max) = ''
         if @ID is null
             set @error += 'El ID no puede ser null' + char(10)
-        if not exists(select 1 from Concesiones.Empresa where ID = @ID)
+        if not exists(select 1 from Concesiones.Empresa where ID = @ID and Estado = 'A')
             set @error += 'No existe ID' + char(10)
         if @Nombre is null
             set @error += 'El nombre no puede ser null' + char(10)
@@ -760,7 +780,7 @@ BEGIN
     declare @error varchar(max) = ''
         if @ID is null
             set @error += 'El ID no puede ser null' + char(10)
-        if not exists(select 1 from Concesiones.Concesion where ID = @ID)
+        if not exists(select 1 from Concesiones.Concesion where ID = @ID and Estado = 'A')
             set @error += 'El ID no existe' + char(10)
         if @Fecha_inicio is null
             set @error += 'La fecha de inicio no puede ser null' + char(10)
@@ -768,11 +788,11 @@ BEGIN
             set @error += 'La fecha de fin no puede ser null' + char(10)
         if @ID_empresa is null
             set @error += 'El ID_empresa no puede ser null' + char(10)
-        if not exists (select 1 from Concesiones.Empresa where ID = @ID_empresa)
+        if not exists (select 1 from Concesiones.Empresa where ID = @ID_empresa and Estado = 'A')
             set @error += 'El ID_empresa no existe' + char(10)
         if @ID_tipo is null
             set @error += 'El ID_tipo no puede ser null' + char(10)
-        if not exists (select 1 from Concesiones.Tipo_actividad where ID = @ID_tipo)
+        if not exists (select 1 from Concesiones.Tipo_actividad where ID = @ID_tipo and Estado = 'A')
             set @error += 'El ID_tipo no existe' + char(10)
         if @ID_parque is null
             set @error += 'El ID_parque no puede ser null' + char(10)
@@ -817,7 +837,7 @@ BEGIN
     declare @error varchar(500) = ''
          if @ID is null
             set @error += 'El ID no puede ser null'
-        if not exists (select 1 from Concesiones.Pago_mensual where ID = @ID)
+        if not exists (select 1 from Concesiones.Pago_mensual where ID = @ID and Estado = 'A')
             set @error += 'El ID es invalido' + char(10)
         if @Monto is null
             set @error += 'El monto no puede ser null' + char(10)
@@ -827,7 +847,7 @@ BEGIN
             set @error += 'El ID_concesion no puede ser null' + char(10)
         if @Monto <= 0
             set @error += 'El monto no puede ser menor o igual a 0' + char(10)
-        if not exists (select 1 from Concesiones.Concesion where ID = @ID_concesion)
+        if not exists (select 1 from Concesiones.Concesion where ID = @ID_concesion and Estado = 'A')
             set @error += 'El ID_concesion no existe' + char(10)
         if @Fecha is null
             set @Fecha = DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1)

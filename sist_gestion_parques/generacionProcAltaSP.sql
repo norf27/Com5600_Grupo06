@@ -55,7 +55,6 @@ BEGIN
     END CATCH;
 END;
 go
-
 CREATE OR ALTER PROCEDURE Parque.SP_Provincia_Alta @Nombre varchar(100)as
 BEGIN
     SET NOCOUNT ON;
@@ -102,7 +101,8 @@ BEGIN
     END CATCH;
 END;
 go
-CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie DECIMAL(12,2), @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint as
+CREATE OR ALTER PROCEDURE Parque.SP_Parque_Alta @Superficie DECIMAL(12,2), @Nombre varchar(100), @ID_tipo int, @ID_provincia tinyint, @Anio_Creacion int = null,
+@Ambiente_Ecoregion VARCHAR(255) = null, @Fecha_Ultima_Actualizacion date as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -114,11 +114,11 @@ BEGIN
             set @error += 'El nombre no puede ser null' + char(10)
         if @ID_tipo is null
             set @error += 'El ID_tipo no puede ser null para altas manuales de usuario' + char(10)
-        if not exists (select 1 from Parque.Tipo_parque where ID = @ID_tipo)
+        if not exists (select 1 from Parque.Tipo_parque where ID = @ID_tipo and Estado = 'A')
             set @error += 'El ID_tipo no existe' + char(10)
         if @ID_provincia is null
             set @error += 'El ID_provincia no puede ser null' + char(10)
-        if not exists (select 1 from Parque.Provincia where ID = @ID_provincia)
+        if not exists (select 1 from Parque.Provincia where ID = @ID_provincia and Estado = 'A')
             set @error += 'El ID_provincia no existe' + char(10)
 
         declare @ID int, @Estado char(1)
@@ -134,12 +134,14 @@ BEGIN
     declare @ret int
     if @ID is not null
     begin
-        update Parque.Parque set Superficie = @Superficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Estado = 'A', Fecha_Ultima_Actualizacion = GETDATE() where ID = @ID
+        update Parque.Parque set Superficie = @Superficie, Nombre = @Nombre, ID_tipo = @ID_tipo, ID_provincia = @ID_provincia, Estado = 'A',
+        Anio_Creacion = @Anio_Creacion, Ambiente_Ecoregion = @Ambiente_Ecoregion, Fecha_Ultima_Actualizacion = @Fecha_Ultima_Actualizacion
+        where ID = @ID
         set @ret = @ID
     end
     else
     begin
-        insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia)
+        insert into Parque.Parque (Superficie, Nombre, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion, Fecha_Ultima_Actualizacion) values (@Superficie, @Nombre, @ID_tipo, @ID_provincia, @Anio_Creacion, @Ambiente_Ecoregion, @Fecha_Ultima_Actualizacion)
         set @ret = SCOPE_IDENTITY()
     end
     COMMIT;
@@ -244,7 +246,24 @@ BEGIN
           AND Fecha_ingreso = @Fecha_ingreso
     )
         SET @error += 'Ya existe esa asignacion de guardaparque al parque' + CHAR(10);
-
+    
+    IF EXISTS ( --agregue esta verificacion para que no se pisen asignaciones
+        SELECT 1
+        FROM Empleados.R_Guardaparque_Parque
+        WHERE ID_Guardaparque = @ID_Guardaparque
+          AND (
+            -- si fecha de ingreso se encuentra en el rango de otra asignacion
+            (@Fecha_ingreso >= Fecha_ingreso AND (@Fecha_ingreso <= Fecha_egreso OR Fecha_egreso IS NULL)) 
+            OR 
+            -- si la fecha de ingreso es valida mira a ver si la fecha de egreso es valida 
+            (@Fecha_egreso IS NOT NULL AND @Fecha_egreso >= Fecha_ingreso AND (@Fecha_egreso <= Fecha_egreso OR Fecha_egreso IS NULL)) 
+            OR
+            -- mira que no "encierre" otra asignacion adentro
+            (@Fecha_ingreso <= Fecha_ingreso AND (@Fecha_egreso >= Fecha_egreso OR @Fecha_egreso IS NULL AND Fecha_egreso IS NOT NULL))
+          )
+    )
+        SET @error += 'El guardaparque ya tiene una asignacion activa o superpuesta en ese rango de fechas.' + CHAR(10);
+    
     IF @error != ''
         THROW 50001, @error, 1;
 
@@ -316,7 +335,7 @@ BEGIN
             set @error += 'Estado invalido. Validos: a, i, l, v' + char(10)
         if @ID_parque is null
             set @error += 'El ID_parque no puede ser null' + char(10)
-        if not exists(select 1 from Parque.Parque where ID = @ID_parque)
+        if not exists(select 1 from Parque.Parque where ID = @ID_parque and Estado = 'A')
             set @error += 'El ID_parque no existe' + char(10)
         if @CUIL is null
             set @error += 'El CUIL no puede ser null' + char(10)
@@ -902,15 +921,15 @@ BEGIN
             set @error += 'La fecha de fin no puede ser null' + char(10)
         if @ID_empresa is null
             set @error += 'El ID_empresa no puede ser null' + char(10)
-        if not exists (select 1 from Concesiones.Empresa where ID = @ID_empresa)
+        if not exists (select 1 from Concesiones.Empresa where ID = @ID_empresa and Estado = 'A')
             set @error += 'El ID_empresa no existe' + char(10)
         if @ID_tipo is null
             set @error += 'El ID_tipo no puede ser null' + char(10)
-        if not exists (select 1 from Concesiones.Tipo_actividad where ID = @ID_tipo)
+        if not exists (select 1 from Concesiones.Tipo_actividad where ID = @ID_tipo and Estado = 'A')
             set @error += 'El ID_tipo no existe' + char(10)
         if @ID_parque is null
             set @error += 'El ID_parque no puede ser null' + char(10)
-        if not exists (select 1 from Parque.Parque where ID = @ID_parque)
+        if not exists (select 1 from Parque.Parque where ID = @ID_parque and Estado = 'A')
             set @error += 'El ID_parque no existe' + char(10)
         if @Fecha_fin < @Fecha_inicio
             set @error += 'La fecha de fin no puede ser anterior a la fecha de inicio' + char(10)
