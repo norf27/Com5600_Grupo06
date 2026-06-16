@@ -366,316 +366,419 @@ CREATE OR ALTER PROCEDURE Empleados.SP_Guia_Alta
     @CUIL VARCHAR(13),
     @Nacimiento DATE,
     @Sueldo DECIMAL(11,2),
-    @Estado CHAR(1),
-    @ID_Parque int
+    @ID_Parque INT
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @DNI IS NULL
+        SET @error += 'El DNI no puede ser null' + CHAR(10);
+    IF @Nombre IS NULL
+        SET @error += 'El nombre no puede ser null' + CHAR(10);
+
+    DECLARE @ID_Empleado INT, @Estado char(1);
+    SELECT @ID_Empleado = ID FROM Empleados.Empleado WHERE DNI = @DNI;
+
+    IF @ID_Empleado IS NOT NULL
+    BEGIN
+        SELECT @Estado = Estado FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado;
+        
+        IF @Estado = 'A'
+            SET @error += 'El empleado indicado ya esta registrado como guia y se encuentra activo' + CHAR(10);
+    END
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @ID_Empleado int;
+        DECLARE @ret INT;
 
-        -- Llamada al agregado de Empleado. 
-        EXEC @ID_Empleado = Empleados.SP_Empleado_Alta 
-            @Nombre = @Nombre,
-            @DNI = @DNI,
-            @CUIL = @CUIL,
+        EXEC @ret = Empleados.SP_Empleado_Alta 
             @Nacimiento = @Nacimiento,
+            @DNI = @DNI,
+            @Nombre = @Nombre,
             @Sueldo = @Sueldo,
-            @Estado = @Estado,
-            @ID_Parque = @ID_Parque;
+            @ID_parque = @ID_Parque,
+            @CUIL = @CUIL;
 
-        IF EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado)
+        IF @Estado IS NOT NULL 
         BEGIN
-            PRINT('Este empleado ya es un guia.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.Guia SET Estado = 'a' WHERE ID_Empleado = @ret;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.Guia (ID_Empleado) VALUES (@ret);
         END
 
+        COMMIT;
+        PRINT 'Guia registrado o reactivado correctamente';
+        RETURN @ret;
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error al registrar el guia.', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.Guia (ID_Empleado) VALUES (@ID_Empleado);
-    RETURN @ID_Empleado;
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Habilitacion_Alta
-    @Detalles VARCHAR(100),
-    @Fecha DATE,
-    @Estado CHAR(1) = 'A'
+    @Nombre VARCHAR(100),
+    @Detalles VARCHAR(100)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    SET @Nombre = TRIM(@Nombre);
+    SET @Detalles = TRIM(@Detalles);
+
+    IF @Nombre = '' OR @Nombre IS NULL
+        SET @error += 'El nombre de la habilitacion no puede ser null o estar vacio' + CHAR(10);
+    IF @Nombre LIKE '%[^a-zA-Z ]%'
+        SET @error += 'El nombre de la habilitacion debe contener solo letras y espacios' + CHAR(10);
+    IF @Detalles = '' OR @Detalles IS NULL
+        SET @error += 'Los detalles de la habilitacion no pueden ser null o estar vacio' + CHAR(10);
+
+    DECLARE @ID int, @Estado char(1);
+    SELECT @ID = ID, @Estado = Estado FROM Empleados.Habilitacion WHERE Nombre = @Nombre;
+
+    IF @ID IS NOT NULL AND @Estado = 'A'
+        SET @error += 'La habilitacion ya existe en la tabla' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @Id int;
-        SET @Detalles = TRIM(@Detalles);
-
-        IF @Detalles = '' OR LEN(@Detalles) > 100 OR @Detalles IS NULL
+        DECLARE @ret int;
+        IF @ID IS NOT NULL
         BEGIN
-            PRINT('Los detalles de la habilitacion no son validos.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.Habilitacion SET Detalles = @Detalles, Estado = 'A' WHERE ID = @ID;
+            SET @ret = @ID;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.Habilitacion (Nombre, Detalles) VALUES (@Nombre, @Detalles);
+            SET @ret = SCOPE_IDENTITY();
         END
 
-        IF @Fecha IS NULL OR @Fecha > GETDATE()
-        BEGIN
-            PRINT('La fecha de habilitacion no es valida.');
-            RAISERROR('.', 16, 1);
-        END
-
-        IF @Estado IS NULL OR @Estado NOT IN ('A', 'I')
-        BEGIN
-            PRINT('El estado de la habilitacion no es valido.');
-            RAISERROR('.', 16, 1);
-        END
-
-        SELECT @Id = ID FROM Empleados.Habilitacion 
-        WHERE Detalles = @Detalles AND Fecha = @Fecha;
-
-        IF @Id IS NOT NULL
-        BEGIN
-            RETURN @Id;
-        END
-
+        COMMIT;
+        PRINT 'Habilitacion registrada correctamente';
+        RETURN @ret;
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error al resgistrar la habilitacion', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.Habilitacion (Detalles, Fecha) 
-    VALUES (@Detalles, @Fecha);
-    
-    SET @Id = SCOPE_IDENTITY();
-    RETURN @Id;
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Especialidad_Alta
-    @Nombre VARCHAR(100), @Estado char(1) = 'A'
+    @Nombre VARCHAR(100),
+    @Detalles VARCHAR(100)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    SET @Nombre = TRIM(@Nombre);
+    SET @Detalles = TRIM(@Detalles);
+
+    IF @Nombre = '' OR @Nombre IS NULL
+        SET @error += 'El nombre de la especialidad no puede ser null o estar vacio' + CHAR(10);
+    IF @Nombre LIKE '%[^a-zA-Z ]%'
+        SET @error += 'El nombre de la especialidad debe contener solo letras y espacios' + CHAR(10);
+    IF @Detalles = '' OR @Detalles IS NULL
+        SET @error += 'Los detalles de la especialidad no pueden ser null o estar vacio' + CHAR(10);
+
+    DECLARE @ID int, @Estado char(1);
+    SELECT @ID = ID, @Estado = Estado FROM Empleados.Especialidad WHERE Nombre = @Nombre;
+
+    IF @ID IS NOT NULL AND @Estado = 'A'
+        SET @error += 'La especialidad ya existe en la tabla' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @Id int;
-        SET @Nombre = TRIM(@Nombre);
-
-        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Nombre is null
+        DECLARE @ret int;
+        IF @ID IS NOT NULL
         BEGIN
-            PRINT('El nombre de la especialidad no es valido.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.Especialidad SET Detalles = @Detalles, Estado = 'A' WHERE ID = @ID;
+            SET @ret = @ID;
         END
-        
-        IF @Estado IS NULL OR @Estado NOT IN ('A','I')
+        ELSE
         BEGIN
-            PRINT('El estado de la especialidad no es valido.');
-            RAISERROR('.', 16, 1);
+            INSERT INTO Empleados.Especialidad (Nombre, Detalles) VALUES (@Nombre, @Detalles);
+            SET @ret = SCOPE_IDENTITY();
         END
 
-        IF @Id IS NOT NULL
-        BEGIN
-            RETURN @Id;
-        END
-
+        COMMIT;
+        PRINT 'Especialidad registrada correctamente';
+        RETURN @ret;
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error al registrar la especialidad', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.Especialidad (Nombre) VALUES (@Nombre);
-    SET @Id = SCOPE_IDENTITY();
-    RETURN @Id;
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_Titulo_Alta
-    @Nombre VARCHAR(100),
-    @Fecha DATE,
-    @Origen VARCHAR(100),
-    @Estado char(1) = 'A'
+    @Nombre VARCHAR(100)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    SET @Nombre = TRIM(@Nombre);
+
+    IF @Nombre = '' OR @Nombre IS NULL
+        SET @error += 'El nombre del titulo no puede ser null o estar vacio' + CHAR(10);
+    IF @Nombre LIKE '%[^a-zA-Z ]%'
+        SET @error += 'El nombre del titulo debe contener solo letras y espacios' + CHAR(10);
+
+    DECLARE @ID int, @Estado char(1);
+    SELECT @ID = ID, @Estado = Estado FROM Empleados.Titulo WHERE Nombre = @Nombre;
+
+    IF @ID IS NOT NULL AND @Estado = 'A'
+        SET @error += 'El titulo ya existe en la tabla' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @Id int;
-
-        SET @Nombre = TRIM(@Nombre);
-        SET @Origen = TRIM(@Origen);
-
-        IF @Nombre = '' OR @Nombre LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Nombre IS NULL
+        DECLARE @ret int;
+        IF @ID IS NOT NULL
         BEGIN
-            PRINT('El nombre del titulo no es valido.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.Titulo SET Estado = 'A' WHERE ID = @ID;
+            SET @ret = @ID;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.Titulo (Nombre) VALUES (@Nombre);
+            SET @ret = SCOPE_IDENTITY();
         END
 
-        IF @Origen = '' OR @Origen LIKE '%[^a-zA-Z ]%' OR LEN(@Nombre) > 100 OR @Origen IS NULL
-        BEGIN
-            PRINT('El origen del titulo no es valido.');
-            RAISERROR('.', 16, 1);
-        END
-
-        IF @Fecha IS NULL OR @Fecha > GETDATE()
-        BEGIN
-            PRINT('La fecha del titulo no es valida.');
-            RAISERROR('.', 16, 1);
-        END
-
-        IF @Estado IS NULL OR @Estado NOT IN ('A', 'I')
-        BEGIN
-            PRINT('El estado del titulo no es valido.');
-            RAISERROR('.', 16, 1);
-        END
-
-        SELECT @Id = ID FROM Empleados.Titulo 
-        WHERE Nombre = @Nombre AND Origen = @Origen AND Fecha = @Fecha;
-
-        IF @Id IS NOT NULL
-        BEGIN
-            RETURN @Id;
-        END
-
+        COMMIT;
+        PRINT 'Titulo registrado correctamente';
+        RETURN @ret;
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error en el registro del titulo', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.Titulo (Nombre, Fecha, Origen) 
-    VALUES (@Nombre, @Fecha, @Origen);
-    
-    SET @Id = SCOPE_IDENTITY();
-    RETURN @Id;
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_GuiaHabilitacion_Alta
     @ID_Guia int,
-    @Detalles VARCHAR(100),
-    @Fecha DATE
+    @Nombre_Habilitacion VARCHAR(100),
+    @Detalles_Habilitacion VARCHAR(100),
+    @Fecha_Vencimiento DATE,
+    @Tipo CHAR(1)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
+        SET @error += 'El guia especificado no existe' + CHAR(10);
+    IF @Fecha_Vencimiento IS NULL
+        SET @error += 'La fecha de vencimiento no puede ser NULL' + CHAR(10);
+    IF @Fecha_Vencimiento < GETDATE()
+        SET @error += 'La fecha de vencimiento ya paso' + CHAR(10);
+    IF @Tipo NOT IN ('M', 'P', 'N')
+        SET @error += 'El tipo debe ser municipal, provincial o nacional' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
         DECLARE @ID_Habilitacion int;
 
-        IF NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
-        BEGIN
-            PRINT('El guia especificado no existe.');
-            RAISERROR('.', 16, 1);
-        END
-
-        EXEC @ID_Habilitacion = Empleados.SP_Habilitacion_Alta
-            @Detalles = @Detalles,
-            @Fecha = @Fecha;
+        EXEC @ID_Habilitacion = Empleados.SP_Habilitacion_Alta 
+            @Nombre = @Nombre_Habilitacion,
+            @Detalles = @Detalles_Habilitacion;
 
         IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion)
         BEGIN
-            PRINT('El guia ya tiene esta habilitacion.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.R_Guia_Habilitacion 
+            SET Fecha_Vencimiento = @Fecha_Vencimiento, Tipo = @Tipo, Estado = 'A'
+            WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.R_Guia_Habilitacion (ID_Guia, ID_Habilitacion, Fecha_Vencimiento, Tipo)
+            VALUES (@ID_Guia, @ID_Habilitacion, @Fecha_Vencimiento, @Tipo);
         END
 
+        COMMIT;
+        PRINT 'Habilitacion asignada al guia correctamente';
+        RETURN; 
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error al asignar la habilitacion al guía.', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.R_Guia_Habilitacion (ID_Guia, ID_Habilitacion)
-    VALUES (@ID_Guia, @ID_Habilitacion);
-    RETURN SCOPE_IDENTITY();
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_GuiaEspecialidad_Alta
     @ID_Guia int,
-    @Nombre_Especialidad VARCHAR(100)
+    @Nombre_Especialidad VARCHAR(100),
+    @Detalles_Especialidad VARCHAR(100),
+    @Nivel CHAR(1)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
+        SET @error += 'El guia especificado no existe' + CHAR(10);
+    IF @Nivel IS NULL OR @Nivel = ''
+        SET @error += 'El nivel no puede estar vacio' + CHAR(10);
+    IF @Nivel NOT IN ('B', 'I', 'E')
+        SET @error += 'El nivel debe ser basico, intermedio o experto' + CHAR(10);
+
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
         DECLARE @ID_Especialidad int;
 
-        IF NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
-        BEGIN
-            PRINT('El guia especificado no existe.');
-            RAISERROR('.', 16, 1);
-        END
-
-        EXEC @ID_Especialidad = Empleados.SP_Especialidad_Alta
-            @Nombre = @Nombre_Especialidad;
+        EXEC @ID_Especialidad = Empleados.SP_Especialidad_Alta 
+            @Nombre = @Nombre_Especialidad,
+            @Detalles = @Detalles_Especialidad;
 
         IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad)
         BEGIN
-            PRINT('El guia ya tiene asignada esta especialidad.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.R_Guia_Especialidad
+            SET Nivel = @Nivel, Estado = 'A'
+            WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.R_Guia_Especialidad (ID_Guia, ID_Especialidad, Nivel)
+            VALUES (@ID_Guia, @ID_Especialidad, @Nivel);
         END
 
+        COMMIT;
+        PRINT 'Especialidad asignada al guia correctamente';
+        RETURN; 
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error al asignar la especialidad al guia.', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.R_Guia_Especialidad (ID_Guia, ID_Especialidad)
-    VALUES (@ID_Guia, @ID_Especialidad);
-    RETURN SCOPE_IDENTITY();
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 
 CREATE OR ALTER PROCEDURE Empleados.SP_GuiaTitulo_Alta
     @ID_Guia int,
     @Nombre_Titulo VARCHAR(100),
-    @Fecha_Titulo DATE,
-    @Origen_Titulo VARCHAR(100)
+    @Fecha_emision DATE,
+    @Origen VARCHAR(100)
 AS
 BEGIN
+    SET NOCOUNT ON;
+    DECLARE @error VARCHAR(MAX) = '';
+
+    IF @ID_Guia IS NULL
+        SET @error += 'El ID_Guia no puede ser null' + CHAR(10);
+    IF @ID_Guia IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
+        SET @error += 'El guia especificado no existe' + CHAR(10);
+    IF @Fecha_emision IS NULL
+        SET @error += 'La fecha de emision no puede ser nula' + CHAR(10);
+    IF @Fecha_emision > GETDATE()
+        SET @error += 'La fecha de emision no puede ser futura ' + CHAR(10);
+    IF @Origen IS NULL OR LTRIM(RTRIM(@Origen)) = ''
+        SET @error += 'El origen no puede estar vacio' + CHAR(10);
+
+    IF @error != ''
+        THROW 50001, @error, 1;
+
+    BEGIN TRANSACTION;
     BEGIN TRY
         DECLARE @ID_Titulo int;
 
-        IF NOT EXISTS (SELECT 1 FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia)
-        BEGIN
-            PRINT('El guia especificado no existe.');
-            RAISERROR('.', 16, 1);
-        END
-
-        EXEC @ID_Titulo = Empleados.SP_Titulo_Alta
-            @Nombre = @Nombre_Titulo,
-            @Fecha = @Fecha_Titulo,
-            @Origen = @Origen_Titulo;
+        EXEC @ID_Titulo = Empleados.SP_Titulo_Alta 
+            @Nombre = @Nombre_Titulo;
 
         IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo)
         BEGIN
-            PRINT('El guia ya tiene asignado este titulo.');
-            RAISERROR('.', 16, 1);
+            UPDATE Empleados.R_Guia_Titulo
+            SET Fecha_Emision = @Fecha_emision, Origen = @Origen, Estado = 'A'
+            WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo;
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Empleados.R_Guia_Titulo (ID_Guia, ID_Titulo, Fecha_emision, Origen)
+            VALUES (@ID_Guia, @ID_Titulo, @Fecha_emision, @Origen);
         END
 
+        COMMIT;
+        PRINT 'Titulo asignado al guia correctamente';
+        RETURN;
     END TRY
     BEGIN CATCH
-        IF ERROR_SEVERITY() > 10
-        BEGIN
-            RAISERROR('Ocurrio un error al asignar el título al guia.', 16, 1);
-            RETURN;
-        END
-    END CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
 
-    INSERT INTO Empleados.R_Guia_Titulo (ID_Guia, ID_Titulo)
-    VALUES (@ID_Guia, @ID_Titulo);
-    RETURN SCOPE_IDENTITY();
-END
+        DECLARE @Msg NVARCHAR(max) = ERROR_MESSAGE();
+        DECLARE @Num INT           = ERROR_NUMBER();
+        PRINT CONCAT('ERROR (', @Num, '): ', @Msg);
+        
+        THROW;
+    END CATCH;
+END;
 GO
 --------------------CONSECIONES-----------------------
 CREATE OR ALTER PROCEDURE Concesiones.SP_TipoActividad_Alta
