@@ -214,7 +214,7 @@ END
 
 IF OBJECT_ID('Empleados.Guia', 'U') IS NULL
 BEGIN
-	CREATE TABLE Empleados.Guia --no tiene estado porque el estado de guia se maneja desde empleado
+	CREATE TABLE Empleados.Guia 
 	(
 		ID_Empleado INT PRIMARY KEY,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
@@ -229,8 +229,9 @@ BEGIN
 	(
 		ID INT IDENTITY(1,1) PRIMARY KEY,
 		Detalles VARCHAR(100) NOT NULL,
-		Fecha DATE NOT NULL,
+		Nombre VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Nombre_Hab CHECK (NOMBRE LIKE '%[^a-zA-Z ]%'),
 		CONSTRAINT check_Estado_Habilitacion CHECK (Estado in ('A', 'I'))
 	);
 END
@@ -241,8 +242,11 @@ BEGIN
 	(
 		ID_Guia INT,
 		ID_Habilitacion INT,
+		Fecha_Vencimiento DATE NOT NULL,
+		Tipo CHAR(1) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
-		CONSTRAINT check_Estado CHECK (Estado in ('A', 'I')),
+		CONSTRAINT check_Tipo_Guia_Hab CHECK (Tipo IN ('M', 'P', 'N')), --Municipal (M) --Provincial (P) --Nacional (N)
+		CONSTRAINT check_Estado_Guia_Hab CHECK (Estado in ('A', 'I')),
 		PRIMARY KEY (ID_Guia, ID_Habilitacion),
 		CONSTRAINT FK_GuiaHabilitacion_Guia FOREIGN KEY (ID_Guia) REFERENCES Empleados.Guia(ID_Empleado),
 		CONSTRAINT FK_GuiaHabilitacion_Habilitacion FOREIGN KEY (ID_Habilitacion) REFERENCES Empleados.Habilitacion(ID)
@@ -255,7 +259,9 @@ BEGIN
 	(
 		ID INT IDENTITY(1,1) PRIMARY KEY,
 		Nombre VARCHAR(100) NOT NULL,
+		Detalles VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Nombre_Esp CHECK (Nombre LIKE '%[^a-zA-Z ]%'),
 		CONSTRAINT check_Estado_Especialidad CHECK (Estado in ('A', 'I'))
 	);
 END
@@ -266,7 +272,11 @@ BEGIN
 	(
 		ID_Guia INT,
 		ID_Especialidad INT,
+		Nivel CHAR(1) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		PRIMARY KEY (ID_Guia, ID_Especialidad),
+		CONSTRAINT check_Nivel_Guia_Esp CHECK (Nivel in ('B','I','E')), --Basico (B) --Intermedio (I) --Experto (E)
+		CONSTRAINT check_Estado_Guia_Esp CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_GuiaEspecialidad_Guia FOREIGN KEY (ID_Guia) REFERENCES Empleados.Guia(ID_Empleado),
 		CONSTRAINT FK_GuiaEspecialidad_Especialidad FOREIGN KEY (ID_Especialidad) REFERENCES Empleados.Especialidad(ID)
 	);
@@ -278,9 +288,8 @@ BEGIN
 	(
 		ID INT IDENTITY(1,1) PRIMARY KEY,
 		Nombre VARCHAR(100) NOT NULL,
-		Fecha DATE NOT NULL,
-		Origen VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		CONSTRAINT check_Nombre_Titulo CHECK (NOMBRE LIKE '%[^a-zA-Z ]%'),
 		CONSTRAINT check_Estado_Titulo CHECK (Estado in ('A', 'I'))
 	);
 END
@@ -291,12 +300,15 @@ BEGIN
 	(
 		ID_Guia INT,
 		ID_Titulo INT,
+		Fecha_emision DATE NOT NULL,
+		Origen VARCHAR(100) NOT NULL,
+		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		PRIMARY KEY (ID_Guia, ID_Titulo),
+		CONSTRAINT check_Estado CHECK (Estado in ('A', 'I')),
 		CONSTRAINT FK_GuiaTitulo_Guia FOREIGN KEY (ID_Guia) REFERENCES Empleados.Guia(ID_Empleado),
 		CONSTRAINT FK_GuiaTitulo_Titulo FOREIGN KEY (ID_Titulo) REFERENCES Empleados.Titulo(ID)
 	);
 END
-
 --------------------CONSECIONES-----------------------
 
 IF OBJECT_ID('Concesiones.Tipo_actividad', 'U') IS NULL
