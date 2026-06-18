@@ -1,7 +1,7 @@
 /*
 Fecha: 3/07/2026
 Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
-Descripcion: Script para Reporte de visitas por semana, mes y año, por parque.
+Descripcion: Script para Reporte de visitas por semana, mes y aÃ±o, por parque.
 */
 
 
@@ -49,6 +49,7 @@ BEGIN
             FOR Mes IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12])
         ) AS MatrizPivot
         ORDER BY NombreParque;
+        FOR XML PATH('Cliente'), ROOT('Reportes');
    
 END;
 GO
