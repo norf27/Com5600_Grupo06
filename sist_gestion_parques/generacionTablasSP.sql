@@ -67,6 +67,32 @@ GO
 
 ------------------ CREACIÓN DE TABLAS DE STAGING -------------------
 
+-- Archivo Nacional (Áreas protegidas de Argentina - Sistema de Información de Biodiversidad.xlsx)
+IF OBJECT_ID('Staging.STG_DefensaAreasProtegidas', 'U') IS NULL
+BEGIN
+    CREATE TABLE Staging.STG_DefensaAreasProtegidas (
+        provincia VARCHAR(MAX) NULL,
+        nombre VARCHAR(MAX) NULL,
+        creacion VARCHAR(MAX) NULL,
+        region VARCHAR(MAX) NULL,
+        hectareas VARCHAR(MAX) NULL,
+        latitud VARCHAR(MAX) NULL,
+        longitud VARCHAR(MAX) NULL,
+        instrumento VARCHAR(MAX) NULL,
+        ambiente_protegido VARCHAR(MAX) NULL,
+        cat_internacional VARCHAR(MAX) NULL,
+        especies_registradas VARCHAR(MAX) NULL,
+        animales VARCHAR(MAX) NULL,
+        bacterias VARCHAR(MAX) NULL,
+        hongos VARCHAR(MAX) NULL,
+        plantas VARCHAR(MAX) NULL
+    );
+END
+GO
+	
+/*  
+borrar cuando se saque Nacional
+
 -- Archivo Nacional (aprn_f_defensa_2026.csv)
 IF OBJECT_ID('Staging.STG_DefensaAreasProtegidas', 'U') IS NULL
 BEGIN
@@ -79,6 +105,9 @@ BEGIN
     );
 END
 GO
+
+*/
+	
 /* borrar cuando se saque WDPA
 -- Archivo Internacional (WDPA_WDOECM_Jun2026_Public_ARG_csv.csv)
 IF OBJECT_ID('Staging.STG_WDPA_Areas', 'U') IS NULL
