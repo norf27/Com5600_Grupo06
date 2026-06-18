@@ -1081,7 +1081,7 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Modificar
 	@Total DECIMAL(11,2),
 	@Cantidad INT,
 	@Punto_venta VARCHAR(100),
-	@Descuento DECIMAL(3,1)
+	@Descuento DECIMAL(3,2)
 )
 AS
 BEGIN
