@@ -48,7 +48,7 @@ BEGIN
             COUNT(ID_Entrada)
             FOR Mes IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12])
         ) AS MatrizPivot
-        ORDER BY NombreParque;
+        ORDER BY NombreParque
         FOR XML PATH('Cliente'), ROOT('Reportes');
    
 END;
