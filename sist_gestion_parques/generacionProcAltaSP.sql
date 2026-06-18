@@ -1490,7 +1490,8 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Alta
 	@Fecha DATETIME,
 	@Total DECIMAL(11,2),
 	@Cantidad INT,
-	@Punto_venta VARCHAR(100)
+	@Punto_venta VARCHAR(100),
+	@Descuento DECIMAL(3,1)
 )
 AS
 BEGIN
@@ -1512,8 +1513,11 @@ BEGIN
 	OR LTRIM(RTRIM(@Punto_venta))=''
 	SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
 
+	IF @Descuento > 0
+	SET @Errores += CHAR(13) + '- El descuento debe ser mayor a cero';
+
 	declare @ID int, @Estado char(1)
-	select @ID = ID, @Estado = Estado from Ventas.Compra where Punto_venta = @Punto_venta AND Total = @Total AND Fecha = @Fecha
+	select @ID = ID, @Estado = Estado from Ventas.Compra where Punto_venta = @Punto_venta AND Total = @Total AND Fecha = @Fecha AND Descuento = @Descuento
 
 	-- ERRORES
 	
@@ -1531,6 +1535,7 @@ BEGIN
 		Total,
 		Cantidad,
 		Punto_venta
+		Descuento
 	)
 	VALUES
 	(
@@ -1538,6 +1543,7 @@ BEGIN
 		@Total,
 		@Cantidad,
 		@Punto_venta
+		@Descuento
 	);
 	
 	PRINT 'Compra registrada correctamente';
