@@ -898,49 +898,49 @@ end catch
 
 print '=================Empresa================='
 --dar de alta:
-exec @ID = Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = 'BurguerQ@gmail.com'
+exec @ID = Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = 'BurguerQ@gmail.com', @Telefono = null
 select * from Concesiones.Empresa
 --dar de baja (estado cambia a inactivo)
 exec Concesiones.SP_Empresa_Baja @ID = @ID
 select * from Concesiones.Empresa
 --dar de alta cambiando el correo (estado pasa a activo y cambia la descripcion)
-exec @ID = Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = 'HamburgueseriaBQ@gmail.com'
+exec @ID = Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = 'HamburgueseriaBQ@gmail.com', @Telefono = null
 select * from Concesiones.Empresa
 --probar de dar de alta cuando sigue como activo
 begin try
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = 'HamburgueseriaBQ@gmail.com'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = 'HamburgueseriaBQ@gmail.com', @Telefono = null
 end try
 begin catch
 print error_message()
 end catch
 --modificar datos
-exec Concesiones.SP_Empresa_Modificar @ID = @ID, @Nombre = 'Pizza queen', @CUIT = '10-12345678-0', @Correo = 'PizzeriaBQ@gmail.com'
+exec Concesiones.SP_Empresa_Modificar @ID = @ID, @Nombre = 'Pizza queen', @CUIT = '10-12345678-0', @Correo = 'PizzeriaBQ@gmail.com', @Telefono = null
 select * from Concesiones.Empresa
 --probar de insertar con algun error o varios
 --nombre null y cuit repetido
 begin try
-exec Concesiones.SP_Empresa_Alta @Nombre = null, @CUIT = '10-12345678-0', @Correo = 'HamburgueseriaBQ@gmail.com'
+exec Concesiones.SP_Empresa_Alta @Nombre = null, @CUIT = '10-12345678-0', @Correo = 'HamburgueseriaBQ@gmail.com', @Telefono = null
 end try
 begin catch
 print error_message()
 end catch
 --cuit invalido
 begin try
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = 'error', @Correo = 'HamburgueseriaBQ@gmail.com'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = 'error', @Correo = 'HamburgueseriaBQ@gmail.com', @Telefono = null
 end try
 begin catch
 print error_message()
 end catch
 --correo null y cuit repetido
 begin try
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = null
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Burguer queen', @CUIT = '10-12345678-0', @Correo = null, @Telefono = null
 end try
 begin catch
 print error_message()
 end catch
 --todo mal
 begin try
-exec Concesiones.SP_Empresa_Alta @Nombre = null, @CUIT = '10-err-0', @Correo = null
+exec Concesiones.SP_Empresa_Alta @Nombre = null, @CUIT = '10-err-0', @Correo = null, @Telefono = null
 end try
 begin catch
 print error_message()

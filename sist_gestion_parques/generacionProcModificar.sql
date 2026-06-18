@@ -728,7 +728,9 @@ go
 CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Modificar @ID INT,
 @Nombre varchar(100),
 @CUIT varchar(13),
-@Correo varchar(100) as
+@Correo varchar(100),
+@Telefono varchar(20)
+as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -742,8 +744,6 @@ BEGIN
             set @error += 'El CUIT no puede ser null' + char(10)
         if exists(select 1 from Concesiones.Empresa where CUIT = @CUIT and ID != @ID)
             set @error += 'El CUIT "' + @CUIT + '" ya esta siendo usado en la tabla' + char(10)
-        if @Correo is null
-            set @error += 'El correo no puede ser null' + char(10)
         if @CUIT not like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'
             set @error += 'El CUIT es invalido' + char(10)
 
@@ -751,7 +751,7 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Concesiones.Empresa set Nombre = @Nombre, Correo = @Correo, CUIT = @CUIT where ID = @ID
+        update Concesiones.Empresa set Nombre = @Nombre, Correo = @Correo, CUIT = @CUIT, Telefono = @Telefono where ID = @ID
         COMMIT;
 		print 'La empresa fue modificada con exito' 
     END TRY

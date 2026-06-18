@@ -367,8 +367,9 @@ BEGIN
 		ID INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		Nombre VARCHAR(100) NOT NULL,
 		CUIT VARCHAR(13) NOT NULL UNIQUE,
-		Correo VARCHAR(100) NOT NULL,
+		Correo VARCHAR(100) NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		Telefono VARCHAR(20) NULL,
 		CONSTRAINT check_Estado_Empresa CHECK (Estado in ('A', 'I')),
 		CONSTRAINT check_CUIT CHECK (CUIT LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'),
 	);

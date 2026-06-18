@@ -419,7 +419,8 @@ CREATE OR ALTER PROCEDURE Empleados.SP_Empleado_Alta
 @Nombre varchar(100),
 @Sueldo decimal(11,2),
 @ID_parque int,
-@CUIL varchar(13) as
+@CUIL varchar(13)
+as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -1032,7 +1033,9 @@ go
 CREATE OR ALTER PROCEDURE Concesiones.SP_Empresa_Alta
 @Nombre varchar(100),
 @CUIT varchar(13),
-@Correo varchar(100) as
+@Correo varchar(100),
+@Telefono VARCHAR(20)
+as
 BEGIN
     SET NOCOUNT ON;
     declare @error varchar(max) = ''
@@ -1040,8 +1043,6 @@ BEGIN
             set @error += 'El nombre no puede ser null' + char(10)
         if @CUIT is null
             set @error += 'El CUIT no puede ser null' + char(10)
-        if @Correo is null
-            set @error += 'El correo no puede ser null' + char(10)
         if @CUIT not like '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'
             set @error += 'El CUIT es invalido' + char(10)
 
@@ -1059,12 +1060,12 @@ BEGIN
         declare @ret int
         if @ID is not null
         begin
-            update Concesiones.Empresa set Nombre = @Nombre, Correo = @Correo, Estado = 'a' where ID = @ID
+            update Concesiones.Empresa set Nombre = @Nombre, Correo = @Correo, Estado = 'a', Telefono = @Telefono where ID = @ID
             set @ret = @ID
         end
         else
         begin
-            insert into Concesiones.Empresa(Nombre, CUIT, Correo) values (@Nombre, @CUIT, @Correo)
+            insert into Concesiones.Empresa(Nombre, CUIT, Correo, Telefono) values (@Nombre, @CUIT, @Correo, @Telefono)
             set @ret = SCOPE_IDENTITY()
         end
         COMMIT;
