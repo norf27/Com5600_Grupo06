@@ -41,6 +41,7 @@ si algun tour queda null es porque hubo un error
 create or alter procedure Ventas.SP_RegistrarVenta @ID_parque int, @Pedido varchar(max), @PuntoDeVenta varchar(100) as
 begin
 	set nocount on
+	declare @Fecha_actual date = getdate()
 	DECLARE @error varchar(500) = ''
 	if @ID_parque is null
 		set @error += 'El ID_parque no puede ser null' + char(10)
@@ -187,7 +188,7 @@ begin
 					FROM Atracciones.R_Tour_Entrada rte 
 					INNER JOIN Ventas.Entrada e ON rte.ID_Entrada = e.ID --queda la tabla ID tour | ID entrada y sobre esa hacemos el count(*) a ver cuantas filas de hoy tienen eso
 					WHERE rte.ID_Tour = dp.ID_Tour --solo tomar en cuenta el tour de la fila "actual" 
-					  AND e.Fecha_acceso = CAST(GETDATE() AS DATE)
+					  AND e.Fecha_acceso = CAST(@Fecha_actual AS DATE)
 					  AND e.Estado = 'A'
 				), 0)
 			) < dp.CantidadSolicitada --si cupos libres - ocupados < lo que pedimos en este pedido, dar error
@@ -264,11 +265,11 @@ begin
 
 	--9) 
 
-	declare @Fecha_actual date = getdate()
+	
 	--crear compra de entradas
 	-- asigna a ID_Compra el ID de lo que acabamos de insertar
 	Declare @ID_Compra int
-	exec @ID_Compra = Ventas.SP_Compra_Alta @Fecha = @Fecha_actual, @Total = 0, @Cantidad = @TotalFilas, @Punto_venta = @PuntoDeVenta
+	exec @ID_Compra = Ventas.SP_Compra_Alta @Fecha = @Fecha_actual, @Total = 0, @Cantidad = @TotalFilas, @Punto_venta = @PuntoDeVenta, @Descuento = 1
 	--calcular el precio de cada entrada
 
 	--10) 
@@ -306,7 +307,7 @@ begin
 	--insertar en base a los datos que conseguimos antes, no uso el procedure ya que no consegui como insertarlas usandolo
 	INSERT INTO Ventas.Entrada (Fecha_acceso, ID_cliente, ID_tarifa, ID_compra, Estado)
 	SELECT 
-		CAST(GETDATE() AS DATE), 
+		CAST(@Fecha_actual AS DATE), 
 		ID_Cliente,
 		ID_Tarifa,
 		@ID_Compra,
@@ -316,13 +317,59 @@ begin
 	--modificar la tabla de compra ahora con el total real
 	DECLARE @TotalCalculado DECIMAL(11,2) = (SELECT SUM(PrecioTarifa + PrecioTours) FROM #aux);
 
+	--modificar total calcularo dependiendo si es feriado, dia de semana o algun dia especial
+	--F: fin de semana
+	--S: semana
+	DECLARE @DiaSemana CHAR(1)
+	IF DATEPART(dw, @Fecha_actual) IN (1, 7) --1 domingo, 7 sabado
+		SET @DiaSemana = 'F'; -- Es fin de semana
+	ELSE
+		SET @DiaSemana = 'S' -- Es dia de semana
+	--ver si es feriado
+
+	DECLARE @urlFeriados NVARCHAR(128) = 'https://api.argentinadatos.com/v1/feriados/2026' 
+	DECLARE @Object INT
+	DECLARE @jsonTable TABLE(DATA NVARCHAR(MAX))
+	DECLARE @EsDiaEspecial CHAR(1) = 'I'
+
+		-- 2. Consumo de API para verificar si el día actual es feriado
+	EXEC sp_OACreate 'MSXML2.XMLHTTP', @Object OUT
+	EXEC sp_OAMethod @Object, 'OPEN', NULL, 'GET', @urlFeriados, 'FALSE'
+	EXEC sp_OAMethod @Object, 'SEND'
+
+	INSERT INTO @jsonTable 
+	EXEC sp_OAGetProperty @Object, 'RESPONSETEXT'
+	EXEC sp_OADestroy @Object
+
+	DECLARE @datosFeriados NVARCHAR(MAX) = (SELECT DATA FROM @jsonTable)
+    
+		-- Usamos GETDATE() para obtener la fecha del sistema en formato ISO
+	DECLARE @HoyISO NVARCHAR(10) = FORMAT(@Fecha_actual, 'yyyy-MM-dd')
+    
+	-- 3. Parseo e interpretación
+	IF EXISTS 
+	(
+		SELECT 1 FROM OPENJSON(@datosFeriados)
+		WITH (fecha NVARCHAR(10) '$.fecha')
+		WHERE fecha = @HoyISO
+	)
+		SET @EsDiaEspecial = 'A'; 
+	
+	declare @Aumento decimal(3,2) = 1
+	if @DiaSemana = 'S' and @EsDiaEspecial = 'I'
+		set @Aumento -= 0.05 --si es dia de semana es 5% mas barata (si no es feriado)
+	if @EsDiaEspecial = 'A' and @DiaSemana = 'S' --si es feriado un dia de semana
+		set @Aumento += 0.1 --lo aumenta un 10%
+
+	set @TotalCalculado *= @Aumento
 
 	EXEC Ventas.SP_Compra_Modificar
 		@ID = @ID_Compra,
 		@Fecha = @Fecha_actual,
 		@Total = @TotalCalculado,
 		@Cantidad = @TotalFilas,
-		@Punto_venta = @PuntoDeVenta;
+		@Punto_venta = @PuntoDeVenta,
+		@Descuento = @Aumento
 		
 	--crear la relacion entre tours y entrada para cada visitante
 	INSERT INTO Atracciones.R_Tour_Entrada (ID_Tour, ID_Entrada)
@@ -334,6 +381,9 @@ begin
 	INNER JOIN Ventas.Entrada e ON e.ID_cliente = c.ID AND e.ID_compra = @ID_Compra; --buscamos la entrada para el cliente en la compra de ahora
 	--antes del select la tabla se veria algo asi:
 	--ID temporal | tour | DOC | tipo doc | ID real en tabla clientes| entrada (faltan columnas pero no son relevantes o son repetidas)
+	
+	
+	
 	commit 
 	end try
 	begin catch

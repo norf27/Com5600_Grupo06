@@ -440,9 +440,11 @@ BEGIN
 		Cantidad INT NOT NULL,
 		Punto_venta VARCHAR(100) NOT NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
+		Descuento DECIMAL(3,2) NOT NULL,
 		CONSTRAINT check_Estado_Compra CHECK (Estado in ('A', 'I')),
 		CONSTRAINT CK_compra_total CHECK (Total >= 0),
-		CONSTRAINT CK_compra_cantidad CHECK (Cantidad > 0)
+		CONSTRAINT CK_compra_cantidad CHECK (Cantidad > 0),
+		CONSTRAINT CK_compra_descuento CHECK (Descuento > 0)
 	);
 END
     

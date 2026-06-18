@@ -1534,7 +1534,7 @@ BEGIN
 		Fecha,
 		Total,
 		Cantidad,
-		Punto_venta
+		Punto_venta,
 		Descuento
 	)
 	VALUES
@@ -1542,7 +1542,7 @@ BEGIN
 		@Fecha,
 		@Total,
 		@Cantidad,
-		@Punto_venta
+		@Punto_venta,
 		@Descuento
 	);
 	

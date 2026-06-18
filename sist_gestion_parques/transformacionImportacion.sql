@@ -15,7 +15,7 @@ CREATE TABLE Staging.Cotizaciones_Moneda (
     Tasa_A_Pesos_ARS DECIMAL(10,2) NOT NULL
 );
 GO
-
+/* no se usa, posible uso a futuro
 -- Cotizaciones de ejemplo
 INSERT INTO Staging.Cotizaciones_Moneda (Moneda, Tasa_A_Pesos_ARS)
 VALUES ('USD', 950.00), ('BRL', 170.50), ('ARS', 1.00);
@@ -45,7 +45,7 @@ BEGIN
     RETURN @MontoConvertido;
 END;
 GO
-
+*/
 ---------------------------- CONVERSIÓN DE SUPERFICIES ----------------------------
    
 CREATE OR ALTER FUNCTION Staging.FN_TransformarAreaAHectareas (

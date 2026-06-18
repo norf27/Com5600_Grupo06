@@ -7,7 +7,7 @@ Descripcion: Script para tabla cruzada mostrando visitas por mes y parque.
 USE sist_gestion_parques;
 GO
 
-CREATE OR ALTER PROCEDURE Ventas.SP_ReporteVisitasPorPeriodo
+CREATE OR ALTER PROCEDURE Ventas.SP_ReporteVisitasPorParque
 AS
 BEGIN
     SET NOCOUNT ON;

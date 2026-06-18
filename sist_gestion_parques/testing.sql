@@ -1319,13 +1319,15 @@ EXEC @ID_Compra_ABM_1 = Ventas.SP_Compra_Alta
     @Fecha = '2026-01-01',
     @Total = 1000.00,
     @Cantidad = 1,
-    @Punto_venta = 'TEST ABM Punto 1';
+    @Punto_venta = 'TEST ABM Punto 1',
+    @Descuento = 1;
 
 EXEC @ID_Compra_ABM_2 = Ventas.SP_Compra_Alta
     @Fecha = '2026-01-02',
     @Total = 1000.00,
     @Cantidad = 1,
-    @Punto_venta = 'TEST ABM Punto 2';
+    @Punto_venta = 'TEST ABM Punto 2',
+    @Descuento = 1;
 
 EXEC @ID_Entrada_ABM_1 = Ventas.SP_Entrada_Alta
     @Fecha_acceso = '2026-12-01',
