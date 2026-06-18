@@ -1080,7 +1080,8 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Modificar
 	@Fecha DATETIME,
 	@Total DECIMAL(11,2),
 	@Cantidad INT,
-	@Punto_venta VARCHAR(100)
+	@Punto_venta VARCHAR(100),
+	@Descuento DECIMAL(3,1)
 )
 AS
 BEGIN
@@ -1107,6 +1108,9 @@ BEGIN
 	IF @Punto_venta IS NULL
 	OR LTRIM(RTRIM(@Punto_venta))=''
 	SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
+
+	IF @Descuento < 0
+	SET @Errores += CHAR(13) + '- El descuento debe ser mayor a cero';
 	
 	IF @Errores <> ''
 	BEGIN
@@ -1118,7 +1122,8 @@ BEGIN
 	Fecha=@Fecha,
 	Total=@Total,
 	Cantidad=@Cantidad,
-	Punto_venta=@Punto_venta
+	Punto_venta=@Punto_venta,
+	Descuento=@Descuento
 	WHERE ID=@ID;
 	
 	PRINT 'Compra modificada correctamente';
