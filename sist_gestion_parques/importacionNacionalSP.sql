@@ -50,7 +50,7 @@ BEGIN
     WITH (
         FIELDTERMINATOR = '';'',
         ROWTERMINATOR = ''0x0a'', 
-        FIRSTROW = 2,       
+        FIRSTROW = 3,       
         CODEPAGE = ''ACP''   
     );';
     --hacer el bulk insert
@@ -89,8 +89,10 @@ BEGIN
     --upsert
     UPDATE P
     SET 
-        P.Superficie = Staging.FN_TransformarAreaAHectareas(TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)), 'HA'),
-        P.Anio_Creacion = TRY_CAST(REPLACE(S.creacion, '"', '') AS INT),
+        P.Superficie = TRY_CAST(S.hectareas AS DECIMAL(12,2)),
+        P.Anio_Creacion = CASE WHEN TRY_CAST(S.creacion AS INT) IS NOT NULL 
+                           THEN TRY_CAST(S.creacion AS INT) 
+                           ELSE P.Anio_Creacion END,        
         P.Ambiente_Ecoregion = Staging.FN_Limpiar_Texto(REPLACE(TRIM(S.ambiente_protegido), '"', '')),
         P.ID_provincia = PROV.ID, 
         P.Fecha_Ultima_Actualizacion = GETDATE()
@@ -100,19 +102,21 @@ BEGIN
     WHERE TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)) IS NOT NULL; 
 
 
-    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion, Estado)
+    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion, Estado, Fecha_Ultima_Actualizacion)
     SELECT 
         Staging.FN_Limpiar_Texto(REPLACE(TRIM(S.nombre), '"', '')), 
-        TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)),
-        NULL, 
+        TRY_CAST(S.hectareas AS DECIMAL(12,2)),
+        NULL,
         PROV.ID, 
         TRY_CAST(REPLACE(S.creacion, '"', '') AS INT), 
         Staging.FN_Limpiar_Texto(REPLACE(TRIM(S.ambiente_protegido), '"', '')),
-        'i'
+        'A',
+        GETDATE()
     FROM Staging.STG_DefensaAreasProtegidas S
     -- Cruzamos directo contra la función limpia
     INNER JOIN Parque.Provincia PROV ON UPPER(TRIM(PROV.Nombre)) = Staging.FN_Limpiar_Texto(S.provincia)
     WHERE TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)) IS NOT NULL
+      AND TRY_CAST(S.hectareas AS DECIMAL(12,2)) > 0
       AND NOT EXISTS (
           SELECT 1 
           FROM Parque.Parque P 
