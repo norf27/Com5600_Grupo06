@@ -1491,7 +1491,7 @@ CREATE OR ALTER PROCEDURE Ventas.SP_Compra_Alta
 	@Total DECIMAL(11,2),
 	@Cantidad INT,
 	@Punto_venta VARCHAR(100),
-	@Descuento DECIMAL(3,1)
+	@Descuento DECIMAL(3,2)
 )
 AS
 BEGIN
@@ -1513,7 +1513,7 @@ BEGIN
 	OR LTRIM(RTRIM(@Punto_venta))=''
 	SET @Errores += CHAR(13) + '- El punto de venta es obligatorio';
 
-	IF @Descuento > 0
+	IF @Descuento < 0
 	SET @Errores += CHAR(13) + '- El descuento debe ser mayor a cero';
 
 	declare @ID int, @Estado char(1)
