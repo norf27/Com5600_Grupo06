@@ -1,7 +1,7 @@
 /*
-Fecha: 10/07/2026
+Fecha: 3/07/2026
 Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
-Descripcion: Script para Reporte de visitas por semana, mes y año, por parque.
+Descripcion: Script para tabla cruzada mostrando visitas por mes y parque.
 */
 
 USE sist_gestion_parques;
@@ -43,3 +43,4 @@ BEGIN
         Mes DESC,
         Semana DESC;
 END;
+

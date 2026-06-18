@@ -1,7 +1,7 @@
 /*
-Fecha: 10/07/2026
+Fecha: 3/07/2026
 Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
-Descripcion: Script para Reporte de parques y concesiones: Listado de parques y vector anidado con concesiones
+Descripcion: Script para Reporte de parques y concesiones
 */
 
 USE sist_gestion_parques;

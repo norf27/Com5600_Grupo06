@@ -1,5 +1,5 @@
 /*
-Fecha: 10/07/2026
+Fecha: 3/07/2026
 Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
 Descripcion:
 Procedimiento para reporte de deudores.

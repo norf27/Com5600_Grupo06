@@ -194,10 +194,10 @@ EXEC Empleados.SP_Guia_Baja @ID_Empleado = @ID_Guia
 SELECT * FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia
 
 --Dar de alta de vuelta (estado pasa a activo, se reactiva)
-/* comentado porque da error
+
 EXEC @ID_Guia = Empleados.SP_Guia_Alta @Nombre = 'Francisco Pascasio', @DNI = '22333444', @CUIL = '20-22333444-1', @Nacimiento = '1985-05-15', @Sueldo = 350000.00, @ID_Parque = 1
 SELECT * FROM Empleados.Guia WHERE ID_Empleado = @ID_Guia
-*/
+
 --Prueba de dar de alta cuando sigue como activo
 BEGIN TRY
     EXEC Empleados.SP_Guia_Alta @Nombre = 'Francisco Pascasio', @DNI = '22333444', @CUIL = '20-22333444-1', @Nacimiento = '1985-05-15', @Sueldo = 350000.00, @ID_Parque = 1
@@ -563,10 +563,10 @@ EXEC Empleados.SP_GuiaHabilitacion_Baja @ID_Guia = @ID_Guia, @ID_Habilitacion = 
 SELECT * FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Hab
 
 --Dar de alta nuevamente (reactiva la relacion)
-/* comentado porque da error
+
 EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'n'
 SELECT * FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Hab
-*/
+
 --Prueba de dar de alta cuando sigue activo
 BEGIN TRY
     EXEC Empleados.SP_GuiaHabilitacion_Alta @ID_Guia = @ID_Guia, @Nombre_Habilitacion = 'Alta Montaña', @Detalles_Habilitacion = 'Rescate', @Fecha_Vencimiento = '2030-01-01', @Tipo = 'n'
@@ -660,10 +660,10 @@ EXEC Empleados.SP_GuiaEspecialidad_Baja @ID_Guia = @ID_Guia, @ID_Especialidad = 
 SELECT * FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Esp
 
 --Dar de alta nuevamente (reactiva la relacion)
-/* comentado porque da error
+
 EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'E'
 SELECT * FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Esp
-*/
+
 --Prueba de dar de alta cuando sigue activo
 BEGIN TRY
     EXEC Empleados.SP_GuiaEspecialidad_Alta @ID_Guia = @ID_Guia, @Nombre_Especialidad = 'Avistaje de Aves', @Detalles_Especialidad = 'Ornitologia', @Nivel = 'E'
@@ -758,10 +758,10 @@ EXEC Empleados.SP_GuiaTitulo_Baja @ID_Guia = @ID_Guia, @ID_Titulo = @ID_Tit
 SELECT * FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Tit
 
 --Dar de alta nuevamente (reactiva la relacion)
-/* comentado porque da error
+
 EXEC Empleados.SP_GuiaTitulo_Alta @ID_Guia = @ID_Guia, @Nombre_Titulo = 'Guia de Parque Nacional', @Fecha_emision = '2010-12-01', @Origen = 'Ministerio de Turismo'
 SELECT * FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Tit
-*/
+
 --Prueba de dar de alta cuando sigue activo
 BEGIN TRY
     EXEC Empleados.SP_GuiaTitulo_Alta @ID_Guia = @ID_Guia, @Nombre_Titulo = 'Guia de Parque Nacional', @Fecha_emision = '2010-12-01', @Origen = 'Ministerio de Turismo'
