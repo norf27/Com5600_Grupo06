@@ -1,11 +1,37 @@
 /*
-Fecha: 03/07/2026
+Fecha: 3/07/2026
 Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
-Descripcion: Script de genaracion de procedure de importacion del dataset Nacional
+Descripcion: Procedure para importar Parques Nacionales (Versión Prolija con Función)
 */
 
 USE sist_gestion_parques; 
 GO 
+
+--forma de limpiar el texto cuando lee las tildes, si alguno encuentra una forma mas prolija cambienlo
+CREATE OR ALTER FUNCTION Staging.FN_Limpiar_Texto (@Texto VARCHAR(500))
+RETURNS VARCHAR(500)
+AS
+BEGIN
+    IF @Texto IS NULL RETURN NULL;
+
+    -- Acá vive la lógica de reemplazo bien guardada y aislada
+SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, '"', '');
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(161), 'a'); -- á
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(130), 'A'); -- Á
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(169), 'e'); -- é
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(137), 'E'); -- É
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(173), 'i'); -- í
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(141), 'I'); -- Í
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(179), 'o'); -- ó
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(147), 'O'); -- Ó
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(186), 'u'); -- ú
+    SET @Texto = REPLACE(@Texto COLLATE Latin1_General_CS_AS, CHAR(195) + CHAR(154), 'U'); -- Ú
+
+    RETURN TRIM(@Texto);
+END;
+GO
+
+
 
 CREATE OR ALTER PROCEDURE Staging.SP_Importar_Nacional
     @RutaArchivo VARCHAR(500)
@@ -14,22 +40,20 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @SQL NVARCHAR(MAX);
 
-    --  Limpiar tabla previa
-
+    --limpiar tabla
     TRUNCATE TABLE Staging.STG_DefensaAreasProtegidas;
 
-    -- Importacion cruda de archivo
-
+    --guardar sentencia a ejecutar
     SET @SQL = N'
     BULK INSERT Staging.STG_DefensaAreasProtegidas
     FROM ''' + @RutaArchivo + '''
     WITH (
         FIELDTERMINATOR = '';'',
-        ROWTERMINATOR = ''\n'',
-        FIRSTROW = 2,       -- Saltea la fila de cabeceras
-        CODEPAGE = ''ACP''   -- Soporte nativo para eñes y acentos en español
+        ROWTERMINATOR = ''0x0a'', 
+        FIRSTROW = 2,       
+        CODEPAGE = ''ACP''   
     );';
-    
+    --hacer el bulk insert
     BEGIN TRY
         EXEC sp_executesql @SQL;
     END TRY
@@ -39,45 +63,60 @@ BEGIN
         RETURN;
     END CATCH;
 
-    -- Validacion
-
+    --si hay algun error en hectarea dar el error
     INSERT INTO Staging.Log_Errores_Importacion (Archivo_Origen, Fila_Contenido_Raw, Motivo_Error)
     SELECT 
         @RutaArchivo,
         CONCAT('Parque: ', COALESCE(nombre, 'NULL'), ' | Prov: ', COALESCE(provincia, 'NULL'), ' | Has: ', COALESCE(hectareas, 'NULL')),
         'Error de formato: El valor de hectáreas o el año de creación contiene texto o caracteres no numéricos.'
     FROM Staging.STG_DefensaAreasProtegidas
-    WHERE TRY_CAST(hectareas AS DECIMAL(12,2)) IS NULL 
-       OR (TRY_CAST(creacion AS INT) IS NULL AND creacion IS NOT NULL);
+    WHERE TRY_CAST(REPLACE(hectareas, '"', '') AS DECIMAL(12,2)) IS NULL  
+       OR (TRY_CAST(REPLACE(creacion, '"', '') AS INT) IS NULL AND REPLACE(creacion, '"', '') IS NOT NULL);
 
-    -- Upsert
+    --si tiene una provincia que no existe dar el error
+    INSERT INTO Staging.Log_Errores_Importacion (Archivo_Origen, Fila_Contenido_Raw, Motivo_Error)
+    SELECT 
+        @RutaArchivo,
+        CONCAT('Parque: ', REPLACE(S.nombre, '"', ''), ' | Provincia faltante: ', REPLACE(S.provincia, '"', '')),
+        'Error de Consistencia: La provincia no existe en la tabla Parque.Provincia. Debe darla de alta primero.'
+    FROM Staging.STG_DefensaAreasProtegidas S
+    WHERE NOT EXISTS (
+        SELECT 1 
+        FROM Parque.Provincia P 
+        WHERE UPPER(TRIM(P.Nombre)) = Staging.FN_Limpiar_Texto(S.provincia)
+    );
 
+    --upsert
     UPDATE P
     SET 
-        P.Superficie = Staging.FN_TransformarAreaAHectareas(S.hectareas, 'HA'),
-        P.Anio_Creacion = TRY_CAST(S.creacion AS INT),
-        P.Ambiente_Ecoregion = TRIM(S.ambiente_protegido),
-        P.ID_provincia = (SELECT TOP 1 ID FROM Parque.Provincia WHERE UPPER(TRIM(Nombre)) = UPPER(TRIM(S.provincia))),
+        P.Superficie = Staging.FN_TransformarAreaAHectareas(TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)), 'HA'),
+        P.Anio_Creacion = TRY_CAST(REPLACE(S.creacion, '"', '') AS INT),
+        P.Ambiente_Ecoregion = Staging.FN_Limpiar_Texto(REPLACE(TRIM(S.ambiente_protegido), '"', '')),
+        P.ID_provincia = PROV.ID, 
         P.Fecha_Ultima_Actualizacion = GETDATE()
     FROM Parque.Parque P
-    INNER JOIN Staging.STG_DefensaAreasProtegidas S 
-        ON UPPER(TRIM(P.Nombre)) = UPPER(TRIM(S.nombre))
-    WHERE TRY_CAST(S.hectareas AS DECIMAL(12,2)) IS NOT NULL; 
+    INNER JOIN Staging.STG_DefensaAreasProtegidas S ON UPPER(TRIM(P.Nombre)) = UPPER(TRIM(REPLACE(S.nombre, '"', '')))
+    INNER JOIN Parque.Provincia PROV ON UPPER(TRIM(PROV.Nombre)) = Staging.FN_Limpiar_Texto(S.provincia)
+    WHERE TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)) IS NOT NULL; 
 
-    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion)
+
+    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion, Estado)
     SELECT 
-        TRIM(S.nombre), 
-        Staging.FN_TransformarAreaAHectareas(S.hectareas, 'HA'),
+        Staging.FN_Limpiar_Texto(REPLACE(TRIM(S.nombre), '"', '')), 
+        TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)),
         NULL, 
-        (SELECT TOP 1 ID FROM Parque.Provincia WHERE UPPER(TRIM(Nombre)) = UPPER(TRIM(S.provincia))),
-        TRY_CAST(S.creacion AS INT), 
-        TRIM(S.ambiente_protegido)
+        PROV.ID, 
+        TRY_CAST(REPLACE(S.creacion, '"', '') AS INT), 
+        Staging.FN_Limpiar_Texto(REPLACE(TRIM(S.ambiente_protegido), '"', '')),
+        'i'
     FROM Staging.STG_DefensaAreasProtegidas S
-    WHERE TRY_CAST(S.hectareas AS DECIMAL(12,2)) IS NOT NULL
+    -- Cruzamos directo contra la función limpia
+    INNER JOIN Parque.Provincia PROV ON UPPER(TRIM(PROV.Nombre)) = Staging.FN_Limpiar_Texto(S.provincia)
+    WHERE TRY_CAST(REPLACE(S.hectareas, '"', '') AS DECIMAL(12,2)) IS NOT NULL
       AND NOT EXISTS (
           SELECT 1 
           FROM Parque.Parque P 
-          WHERE UPPER(TRIM(P.Nombre)) = UPPER(TRIM(S.nombre))
+          WHERE UPPER(TRIM(P.Nombre)) = UPPER(TRIM(REPLACE(S.nombre, '"', '')))
       );
 END;
 GO

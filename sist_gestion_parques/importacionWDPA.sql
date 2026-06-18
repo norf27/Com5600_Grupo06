@@ -60,14 +60,15 @@ BEGIN
         ON UPPER(TRIM(P.Nombre)) = UPPER(TRIM(S.NAME)) 
     WHERE TRY_CAST(S.GIS_AREA AS DECIMAL(12,4)) IS NOT NULL; 
 
-    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion)
+    INSERT INTO Parque.Parque (Nombre, Superficie, ID_tipo, ID_provincia, Anio_Creacion, Ambiente_Ecoregion, Estado)
     SELECT 
         TRIM(S.NAME), 
         Staging.FN_TransformarAreaAHectareas(S.GIS_AREA, 'KM2'), 
         NULL, -- El CSV de la ONU no se mapea a los Tipos locales
         NULL, -- El CSV de la ONU no especifica provincias locales
         TRY_CAST(Staging.FN_LimpiarTextoInternacional(S.STATUS_YR) AS INT), 
-        TRIM(S.DESIG)
+        TRIM(S.DESIG),
+        'i'
     FROM Staging.STG_WDPA_Areas S
     WHERE TRY_CAST(S.GIS_AREA AS DECIMAL(12,4)) IS NOT NULL
       AND NOT EXISTS (

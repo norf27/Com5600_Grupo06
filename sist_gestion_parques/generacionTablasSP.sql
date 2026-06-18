@@ -21,7 +21,7 @@ DROP DATABASE sist_gestion_parques;
 GO 
 
 IF DB_ID('sist_gestion_parques') IS NULL
-    CREATE DATABASE sist_gestion_parques COLLATE Latin1_General_CI_AS;
+    CREATE DATABASE sist_gestion_parques COLLATE Latin1_General_CI_AI;
 GO	
 
 USE sist_gestion_parques
@@ -79,7 +79,7 @@ BEGIN
     );
 END
 GO
-
+/* borrar cuando se saque WDPA
 -- Archivo Internacional (WDPA_WDOECM_Jun2026_Public_ARG_csv.csv)
 IF OBJECT_ID('Staging.STG_WDPA_Areas', 'U') IS NULL
 BEGIN
@@ -95,7 +95,7 @@ BEGIN
     );
 END
 GO
-
+*/
 -- Tabla de Auditoria de Errores
 IF OBJECT_ID('Staging.Log_Errores_Importacion', 'U') IS NULL
 BEGIN
@@ -108,6 +108,14 @@ BEGIN
     );
 END
 GO
+IF OBJECT_ID('Staging.STG_ImportarProvincias', 'U') IS NULL
+BEGIN
+CREATE TABLE Staging.STG_ImportarProvincias (
+    Contenido_JSON VARCHAR(MAX) NULL
+);
+END
+GO
+
 	
 ------------------ CREACIÓN DE TABLAS -------------------
 --------------------PARQUE-----------------------
