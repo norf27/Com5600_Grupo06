@@ -513,7 +513,7 @@ BEGIN
         SELECT @Estado = Estado FROM Empleados.Guia WHERE ID_Empleado = @ID_Empleado;
         
         IF @Estado = 'A'
-            SET @error += 'El empleado indicado ya esta registrado como guia y se encuentra activo' + CHAR(10);
+            SET @error += 'El empleado indicado ya esta registrado como guia' + CHAR(10);
     END
 
     IF @error != ''
@@ -523,13 +523,25 @@ BEGIN
     BEGIN TRY
         DECLARE @ret INT;
 
-        EXEC @ret = Empleados.SP_Empleado_Alta 
-            @Nacimiento = @Nacimiento,
-            @DNI = @DNI,
-            @Nombre = @Nombre,
-            @Sueldo = @Sueldo,
-            @ID_parque = @ID_Parque,
-            @CUIL = @CUIL;
+		IF @ID_Empleado IS NULL
+		BEGIN
+		    EXEC @ret = Empleados.SP_Empleado_Alta 
+		        @Nacimiento = @Nacimiento,
+		        @DNI = @DNI,
+		        @Nombre = @Nombre,
+		        @Sueldo = @Sueldo,
+		        @ID_parque = @ID_Parque,
+		        @CUIL = @CUIL;
+		END
+		ELSE
+		BEGIN
+		    SET @ret = @ID_Empleado;
+		    
+		    IF EXISTS (SELECT 1 FROM Empleados.Empleado WHERE ID = @ret AND Estado = 'I')
+		    BEGIN
+		        UPDATE Empleados.Empleado SET Estado = 'A' WHERE ID = @ret;
+		    END
+		END
 
         IF @Estado IS NOT NULL 
         BEGIN
@@ -749,29 +761,49 @@ BEGIN
     IF @Tipo NOT IN ('M', 'P', 'N')
         SET @error += 'El tipo debe ser municipal, provincial o nacional' + CHAR(10);
 
+	DECLARE @ID_Habilitacion int, @EstadoRelacion char(1);
+	SELECT @ID_Habilitacion = ID FROM Empleados.Habilitacion WHERE Nombre = @Nombre_Habilitacion;
+
+	IF @ID_Habilitacion IS NOT NULL
+	BEGIN
+	    SELECT @EstadoRelacion = Estado FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion;
+	    
+	    IF @EstadoRelacion = 'A'
+	        SET @error += 'El guia ya tiene asignada esta habilitacion	' + CHAR(10);
+	END
+
     IF @error != ''
         THROW 50001, @error, 1;
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @ID_Habilitacion int;
 
-        EXEC @ID_Habilitacion = Empleados.SP_Habilitacion_Alta 
-            @Nombre = @Nombre_Habilitacion,
-            @Detalles = @Detalles_Habilitacion;
-
-        IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Habilitacion WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion)
-        BEGIN
-            UPDATE Empleados.R_Guia_Habilitacion 
-            SET Fecha_Vencimiento = @Fecha_Vencimiento, Tipo = @Tipo, Estado = 'A'
-            WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion;
-        END
-        ELSE
-        BEGIN
-            INSERT INTO Empleados.R_Guia_Habilitacion (ID_Guia, ID_Habilitacion, Fecha_Vencimiento, Tipo)
-            VALUES (@ID_Guia, @ID_Habilitacion, @Fecha_Vencimiento, @Tipo);
-        END
-
+		IF @ID_Habilitacion IS NULL
+		BEGIN
+		    EXEC @ID_Habilitacion = Empleados.SP_Habilitacion_Alta 
+		        @Nombre = @Nombre_Habilitacion, @Detalles = @Detalles_Habilitacion;
+		END
+		ELSE
+		BEGIN
+			
+		    IF EXISTS (SELECT 1 FROM Empleados.Habilitacion WHERE ID = @ID_Habilitacion AND Estado = 'I')
+		    BEGIN
+		        UPDATE Empleados.Habilitacion SET Estado = 'A' WHERE ID = @ID_Habilitacion;
+		    END
+		END
+		
+		IF @EstadoRelacion IS NOT NULL
+		BEGIN
+		    UPDATE Empleados.R_Guia_Habilitacion 
+		    SET Fecha_Vencimiento = @Fecha_Vencimiento, Tipo = @Tipo, Estado = 'A'
+		    WHERE ID_Guia = @ID_Guia AND ID_Habilitacion = @ID_Habilitacion;
+		END
+		ELSE
+		BEGIN
+		    INSERT INTO Empleados.R_Guia_Habilitacion (ID_Guia, ID_Habilitacion, Fecha_Vencimiento, Tipo)
+		    VALUES (@ID_Guia, @ID_Habilitacion, @Fecha_Vencimiento, @Tipo);
+		END
+			
         COMMIT;
         PRINT 'Habilitacion asignada al guia correctamente';
         RETURN; 
@@ -808,29 +840,47 @@ BEGIN
     IF @Nivel NOT IN ('B', 'I', 'E')
         SET @error += 'El nivel debe ser basico, intermedio o experto' + CHAR(10);
 
-
+	DECLARE @ID_Especialidad int, @EstadoRelacion char(1);
+	SELECT @ID_Especialidad = ID FROM Empleados.Especialidad WHERE Nombre = @Nombre_Especialidad;
+	
+	IF @ID_Especialidad IS NOT NULL
+	BEGIN
+	    SELECT @EstadoRelacion = Estado FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad;
+	    
+	    IF @EstadoRelacion = 'A'
+	        SET @error += 'El guia ya tiene asignada esta especialidad' + CHAR(10);
+	END
+	
     IF @error != ''
         THROW 50001, @error, 1;
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @ID_Especialidad int;
-
-        EXEC @ID_Especialidad = Empleados.SP_Especialidad_Alta 
-            @Nombre = @Nombre_Especialidad,
-            @Detalles = @Detalles_Especialidad;
-
-        IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Especialidad WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad)
-        BEGIN
-            UPDATE Empleados.R_Guia_Especialidad
-            SET Nivel = @Nivel, Estado = 'A'
-            WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad;
-        END
-        ELSE
-        BEGIN
-            INSERT INTO Empleados.R_Guia_Especialidad (ID_Guia, ID_Especialidad, Nivel)
-            VALUES (@ID_Guia, @ID_Especialidad, @Nivel);
-        END
+        IF @ID_Especialidad IS NULL
+		BEGIN
+			EXEC @ID_Especialidad = Empleados.SP_Especialidad_Alta 
+				@Nombre = @Nombre_Especialidad, @Detalles = @Detalles_Especialidad;
+		END
+		ELSE
+		BEGIN
+		   
+			IF EXISTS (SELECT 1 FROM Empleados.Especialidad WHERE ID = @ID_Especialidad AND Estado = 'I')
+			BEGIN
+				UPDATE Empleados.Especialidad SET Estado = 'A' WHERE ID = @ID_Especialidad;
+			END
+		END
+		
+		IF @EstadoRelacion IS NOT NULL
+		BEGIN
+			UPDATE Empleados.R_Guia_Especialidad
+			SET Nivel = @Nivel, Estado = 'A'
+			WHERE ID_Guia = @ID_Guia AND ID_Especialidad = @ID_Especialidad;
+		END
+		ELSE
+		BEGIN
+			INSERT INTO Empleados.R_Guia_Especialidad (ID_Guia, ID_Especialidad, Nivel)
+			VALUES (@ID_Guia, @ID_Especialidad, @Nivel);
+		END
 
         COMMIT;
         PRINT 'Especialidad asignada al guia correctamente';
@@ -870,20 +920,40 @@ BEGIN
     IF @Origen IS NULL OR LTRIM(RTRIM(@Origen)) = ''
         SET @error += 'El origen no puede estar vacio' + CHAR(10);
 
+    DECLARE @ID_Titulo int, @EstadoRelacion char(1);
+    SELECT @ID_Titulo = ID FROM Empleados.Titulo WHERE Nombre = @Nombre_Titulo;
+
+    IF @ID_Titulo IS NOT NULL
+    BEGIN
+        SELECT @EstadoRelacion = Estado FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo;
+        
+        IF @EstadoRelacion = 'A'
+            SET @error += 'El guia ya tiene asignado este titulo' + CHAR(10);
+    END
+
     IF @error != ''
         THROW 50001, @error, 1;
 
     BEGIN TRANSACTION;
     BEGIN TRY
-        DECLARE @ID_Titulo int;
 
-        EXEC @ID_Titulo = Empleados.SP_Titulo_Alta 
-            @Nombre = @Nombre_Titulo;
+        IF @ID_Titulo IS NULL
+        BEGIN
+            EXEC @ID_Titulo = Empleados.SP_Titulo_Alta 
+                @Nombre = @Nombre_Titulo;
+        END
+        ELSE
+        BEGIN
+            IF EXISTS (SELECT 1 FROM Empleados.Titulo WHERE ID = @ID_Titulo AND Estado = 'I')
+            BEGIN
+                UPDATE Empleados.Titulo SET Estado = 'A' WHERE ID = @ID_Titulo;
+            END
+        END
 
-        IF EXISTS (SELECT 1 FROM Empleados.R_Guia_Titulo WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo)
+        IF @EstadoRelacion IS NOT NULL
         BEGIN
             UPDATE Empleados.R_Guia_Titulo
-            SET Fecha_Emision = @Fecha_emision, Origen = @Origen, Estado = 'A'
+            SET Fecha_emision = @Fecha_emision, Origen = @Origen, Estado = 'A'
             WHERE ID_Guia = @ID_Guia AND ID_Titulo = @ID_Titulo;
         END
         ELSE
