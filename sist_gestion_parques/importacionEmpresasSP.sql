@@ -21,7 +21,7 @@ BEGIN
     TRUNCATE TABLE Staging.STG_Empresa;
 
     SET @SQL = N'
-    BULK INSERT Concesiones.STG_Empresa
+    BULK INSERT Staging.STG_Empresa
     FROM ''' + @RutaArchivo + '''
     WITH (
         FORMAT = ''CSV'',
@@ -66,9 +66,9 @@ BEGIN
     FROM Staging.STG_Empresa
     WHERE telefono IS NOT NULL
       AND (
-            telefono LIKE '%[^0-9]%'
-            OR LEN(telefono) < 6
-            OR LEN(telefono) > 20
+            --telefono LIKE '%[^0-9 ()-/]%'
+            LEN(telefono) < 6
+            OR LEN(telefono) > 50
           );
 
     UPDATE E
@@ -80,7 +80,7 @@ BEGIN
     WHERE S.organizacion IS NOT NULL 
       AND LEN(S.organizacion) <= 100;
 
-    INSERT INTO Staging.Empresa (Nombre, Telefono, Estado)
+    INSERT INTO Concesiones.Empresa (Nombre, Telefono, Estado)
     SELECT DISTINCT
         S.organizacion,
         LEFT(S.telefono, 20),
@@ -91,7 +91,7 @@ BEGIN
       AND LEN(S.organizacion) <= 100
       AND NOT EXISTS (
           SELECT 1 
-          FROM Staging.Empresa E 
+          FROM Concesiones.Empresa E 
           WHERE UPPER(TRIM(E.Nombre)) = UPPER(TRIM(S.organizacion))
       );
 END;
