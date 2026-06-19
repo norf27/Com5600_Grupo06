@@ -7,6 +7,8 @@ Anotaciones:
 -  En la relacion guardaparque parque hacer motivo egreso opcional LISTO
 -  Tenemos algunos ids de tablas que se llaman 'ID' y otros 'ID_(nombre tabla)' UNIFICAR
 
+tp 5: enumerar el orden de ejecuicion de los archivos 
+
 TAREAS:
   TP 5: 
   - hacer que los borrados de los procedure sean logicos (cada uno el suyo) modificar baja y modificar
