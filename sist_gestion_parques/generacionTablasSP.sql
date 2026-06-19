@@ -392,7 +392,7 @@ BEGIN
 		CUIT VARCHAR(13) NULL, ----cambio de no null a null para testeo(pendiente determinacion final)
 		Correo VARCHAR(100) NULL,
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
-		Telefono VARCHAR(20) NULL,
+		Telefono VARCHAR(50) NULL,
 		CONSTRAINT check_Estado_Empresa CHECK (Estado in ('A', 'I')),
 		CONSTRAINT check_CUIT CHECK (CUIT LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]'),
 	);
