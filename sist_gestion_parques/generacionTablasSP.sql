@@ -90,6 +90,29 @@ BEGIN
 END
 GO
 	
+IF OBJECT_ID('Staging.STG_Empresa', 'U') IS NULL
+BEGIN
+GO
+	CREATE TABLE Staging.STG_Empresa
+	(
+	    organizacion VARCHAR(500) NULL,
+	    rubro VARCHAR(500) NULL,
+	    subrubro VARCHAR(500) NULL,
+	    calle VARCHAR(500) NULL,
+	    numero VARCHAR(500) NULL,
+	    pais VARCHAR(500) NULL,
+	    provincia VARCHAR(500) NULL,
+	    ciudad VARCHAR(500) NULL,
+	    telefono VARCHAR(500) NULL,
+	    facebook VARCHAR(500) NULL,
+	    web VARCHAR(500) NULL,
+	    programa VARCHAR(500) NULL,
+	    fecha_distincion VARCHAR(500) NULL,
+	    fecha_revalidacion VARCHAR(500) NULL
+	);
+END
+GO
+
 /*  
 borrar cuando se saque Nacional
 
