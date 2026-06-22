@@ -70,13 +70,9 @@ SET DNI_CifradoFraseClave =
 			1,
 			CONVERT(VARBINARY, ID)
 		);
-GO
 
 -- Ciframos los datos sensibles de clientes.
 -- Se agrega un hash/autenticador usando la PK ID de Ventas.Cliente.
-DECLARE @FraseClaveCargadaPorUsuario NVARCHAR(128);
-SET @FraseClaveCargadaPorUsuario = 'MessiGoat';
-
 UPDATE Ventas.Cliente
 SET Tipo_doc_CifradoFraseClave =
 		EncryptByPassPhrase(
