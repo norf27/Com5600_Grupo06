@@ -7,18 +7,46 @@ Descripcion: Script para Reporte de ingresos por semana, mes y año, por parque.
 USE sist_gestion_parques;
 GO
 
-CREATE OR ALTER PROCEDURE Ventas.SP_ReporteIngresosPorPeriodo
+CREATE OR ALTER PROCEDURE Ventas.SP_ReporteIngresosPorPeriodo @UsarUSD char(1) = 'F'
 AS
 BEGIN
     SET NOCOUNT ON;
+    DECLARE @multiplicar decimal(10,2) = 1 --por defecto 1 peso = 1 peso
+    if @UsarUSD != 'F'
+    begin
+        DECLARE @urlDolar NVARCHAR(128) = 'https://dolarapi.com/v1/dolares/oficial' 
+        DECLARE @Object INT
+        DECLARE @jsonTable TABLE(DATA NVARCHAR(MAX))
+        DECLARE @ValorUsd DECIMAL(10, 2) -- Variable para guardar el precio final
 
-    WITH Ingresos AS
+
+        EXEC sp_OACreate 'MSXML2.XMLHTTP', @Object OUT
+        EXEC sp_OAMethod @Object, 'OPEN', NULL, 'GET', @urlDolar, 'FALSE'
+        EXEC sp_OAMethod @Object, 'SEND'
+
+
+        INSERT INTO @jsonTable 
+        EXEC sp_OAGetProperty @Object, 'RESPONSETEXT'
+        EXEC sp_OADestroy @Object
+
+
+        DECLARE @datosDolar NVARCHAR(MAX) = (SELECT DATA FROM @jsonTable)
+
+
+        SELECT @ValorUsd = precio
+        FROM OPENJSON(@datosDolar)
+        WITH (
+            precio DECIMAL(10, 2) '$.venta'
+        )
+        set @multiplicar = @ValorUsd
+    end
+    ;WITH Ingresos AS
     (
         SELECT
             P.Nombre AS Parque,
             CAST(C.Fecha AS DATE) AS Fecha_Ingreso,
             'Entrada' AS Concepto,
-            T.Precio AS Importe
+            T.Precio * C.Descuento AS Importe
         FROM Ventas.Entrada E
         INNER JOIN Ventas.Tarifa T ON E.ID_tarifa = T.ID
         INNER JOIN Parque.Parque P ON T.ID_parque = P.ID
@@ -29,8 +57,8 @@ BEGIN
             AND UPPER(T.Estado) = 'A'
             AND UPPER(P.Estado) = 'A'
             AND UPPER(C.Estado) = 'A'
-            -- Solo contar ingresos con pagos Confirmados o Activos
-            AND UPPER(PA.Estado) IN ('C', 'A')
+            -- Solo contar ingresos con pagos Confirmados
+            AND UPPER(PA.Estado) IN ('C')
 
         UNION ALL
 
@@ -38,7 +66,7 @@ BEGIN
             P.Nombre AS Parque,
             CAST(C.Fecha AS DATE) AS Fecha_Ingreso,
             'Tour' AS Concepto,
-            ISNULL(Tour.Costo, 0) AS Importe
+            ISNULL(Tour.Costo, 0) * C.Descuento AS Importe
         FROM Ventas.Entrada E
         INNER JOIN Atracciones.R_Tour_Entrada RTE ON E.ID = RTE.ID_Entrada
         INNER JOIN Atracciones.Tour Tour ON RTE.ID_Tour = Tour.ID_Tour
@@ -52,7 +80,7 @@ BEGIN
             AND UPPER(P.Estado) = 'A'
             AND UPPER(C.Estado) = 'A'
             -- Solo contar ingresos con pagos Confirmados o Activos
-            AND UPPER(PA.Estado) IN ('C', 'A')
+            AND UPPER(PA.Estado) IN ('C')
     )
     SELECT
         Parque,
@@ -60,9 +88,9 @@ BEGIN
         MONTH(Fecha_Ingreso) AS Mes,
         DATENAME(MONTH, Fecha_Ingreso) AS Nombre_Mes,
         DATEPART(WEEK, Fecha_Ingreso) AS Semana,
-        SUM(CASE WHEN Concepto = 'Entrada' THEN Importe ELSE 0 END) AS Ingresos_Entradas,
-        SUM(CASE WHEN Concepto = 'Tour' THEN Importe ELSE 0 END) AS Ingresos_Tours,
-        SUM(Importe) AS Ingresos_Totales
+        SUM(CASE WHEN Concepto = 'Entrada' THEN Importe ELSE 0 END) / @multiplicar AS Ingresos_Entradas,
+        SUM(CASE WHEN Concepto = 'Tour' THEN Importe ELSE 0 END) / @multiplicar AS Ingresos_Tours,
+        SUM(Importe) / @multiplicar AS Ingresos_Totales
     FROM Ingresos
     GROUP BY
         Parque,
