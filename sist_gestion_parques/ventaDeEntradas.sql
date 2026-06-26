@@ -346,7 +346,7 @@ begin
 		-- Usamos GETDATE() para obtener la fecha del sistema en formato ISO
 	DECLARE @HoyISO NVARCHAR(10) = FORMAT(@Fecha_actual, 'yyyy-MM-dd')
     
-	-- 3. Parseo e interpretación
+	
 	IF EXISTS 
 	(
 		SELECT 1 FROM OPENJSON(@datosFeriados)
