@@ -5,6 +5,9 @@ para parques
 https://datos.gob.ar/dataset/jgm-servicio-normalizacion-direcciones-unidades-territoriales-argentina
 para provincias
 
+https://datos.yvera.gob.ar/dataset/organizaciones-distinguidas-sistema-argentino-calidad-turistica-sact/archivo/5c4c977c-d36c-4bda-b59f-448a17c9bc55
+para empresas
+
 APIS:
 
 https://argentinadatos.com/docs/operations/get-feriados

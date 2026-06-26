@@ -92,7 +92,6 @@ GO
 	
 IF OBJECT_ID('Staging.STG_Empresa', 'U') IS NULL
 BEGIN
-GO
 	CREATE TABLE Staging.STG_Empresa
 	(
 	    organizacion VARCHAR(500) NULL,

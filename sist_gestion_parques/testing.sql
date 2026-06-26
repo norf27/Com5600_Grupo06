@@ -1,7 +1,7 @@
 
 use sist_gestion_parques
 go
-
+create or alter procedure SP_Testing as begin
 ----------------Parque------------
 print '=================Tipo parque================='
 --dar de alta:
@@ -1671,5 +1671,6 @@ BEGIN CATCH
 END CATCH
 
 PRINT '================= FIN TESTING ABM GUARDAPARQUE / TOUR ================='
-
+end
+go
 
