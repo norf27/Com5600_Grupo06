@@ -1053,7 +1053,7 @@ exec @ID_Parque_1 = Parque.SP_Parque_Alta 2000, 'Parque del norte', @ID_tipo_par
 --crear tipo de actividad
 exec @ID_tipo_actividad = Concesiones.SP_TipoActividad_Alta 'Venta de comida', 'vende comida en la entrada al predio'
 --crear Empresa
-exec @ID_empresa = Concesiones.SP_Empresa_Alta 'Super Panchos SA', '20-12345678-1', 'superPanchos@gmail.com'
+exec @ID_empresa = Concesiones.SP_Empresa_Alta 'Super Panchos SA', '20-12345678-1', 'superPanchos@gmail.com', null
 
 --registrar concesion
 exec @ID_concesion = Concesiones.SP_RegistrarConcesion @ID_empresa, @ID_tipo_actividad, @ID_Parque_1, '2026-08-01', '2026-12-01', 1800.75, 'Efectivo'

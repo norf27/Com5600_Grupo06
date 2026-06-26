@@ -383,6 +383,7 @@ begin
 	--ID temporal | tour | DOC | tipo doc | ID real en tabla clientes| entrada (faltan columnas pero no son relevantes o son repetidas)
 	
 	
+	EXEC Ventas.SP_Pago_Alta 'no definido', @totalCalculado, 'P', @ID_Compra
 	
 	commit 
 	end try
