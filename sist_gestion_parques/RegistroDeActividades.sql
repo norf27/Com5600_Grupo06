@@ -14,6 +14,8 @@ CREATE OR ALTER PROCEDURE Atracciones.RegistrarActividad
     @Cupo_Max INT,
     @Tipo CHAR(1),
     @Duracion INT,
+    @Nombre VARCHAR(100), 
+    @Horario VARCHAR(5),
     @ID_Guia INT
 )
 AS
@@ -21,6 +23,18 @@ BEGIN
     SET NOCOUNT ON;
 
     DECLARE @error VARCHAR(MAX) = '';
+
+     IF @Horario NOT LIKE '[0-2][0-9]:[0-6][0-9]'
+        SET @error += 'El Horario debe ser formato HH:MM' + CHAR(10);
+
+    IF @Tipo NOT IN ('A','T')
+        SET @error += 'El tipo debe ser A: atraccion o T:tour' + CHAR(10);
+
+    IF @Horario IS NULL
+        SET @error += 'El horario no puede ser null' + CHAR(10);
+
+    IF @Nombre IS NULL
+        SET @error += 'El nombre no puede ser null' + CHAR(10);
 
     IF @Costo IS NULL
         SET @error += 'El costo no puede ser null' + CHAR(10);
@@ -90,14 +104,18 @@ BEGIN
             Costo,
             Cupo_Max,
             Tipo,
-            Duracion
+            Duracion,
+            Nombre,
+            Horario
         )
         VALUES
         (
             @Costo,
             @Cupo_Max,
             @Tipo,
-            @Duracion
+            @Duracion,
+            @Nombre,
+            @Horario
         );
 
         DECLARE @ID_Tour INT;
@@ -118,7 +136,7 @@ BEGIN
         COMMIT;
 
         PRINT 'Actividad registrada correctamente';
-
+        RETURN @ID_Tour;
     END TRY
     BEGIN CATCH
 
