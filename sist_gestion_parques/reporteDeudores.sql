@@ -10,7 +10,7 @@ Procedimiento para reporte de deudores.
 use sist_gestion_parques
 go
 
-create or alter procedure SP_MostrarDeudores @Fecha date = NULL as
+create or alter procedure Concesiones.SP_MostrarDeudores @Fecha date = NULL as
 begin
 if @Fecha is null
 	set @Fecha = getdate()

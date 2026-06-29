@@ -47,8 +47,8 @@ SET NOCOUNT ON;
     IF  DAY(@FechaInicio) != 1
         SET @Errores += CHAR(13) + '- Debe finalizar un dia 1.';
 
-    IF @FechaInicio < CAST(GETDATE() AS DATE)
-        SET @Errores += CHAR(13) + '- La fecha de inicio no puede ser anterior a la fecha actual.';
+    /*IF @FechaInicio < CAST(GETDATE() AS DATE)
+        SET @Errores += CHAR(13) + '- La fecha de inicio no puede ser anterior a la fecha actual.';*/ --sacado para poder hacer casos de prueba
 
     IF @FechaFin <= @FechaInicio
         SET @Errores += CHAR(13) + '- La fecha de finalización debe ser posterior a la fecha de inicio.';

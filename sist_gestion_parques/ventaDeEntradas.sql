@@ -155,7 +155,7 @@ begin
 			OR (t.ID_tour IS NOT NULL AND t.ID_tour NOT IN (SELECT ID_Tour FROM Atracciones.Tour WHERE Estado != 'I'))
 			
 			--ver que el tipo de visitante coincida con alguna tarifa activa
-			OR v.ID_tipo NOT IN (SELECT ID FROM Ventas.Tarifa WHERE Fecha_hasta IS NULL AND Estado = 'A' AND ID_parque = @ID_parque)
+			OR v.ID_tipo NOT IN (SELECT ID_tipo_visitante FROM Ventas.Tarifa WHERE Fecha_hasta IS NULL AND Estado = 'A' AND ID_parque = @ID_parque)
 	)
 	BEGIN
 		THROW 51000, 'Hubo un problema a la hora de extraer los datos', 1;

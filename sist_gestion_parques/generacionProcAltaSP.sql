@@ -1630,6 +1630,8 @@ GO
 CREATE OR ALTER PROCEDURE Atracciones.SP_Tour_Alta
     @Costo DECIMAL(11,2),
     @Cupo_max INT,
+    @Nombre VARCHAR(100),
+    @Horario VARCHAR(5),
     @Tipo CHAR(1),
     @Duracion INT,
     @ID_parque int
@@ -1640,6 +1642,10 @@ BEGIN
     -- Validaciones basicas de dominio para evitar datos inconsistentes.
     DECLARE @error VARCHAR(MAX) = '';
 
+    IF @Horario IS NULL
+        SET @error += 'El horario no puede ser null' + CHAR(10);
+    IF @Nombre IS NULL
+        SET @error += 'El nombre no puede ser null' + CHAR(10);
     IF @Costo IS NULL
         SET @error += 'El costo no puede ser null' + CHAR(10);
     IF @ID_parque IS NULL
@@ -1658,6 +1664,10 @@ BEGIN
         SET @error += 'La duracion debe ser mayor a 0' + CHAR(10);
     IF NOT EXISTS (SELECT 1 FROM Parque.Parque where ID = @ID_parque AND Estado = 'A')
         SET @error += 'No existe ningun parque con el ID_parque enviado' + CHAR(10);
+    IF @Horario NOT LIKE '[0-2][0-9]:[0-6][0-9]'
+        SET @error += 'El Horario debe ser formato HH:MM' + CHAR(10);
+    IF @Tipo NOT IN ('A','T')
+        SET @error += 'El tipo debe ser A: atraccion o T:tour' + CHAR(10);
     IF @error != ''
         THROW 50001, @error, 1;
 
@@ -1669,7 +1679,9 @@ BEGIN
             Cupo_max,
             Tipo,
             Duracion,
-            ID_parque
+            ID_parque,
+            Horario,
+            Nombre
         )
         VALUES
         (
@@ -1677,7 +1689,9 @@ BEGIN
             @Cupo_max,
             @Tipo,
             @Duracion,
-            @ID_parque
+            @ID_parque,
+            @Horario,
+            @Nombre
         );
 
         COMMIT;

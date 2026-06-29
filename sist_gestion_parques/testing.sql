@@ -1114,9 +1114,9 @@ exec Ventas.SP_Cliente_Alta 'Lionel Messi', '12345678', 'ARG', '1987-06-24'
 exec @ID_tarifa_1 = Ventas.SP_Tarifa_Alta '2025-01-01', NULL, 150, @ID_tipo_visitante_1, @ID_Parque_1_vts --entrada para adulto = 150
 exec @ID_tarifa_2 = Ventas.SP_Tarifa_Alta '2025-01-01', NULL, 50, @ID_tipo_visitante_2, @ID_Parque_1_vts --entrada para estudiante = 50
 --crear tours
-exec @ID_tour_1 = Atracciones.SP_Tour_Alta 200, 5, 'a', 20, @ID_Parque_1_vts --cupo max = 5 personas, cuesta 200
-exec @ID_tour_2 = Atracciones.SP_Tour_Alta 300, 3, 'a', 20, @ID_Parque_1_vts --cupo max = 3 personas, cuesta 300
-exec @ID_tour_3 = Atracciones.SP_Tour_Alta 50, 50, 'a', 20, @ID_Parque_2_vts --cupo max = 50, cuesta 50
+exec @ID_tour_1 = Atracciones.SP_Tour_Alta 200, 5, 'atraccion 1', '10:50', 'a', 20, @ID_Parque_1_vts --cupo max = 5 personas, cuesta 200
+exec @ID_tour_2 = Atracciones.SP_Tour_Alta 300, 3,  'atraccion 2', '11:50', 'a', 20, @ID_Parque_1_vts --cupo max = 3 personas, cuesta 300
+exec @ID_tour_3 = Atracciones.SP_Tour_Alta 50, 50,  'atraccion 3', '12:58', 'a', 20, @ID_Parque_2_vts --cupo max = 50, cuesta 50
 
 Print '======compras=========='
 
@@ -1487,7 +1487,9 @@ PRINT '================= TOUR - ALTA / MODIFICACION / BAJA ================='
 EXEC @ID_Tour_ABM = Atracciones.SP_Tour_Alta
     @Costo = 2500.00,
     @Cupo_max = 20,
-    @Tipo = 'D',
+    @Nombre = 'atraccion 1', 
+    @Horario = '10:50',
+    @Tipo = 'T',
     @Duracion = 90,
     @ID_parque = @ID_Parque_ABM_1;
 SELECT 'Tour despues de alta' AS Evidencia, * FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour_ABM;
@@ -1496,9 +1498,11 @@ EXEC Atracciones.SP_Tour_Modificar
     @ID_Tour = @ID_Tour_ABM,
     @Costo = 3000.00,
     @Cupo_max = 25,
-    @Tipo = 'N',
+    @Tipo = 'T',
     @Duracion = 120,
-    @ID_parque = @ID_Parque_ABM_2;
+    @ID_parque = @ID_Parque_ABM_2,
+    @Nombre = 'atraccion 1', 
+    @Horario = '10:50';
 SELECT 'Tour despues de modificacion' AS Evidencia, * FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour_ABM;
 
 EXEC Atracciones.SP_Tour_Baja @ID_Tour = @ID_Tour_ABM;
@@ -1509,7 +1513,9 @@ BEGIN TRY
     EXEC Atracciones.SP_Tour_Alta
         @Costo = -1,
         @Cupo_max = 0,
-        @Tipo = 'D',
+        @Nombre = 'atraccion 1', 
+        @Horario = '10:50',
+        @Tipo = 'T',
         @Duracion = 90,
         @ID_parque = @ID_Parque_ABM_1;
 END TRY
@@ -1525,7 +1531,9 @@ BEGIN TRY
         @Cupo_max = 10,
         @Tipo = 'D',
         @Duracion = 60,
-        @ID_parque = @ID_Parque_ABM_1;
+        @ID_parque = @ID_Parque_ABM_1,
+        @Nombre = 'atraccion 1', 
+        @Horario = '10:50';
 END TRY
 BEGIN CATCH
     PRINT ERROR_MESSAGE();
@@ -1545,14 +1553,18 @@ PRINT '================= R_TOUR_GUIA - ALTA / MODIFICACION / BAJA ==============
 EXEC @ID_Tour_ABM_Rel_1 = Atracciones.SP_Tour_Alta
     @Costo = 1500.00,
     @Cupo_max = 10,
-    @Tipo = 'D',
+    @Nombre = 'atraccion de prueba', 
+    @Horario = '10:50',
+    @Tipo = 'T',
     @Duracion = 60,
     @ID_parque = @ID_Parque_ABM_1;
 
 EXEC @ID_Tour_ABM_Rel_2 = Atracciones.SP_Tour_Alta
     @Costo = 1800.00,
     @Cupo_max = 10,
-    @Tipo = 'N',
+    @Nombre = 'atraccion de prueba', 
+    @Horario = '10:50',
+    @Tipo = 'T',
     @Duracion = 75,
     @ID_parque = @ID_Parque_ABM_1;
 
@@ -1614,7 +1626,9 @@ PRINT '================= R_TOUR_ENTRADA - ALTA / MODIFICACION / BAJA ===========
 EXEC @ID_Tour_ABM_Rel_3 = Atracciones.SP_Tour_Alta
     @Costo = 2100.00,
     @Cupo_max = 2,
-    @Tipo = 'D',
+    @Nombre = 'atraccion para entradas', 
+    @Horario = '10:50',
+    @Tipo = 'T',
     @Duracion = 80,
     @ID_parque = @ID_Parque_ABM_1;
 

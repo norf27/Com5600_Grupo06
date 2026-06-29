@@ -1186,7 +1186,9 @@ CREATE OR ALTER PROCEDURE Atracciones.SP_Tour_Modificar
     @Cupo_max INT,
     @Tipo CHAR(1),
     @Duracion INT,
-	@ID_parque INT 
+	@ID_parque INT,
+    @Horario VARCHAR(5),
+    @Nombre VARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1195,11 +1197,15 @@ BEGIN
     -- Tambien controla que el nuevo cupo no quede por debajo de las entradas ya asignadas.
     DECLARE @error VARCHAR(MAX) = '';
 
+    IF @Horario IS NULL
+        SET @error += 'El horario no puede ser null' + CHAR(10);
+    IF @Nombre IS NULL
+        SET @error += 'El nombre no puede ser null' + CHAR(10);
 	IF @ID_parque IS NULL
         SET @error += 'El ID_parque no puede ser null' + CHAR(10);
     IF @ID_Tour IS NULL
         SET @error += 'El ID_Tour no puede ser null' + CHAR(10);
-    IF @ID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour)
+    IF @ID_Tour IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Atracciones.Tour WHERE ID_Tour = @ID_Tour AND Estado = 'A')
         SET @error += 'El tour indicado no existe' + CHAR(10);
     IF @Costo IS NULL
         SET @error += 'El costo no puede ser null' + CHAR(10);
@@ -1220,7 +1226,10 @@ BEGIN
         SET @error += 'La duracion debe ser mayor a 0' + CHAR(10);
 	IF NOT EXISTS (SELECT 1 FROM Parque.Parque where ID = @ID_parque AND Estado = 'A')
         SET @error += 'No existe ningun parque con el ID_parque enviado' + CHAR(10);
-
+    IF @Horario NOT LIKE '[0-2][0-9]:[0-6][0-9]'
+        SET @error += 'El Horario debe ser formato HH:MM' + CHAR(10);
+    IF @Tipo NOT IN ('A','T')
+        SET @error += 'El tipo debe ser A: atraccion o T:tour' + CHAR(10);
     IF @error != ''
         THROW 50001, @error, 1;
 
@@ -1231,7 +1240,9 @@ BEGIN
             Cupo_max = @Cupo_max,
             Tipo = @Tipo,
             Duracion = @Duracion,
-			ID_Parque = @ID_parque
+			ID_Parque = @ID_parque,
+            Horario = @Horario,
+            Nombre = @Nombre
         WHERE ID_Tour = @ID_Tour;
 
         COMMIT;

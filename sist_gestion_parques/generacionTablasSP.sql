@@ -12,13 +12,14 @@ GO
 */
 USE master;
 GO
+IF DB_ID('sist_gestion_parques') IS NOT NULL
+	ALTER DATABASE sist_gestion_parques
+	SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+	GO
 
-ALTER DATABASE sist_gestion_parques
-SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-GO
-
-DROP DATABASE sist_gestion_parques;
-GO 
+IF DB_ID('sist_gestion_parques') IS NOT NULL
+	DROP DATABASE sist_gestion_parques;
+	GO 
 
 IF DB_ID('sist_gestion_parques') IS NULL
     CREATE DATABASE sist_gestion_parques COLLATE Latin1_General_CI_AI;
@@ -542,13 +543,17 @@ BEGIN
 		ID_Tour INT PRIMARY KEY CLUSTERED IDENTITY(1,1),
 		ID_Parque INT NOT NULL,
 		Costo DECIMAL (11,2),
+		Nombre VARCHAR (100) NOT NULL,
+		Horario VARCHAR(5) NOT NULL, -- HH:MM
 		Cupo_max INT NOT NULL,
-		Tipo CHAR (1) NOT NULL,
+		Tipo CHAR (1) NOT NULL, --T: tour, A: atraccion
 		Duracion INT NOT NULL, -- minutos
 		Estado CHAR(1) NOT NULL DEFAULT 'a', --a: activo, i: inactivo
 		CONSTRAINT check_Estado_Tour CHECK (Estado in ('A', 'I')),
+		CONSTRAINT check_Tipo_Tour CHECK (Tipo in ('A', 'T')),
 		CONSTRAINT check_cupo CHECK (Cupo_max > 0),
 		CONSTRAINT check_duracion CHECK (Duracion > 0),
+		CONSTRAINT check_horario CHECK (Horario like '[0-2][0-9]:[0-6][0-9]'),
 		CONSTRAINT FK_tour_parque FOREIGN KEY (ID_parque) REFERENCES Parque.Parque(ID)
 	);
 END

@@ -873,7 +873,7 @@ BEGIN
 
     BEGIN TRANSACTION;
     BEGIN TRY
-		update Atracciones.Tour set Estado = 'i' where ID_Tour = @ID_Tour --ejemplo dar de baja borrado logico
+		update Atracciones.Tour set Estado = 'i' where ID_Tour = @ID_Tour
         COMMIT;
         PRINT 'Tour eliminado correctamente';
     END TRY
