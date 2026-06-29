@@ -58,7 +58,7 @@ BEGIN
             AND UPPER(P.Estado) = 'A'
             AND UPPER(C.Estado) = 'A'
             -- Solo contar ingresos con pagos Confirmados
-            AND UPPER(PA.Estado) IN ('C')
+            AND UPPER(PA.Estado) = 'C'
 
         UNION ALL
 
@@ -79,7 +79,7 @@ BEGIN
             AND UPPER(Tour.Estado) = 'A'
             AND UPPER(P.Estado) = 'A'
             AND UPPER(C.Estado) = 'A'
-            -- Solo contar ingresos con pagos Confirmados o Activos
+            -- Solo contar ingresos con pagos Confirmados
             AND UPPER(PA.Estado) IN ('C')
     )
     SELECT

@@ -512,7 +512,7 @@ BEGIN
 		ID_compra INT NOT NULL UNIQUE,
 		CONSTRAINT FK_pago_compra FOREIGN KEY (ID_compra) REFERENCES Ventas.Compra(ID),
 		CONSTRAINT CK_pago_monto CHECK (Monto > 0),
-		CONSTRAINT CK_pago_estado_Pago CHECK (Estado IN ('P','C','R', 'A', 'I')) -- Pendiente / Confirmado / Rechazado / Activo / Inactivo
+		CONSTRAINT CK_pago_estado_Pago CHECK (Estado IN ('P','C','R', 'I')) -- Pendiente / Confirmado / Rechazado / Inactivo
 		--activo e inactivo no son para ver el estado del pago, sino para ver si se debe tomar en cuenta la fila o no al recorrer la tabla
 	);
 END

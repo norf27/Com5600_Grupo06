@@ -1573,8 +1573,8 @@ BEGIN
 	IF @Monto <= 0
 	SET @Errores += CHAR(13) + '- El monto debe ser mayor a cero';
 	
-	IF @Estados NOT IN ('P','A','R')
-	SET @Errores += CHAR(13) + '- Estado inválido (P=Pendiente, A=Aprobado, R=Rechazado)';
+	IF @Estados NOT IN ('P','C','R')
+	SET @Errores += CHAR(13) + '- Estado inválido (P=Pendiente, C=Confirmado, R=Rechazado)';
 	
 	IF NOT EXISTS
 	(
