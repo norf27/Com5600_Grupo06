@@ -768,7 +768,8 @@ BEGIN
 END;
 go
 
-CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Modificar
+	
+CREATE OR ALTER PROCEDURE Concesiones.SP_Concesion_Modificar --modificar el rango de fechas va a hacer que se reinicien todos los pagos
         @ID INT,
         @Fecha_inicio DATE,
 		@Fecha_fin DATE,
@@ -805,10 +806,53 @@ BEGIN
             throw 50001, @error, 1;
     BEGIN TRANSACTION;
     BEGIN TRY
-        update Concesiones.Concesion set Fecha_fin = @Fecha_fin, Fecha_inicio = @Fecha_inicio, ID_empresa = @ID_empresa, ID_tipo = @ID_tipo,
-        ID_parque = @ID_parque where ID = @ID
-        COMMIT;
-		print 'La concesion fue modificada con exito' 
+        DECLARE @FechaInicioCargada DATE, @FechaFinCargada DATE, @Monto_mensual DECIMAL(11,2), @Metodo VARCHAR(100), @FechaAuxiliar DATE;
+
+        
+        SELECT @FechaInicioCargada = Fecha_inicio, 
+               @FechaFinCargada = Fecha_fin 
+        FROM Concesiones.Concesion 
+        WHERE ID = @ID;
+        
+        
+        UPDATE Concesiones.Concesion 
+        SET Fecha_fin = @Fecha_fin, 
+            Fecha_inicio = @Fecha_inicio, 
+            ID_empresa = @ID_empresa, 
+            ID_tipo = @ID_tipo,
+            ID_parque = @ID_parque 
+        WHERE ID = @ID;
+
+        --si cambiaron las fechas
+        IF @FechaInicioCargada != @Fecha_inicio OR @FechaFinCargada != @Fecha_fin
+        BEGIN
+            SELECT TOP 1 
+                @Metodo = Metodo, 
+                @Monto_mensual = Monto 
+            FROM Concesiones.Pago_mensual 
+            WHERE ID_concesion = @ID 
+
+            --dar de baja todo lo anterior
+            UPDATE Concesiones.Pago_mensual 
+            SET Estado = 'I' 
+            WHERE ID_concesion = @ID;
+
+            --variable para el ciclo
+            SET @FechaAuxiliar = @Fecha_inicio;
+
+            --crear nuevos pagos
+            WHILE @FechaAuxiliar <= @Fecha_fin 
+            BEGIN
+                EXEC Concesiones.SP_PagoMensual_Alta @FechaAuxiliar, @Monto_mensual, @Metodo, @ID; 
+
+                -- Incremento estricto del mes para garantizar la salida del bucle
+                SET @FechaAuxiliar = DATEADD(MONTH, 1, @FechaAuxiliar);
+            END;
+        END;
+
+        COMMIT TRANSACTION;
+        PRINT 'La concesión fue modificada con éxito y los pagos fueron actualizados.';
+        
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
@@ -822,7 +866,6 @@ BEGIN
     END CATCH;
 END;
 go
-
 
 
 CREATE OR ALTER PROCEDURE Concesiones.SP_PagoMensual_Modificar
