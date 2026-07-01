@@ -1,7 +1,8 @@
 /*
 Fecha: 3/07/2026
-Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
-Descripcion: Procedure para importar provincias (Uso de Funci髇 de Limpieza para UPSERT)
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas 
+Descripcion: Procedure para importar provincias (Uso de Funci贸n de Limpieza para UPSERT)
 */
 
 USE sist_gestion_parques; 
@@ -29,7 +30,7 @@ BEGIN
     END TRY
     BEGIN CATCH
         INSERT INTO Staging.Log_Errores_Importacion (Archivo_Origen, Fila_Contenido_Raw, Motivo_Error)
-        VALUES (@RutaArchivo, 'SISTEMA_CR蚑ICO', 'Error f韘ico al abrir o leer el archivo JSON de Provincias: ' + ERROR_MESSAGE());
+        VALUES (@RutaArchivo, 'SISTEMA_CR脥TICO', 'Error f铆sico al abrir o leer el archivo JSON de Provincias: ' + ERROR_MESSAGE());
         RETURN;
     END CATCH;
 
@@ -38,8 +39,8 @@ BEGIN
     INSERT INTO Staging.Log_Errores_Importacion (Archivo_Origen, Fila_Contenido_Raw, Motivo_Error)
     SELECT 
         @RutaArchivo,
-        CONCAT('ID Origen: ', COALESCE(id_json, 'Sin ID'), ' | Nombre extra韉o: ', COALESCE(nombre_json, 'Sin nombre')),
-        'Error de formato: El nombre de la provincia es nulo o vac韔 en el origen JSON.'
+        CONCAT('ID Origen: ', COALESCE(id_json, 'Sin ID'), ' | Nombre extra铆do: ', COALESCE(nombre_json, 'Sin nombre')),
+        'Error de formato: El nombre de la provincia es nulo o vac铆o en el origen JSON.'
     FROM Staging.STG_ImportarProvincias STG 
     CROSS APPLY OPENJSON(STG.Contenido_JSON, '$.provincias')
     WITH (
@@ -49,7 +50,7 @@ BEGIN
     WHERE nombre_json IS NULL OR TRIM(nombre_json) = ''; 
 
     --upsert 
-    UPDATE P --si ya existe que le ponga el Estado como 'A' y guarde el nombre limpio en producci髇
+    UPDATE P --si ya existe que le ponga el Estado como 'A' y guarde el nombre limpio en producci贸n
     SET 
         P.Nombre = Staging.FN_Limpiar_Texto(ProvJson.nombre),
         P.Estado = 'A'
@@ -77,8 +78,8 @@ BEGIN
       AND NOT EXISTS (
           SELECT 1 
           FROM Parque.Provincia P 
-          -- Al evaluar contra el texto limpio por funci髇, evitamos que intente
-          -- insertar nuevamente una provincia procesada en la ejecuci髇 anterior
+          -- Al evaluar contra el texto limpio por funci贸n, evitamos que intente
+          -- insertar nuevamente una provincia procesada en la ejecuci贸n anterior
           WHERE UPPER(TRIM(P.Nombre)) = Staging.FN_Limpiar_Texto(ProvJson.nombre)
       );
 
