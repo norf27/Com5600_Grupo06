@@ -1,3 +1,10 @@
+Fecha: 03/07/2026
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
+
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas
+Descripcion: Documento que detalla las fuentes de datos externas y APIs utilizadas por el sistema, incluyendo los datasets empleados para la carga de parques, provincias y empresas, y los servicios utilizados para la consulta de feriados nacionales y cotización del dólar oficial.
+
+
 DATASETS:
 https://sib.gob.ar/areas-protegidas#buscador-general
 para parques
