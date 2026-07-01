@@ -1,3 +1,11 @@
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas
+Descripcion: Script de pruebas para la carga inicial de datos del sistema, incluyendo tipos de parque, 
+importaci√≥n de provincias desde archivo externo y alta de parques con datos de ejemplo para validar el correcto 
+funcionamiento de los procedimientos almacenados.
+*/
+
 use sist_gestion_parques
 
 --tipo parque
@@ -12,16 +20,16 @@ exec Parque.SP_Parque_Alta
 @Ambiente_Ecoregion = 'Altos andes', @Fecha_Ultima_Actualizacion = '2025-12-04'
 
 exec Parque.SP_Parque_Alta 
-@Superficie = 3500, @Nombre = 'Parque De La MontaÒa', @ID_tipo = 1, @ID_provincia = 3, @Anio_Creacion = 2005,
-@Ambiente_Ecoregion = 'Bosques PatagÛnicos', @Fecha_Ultima_Actualizacion = '2025-12-04'
+@Superficie = 3500, @Nombre = 'Parque De La Monta√±a', @ID_tipo = 1, @ID_provincia = 3, @Anio_Creacion = 2005,
+@Ambiente_Ecoregion = 'Bosques Patag√≥nicos', @Fecha_Ultima_Actualizacion = '2025-12-04'
 
 exec Parque.SP_Parque_Alta 
 @Superficie = 1500, @Nombre = 'Reserva Del Lago Azul', @ID_tipo = 2, @ID_provincia = 5, @Anio_Creacion = 1995,
-@Ambiente_Ecoregion = 'Esteros del Iber·', @Fecha_Ultima_Actualizacion = '2025-11-20'
+@Ambiente_Ecoregion = 'Esteros del Iber√°', @Fecha_Ultima_Actualizacion = '2025-11-20'
 
 exec Parque.SP_Parque_Alta 
 @Superficie = 5000, @Nombre = 'Parque Aventura Sur', @ID_tipo = 3, @ID_provincia = 7, @Anio_Creacion = 2010,
-@Ambiente_Ecoregion = 'Estepa PatagÛnica', @Fecha_Ultima_Actualizacion = '2025-10-15'
+@Ambiente_Ecoregion = 'Estepa Patag√≥nica', @Fecha_Ultima_Actualizacion = '2025-10-15'
 
 exec Parque.SP_Parque_Alta 
 @Superficie = 2800, @Nombre = 'Parque Del Sol', @ID_tipo = 2, @ID_provincia = 1, @Anio_Creacion = 1987,
@@ -57,33 +65,33 @@ inner join Parque.Tipo_parque tp on tp.ID = P.ID_tipo
 --generar tours
 exec Atracciones.SP_Tour_Alta @Costo = 15000, @Cupo_max = 3, @Nombre = 'Cueva del Topo', @Horario = '09:00', @Tipo = 'T', @Duracion = 150, @ID_parque = 1
 exec Atracciones.SP_Tour_Alta @Costo = 11000, @Cupo_max = 40, @Nombre = 'Sendero de las Alturas', @Horario = '09:00', @Tipo = 'T', @Duracion = 80, @ID_parque = 1
-exec Atracciones.SP_Tour_Alta @Costo = 12500, @Cupo_max = 35, @Nombre = 'TravesÌa Subterr·nea', @Horario = '15:00', @Tipo = 'A', @Duracion = 100, @ID_parque = 1
+exec Atracciones.SP_Tour_Alta @Costo = 12500, @Cupo_max = 35, @Nombre = 'Traves√≠a Subterr√°nea', @Horario = '15:00', @Tipo = 'A', @Duracion = 100, @ID_parque = 1
 exec Atracciones.SP_Tour_Alta @Costo = 18000, @Cupo_max = 25, @Nombre = 'Ascenso al Mirador', @Horario = '08:30', @Tipo = 'T', @Duracion = 120, @ID_parque = 2
 exec Atracciones.SP_Tour_Alta @Costo = 19000, @Cupo_max = 18, @Nombre = 'Caminata entre Coihues', @Horario = '14:00', @Tipo = 'T', @Duracion = 130, @ID_parque = 2
-exec Atracciones.SP_Tour_Alta @Costo = 23000, @Cupo_max = 17, @Nombre = 'Escalada de Alta MontaÒa', @Horario = '10:00', @Tipo = 'A', @Duracion = 180, @ID_parque = 2
-exec Atracciones.SP_Tour_Alta @Costo = 22000, @Cupo_max = 15, @Nombre = 'Paseo N·utico Iber·', @Horario = '09:30', @Tipo = 'T', @Duracion = 180, @ID_parque = 3
-exec Atracciones.SP_Tour_Alta @Costo = 26000, @Cupo_max = 14, @Nombre = 'Safari Fotogr·fico Nocturno', @Horario = '20:00', @Tipo = 'T', @Duracion = 220, @ID_parque = 3
+exec Atracciones.SP_Tour_Alta @Costo = 23000, @Cupo_max = 17, @Nombre = 'Escalada de Alta Monta√±a', @Horario = '10:00', @Tipo = 'A', @Duracion = 180, @ID_parque = 2
+exec Atracciones.SP_Tour_Alta @Costo = 22000, @Cupo_max = 15, @Nombre = 'Paseo N√°utico Iber√°', @Horario = '09:30', @Tipo = 'T', @Duracion = 180, @ID_parque = 3
+exec Atracciones.SP_Tour_Alta @Costo = 26000, @Cupo_max = 14, @Nombre = 'Safari Fotogr√°fico Nocturno', @Horario = '20:00', @Tipo = 'T', @Duracion = 220, @ID_parque = 3
 exec Atracciones.SP_Tour_Alta @Costo = 27000, @Cupo_max = 12, @Nombre = 'Aventura en Canoa', @Horario = '16:00', @Tipo = 'A', @Duracion = 210, @ID_parque = 3
 exec Atracciones.SP_Tour_Alta @Costo = 12000, @Cupo_max = 30, @Nombre = 'Vientos de la Estepa', @Horario = '10:30', @Tipo = 'T', @Duracion = 90, @ID_parque = 4
-exec Atracciones.SP_Tour_Alta @Costo = 13000, @Cupo_max = 28, @Nombre = 'Ruta de los FÛsiles', @Horario = '13:00', @Tipo = 'T', @Duracion = 110, @ID_parque = 4
+exec Atracciones.SP_Tour_Alta @Costo = 13000, @Cupo_max = 28, @Nombre = 'Ruta de los F√≥siles', @Horario = '13:00', @Tipo = 'T', @Duracion = 110, @ID_parque = 4
 exec Atracciones.SP_Tour_Alta @Costo = 15000, @Cupo_max = 26, @Nombre = 'Trekking de Arcilla', @Horario = '15:30', @Tipo = 'A', @Duracion = 125, @ID_parque = 4
 exec Atracciones.SP_Tour_Alta @Costo = 25000, @Cupo_max = 10, @Nombre = 'Sendero del Quebracho', @Horario = '08:00', @Tipo = 'T', @Duracion = 200, @ID_parque = 5
-exec Atracciones.SP_Tour_Alta @Costo = 32000, @Cupo_max = 8, @Nombre = 'Avistaje de Fauna ChaqueÒa', @Horario = '07:00', @Tipo = 'T', @Duracion = 250, @ID_parque = 5
-exec Atracciones.SP_Tour_Alta @Costo = 35000, @Cupo_max = 10, @Nombre = 'ExpediciÛn Calor Extremo', @Horario = '16:30', @Tipo = 'A', @Duracion = 260, @ID_parque = 5
+exec Atracciones.SP_Tour_Alta @Costo = 32000, @Cupo_max = 8, @Nombre = 'Avistaje de Fauna Chaque√±a', @Horario = '07:00', @Tipo = 'T', @Duracion = 250, @ID_parque = 5
+exec Atracciones.SP_Tour_Alta @Costo = 35000, @Cupo_max = 10, @Nombre = 'Expedici√≥n Calor Extremo', @Horario = '16:30', @Tipo = 'A', @Duracion = 260, @ID_parque = 5
 exec Atracciones.SP_Tour_Alta @Costo = 16000, @Cupo_max = 22, @Nombre = 'Acantilados y Lobos Marinos', @Horario = '11:00', @Tipo = 'T', @Duracion = 140, @ID_parque = 6
 exec Atracciones.SP_Tour_Alta @Costo = 17000, @Cupo_max = 24, @Nombre = 'Mirador de Ballenas', @Horario = '14:30', @Tipo = 'T', @Duracion = 150, @ID_parque = 6
 exec Atracciones.SP_Tour_Alta @Costo = 17500, @Cupo_max = 21, @Nombre = 'Buceo en el Mar Argentino', @Horario = '10:00', @Tipo = 'A', @Duracion = 145, @ID_parque = 6
 exec Atracciones.SP_Tour_Alta @Costo = 30000, @Cupo_max = 12, @Nombre = 'Cabalgata Criolla', @Horario = '09:00', @Tipo = 'T', @Duracion = 240, @ID_parque = 7
 exec Atracciones.SP_Tour_Alta @Costo = 28000, @Cupo_max = 16, @Nombre = 'Caminata por la Llanura', @Horario = '15:00', @Tipo = 'T', @Duracion = 190, @ID_parque = 7
-exec Atracciones.SP_Tour_Alta @Costo = 31000, @Cupo_max = 11, @Nombre = 'TravesÌa de los Pastizales', @Horario = '10:30', @Tipo = 'A', @Duracion = 225, @ID_parque = 7
-exec Atracciones.SP_Tour_Alta @Costo = 14000, @Cupo_max = 35, @Nombre = 'Sendero de las OrquÌdeas', @Horario = '12:00', @Tipo = 'T', @Duracion = 100, @ID_parque = 8
+exec Atracciones.SP_Tour_Alta @Costo = 31000, @Cupo_max = 11, @Nombre = 'Traves√≠a de los Pastizales', @Horario = '10:30', @Tipo = 'A', @Duracion = 225, @ID_parque = 7
+exec Atracciones.SP_Tour_Alta @Costo = 14000, @Cupo_max = 35, @Nombre = 'Sendero de las Orqu√≠deas', @Horario = '12:00', @Tipo = 'T', @Duracion = 100, @ID_parque = 8
 exec Atracciones.SP_Tour_Alta @Costo = 14500, @Cupo_max = 32, @Nombre = 'Paseo de la Bruma', @Horario = '14:00', @Tipo = 'T', @Duracion = 95, @ID_parque = 8
 exec Atracciones.SP_Tour_Alta @Costo = 13500, @Cupo_max = 33, @Nombre = 'Aventura bajo los Saltos', @Horario = '10:00', @Tipo = 'A', @Duracion = 105, @ID_parque = 8
 exec Atracciones.SP_Tour_Alta @Costo = 20000, @Cupo_max = 18, @Nombre = 'Camino del Inca y Cardones', @Horario = '08:30', @Tipo = 'T', @Duracion = 160, @ID_parque = 9
 exec Atracciones.SP_Tour_Alta @Costo = 21000, @Cupo_max = 20, @Nombre = 'Ruta de los Pueblos Originarios', @Horario = '16:00', @Tipo = 'T', @Duracion = 170, @ID_parque = 9
-exec Atracciones.SP_Tour_Alta @Costo = 24000, @Cupo_max = 19, @Nombre = 'ExploraciÛn de Yacimientos', @Horario = '11:00', @Tipo = 'A', @Duracion = 175, @ID_parque = 9
+exec Atracciones.SP_Tour_Alta @Costo = 24000, @Cupo_max = 19, @Nombre = 'Exploraci√≥n de Yacimientos', @Horario = '11:00', @Tipo = 'A', @Duracion = 175, @ID_parque = 9
 exec Atracciones.SP_Tour_Alta @Costo = 27000, @Cupo_max = 15, @Nombre = 'Sendero de la Selva Nublada', @Horario = '09:00', @Tipo = 'T', @Duracion = 210, @ID_parque = 10
-exec Atracciones.SP_Tour_Alta @Costo = 29000, @Cupo_max = 13, @Nombre = 'ExpediciÛn Helechos Gigantes', @Horario = '13:30', @Tipo = 'T', @Duracion = 230, @ID_parque = 10
+exec Atracciones.SP_Tour_Alta @Costo = 29000, @Cupo_max = 13, @Nombre = 'Expedici√≥n Helechos Gigantes', @Horario = '13:30', @Tipo = 'T', @Duracion = 230, @ID_parque = 10
 exec Atracciones.SP_Tour_Alta @Costo = 33000, @Cupo_max = 14, @Nombre = 'Canopy en la Selva', @Horario = '11:15', @Tipo = 'A', @Duracion = 235, @ID_parque = 10
 
 
@@ -93,27 +101,27 @@ exec Atracciones.SP_Tour_Alta @Costo = 33000, @Cupo_max = 14, @Nombre = 'Canopy 
 --guias
 
 exec Empleados.SP_Guia_Alta @Nombre = 'Lautaro lopez', @DNI = '46970123', @CUIL = '20-46970123-1', @Nacimiento = '2001-01-05', @Sueldo = 1500000, @ID_parque = 1
-exec Empleados.SP_Guia_Alta @Nombre = 'Juan PÈrez', @DNI = '38123456', @CUIL = '20-38123456-9', @Nacimiento = '1994-05-12', @Sueldo = 1200000, @ID_parque = 3
-exec Empleados.SP_Guia_Alta @Nombre = 'MarÌa Florencia GÛmez', @DNI = '40234567', @CUIL = '27-40234567-2', @Nacimiento = '1997-08-24', @Sueldo = 1350000, @ID_parque = 7
-exec Empleados.SP_Guia_Alta @Nombre = 'Lucas AgustÌn RodrÌguez', @DNI = '42345678', @CUIL = '20-42345678-4', @Nacimiento = '2000-01-15', @Sueldo = 1100000, @ID_parque = 1
-exec Empleados.SP_Guia_Alta @Nombre = 'Camila BelÈn Fern·ndez', @DNI = '39456789', @CUIL = '27-39456789-1', @Nacimiento = '1996-03-30', @Sueldo = 1400000, @ID_parque = 10
+exec Empleados.SP_Guia_Alta @Nombre = 'Juan P√©rez', @DNI = '38123456', @CUIL = '20-38123456-9', @Nacimiento = '1994-05-12', @Sueldo = 1200000, @ID_parque = 3
+exec Empleados.SP_Guia_Alta @Nombre = 'Mar√≠a Florencia G√≥mez', @DNI = '40234567', @CUIL = '27-40234567-2', @Nacimiento = '1997-08-24', @Sueldo = 1350000, @ID_parque = 7
+exec Empleados.SP_Guia_Alta @Nombre = 'Lucas Agust√≠n Rodr√≠guez', @DNI = '42345678', @CUIL = '20-42345678-4', @Nacimiento = '2000-01-15', @Sueldo = 1100000, @ID_parque = 1
+exec Empleados.SP_Guia_Alta @Nombre = 'Camila Bel√©n Fern√°ndez', @DNI = '39456789', @CUIL = '27-39456789-1', @Nacimiento = '1996-03-30', @Sueldo = 1400000, @ID_parque = 10
 
 exec Empleados.SP_Guia_Alta @Nombre = 'Martina Silva', @DNI = '41678901', @CUIL = '27-41678901-8', @Nacimiento = '1999-07-19', @Sueldo = 1250000, @ID_parque = 2
-exec Empleados.SP_Guia_Alta @Nombre = 'Mateo MartÌnez', @DNI = '37789012', @CUIL = '20-37789012-5', @Nacimiento = '1993-12-05', @Sueldo = 1600000, @ID_parque = 8
-exec Empleados.SP_Guia_Alta @Nombre = 'SofÌa Diaz', @DNI = '43890123', @CUIL = '27-43890123-6', @Nacimiento = '2002-04-22', @Sueldo = 1050000, @ID_parque = 4
-exec Empleados.SP_Guia_Alta @Nombre = 'Nicol·s ¡lvarez', @DNI = '36901234', @CUIL = '20-36901234-2', @Nacimiento = '1992-09-14', @Sueldo = 1750000, @ID_parque = 9
+exec Empleados.SP_Guia_Alta @Nombre = 'Mateo Mart√≠nez', @DNI = '37789012', @CUIL = '20-37789012-5', @Nacimiento = '1993-12-05', @Sueldo = 1600000, @ID_parque = 8
+exec Empleados.SP_Guia_Alta @Nombre = 'Sof√≠a Diaz', @DNI = '43890123', @CUIL = '27-43890123-6', @Nacimiento = '2002-04-22', @Sueldo = 1050000, @ID_parque = 4
+exec Empleados.SP_Guia_Alta @Nombre = 'Nicol√°s √Ålvarez', @DNI = '36901234', @CUIL = '20-36901234-2', @Nacimiento = '1992-09-14', @Sueldo = 1750000, @ID_parque = 9
 exec Empleados.SP_Guia_Alta @Nombre = 'Valentina Romero', @DNI = '44012345', @CUIL = '27-44012345-0', @Nacimiento = '2003-06-08', @Sueldo = 1000000, @ID_parque = 6
 
-exec Empleados.SP_Guia_Alta @Nombre = 'Facundo LÛpez', @DNI = '35123451', @CUIL = '20-35123451-7', @Nacimiento = '1990-02-27', @Sueldo = 1900000, @ID_parque = 1
+exec Empleados.SP_Guia_Alta @Nombre = 'Facundo L√≥pez', @DNI = '35123451', @CUIL = '20-35123451-7', @Nacimiento = '1990-02-27', @Sueldo = 1900000, @ID_parque = 1
 exec Empleados.SP_Guia_Alta @Nombre = 'Catalina Torres', @DNI = '42234562', @CUIL = '27-42234562-3', @Nacimiento = '2000-10-10', @Sueldo = 1300000, @ID_parque = 10
-exec Empleados.SP_Guia_Alta @Nombre = 'Bautista BenÌtez', @DNI = '46345673', @CUIL = '20-46345673-1', @Nacimiento = '2005-05-18', @Sueldo = 900000, @ID_parque = 3
+exec Empleados.SP_Guia_Alta @Nombre = 'Bautista Ben√≠tez', @DNI = '46345673', @CUIL = '20-46345673-1', @Nacimiento = '2005-05-18', @Sueldo = 900000, @ID_parque = 3
 exec Empleados.SP_Guia_Alta @Nombre = 'Micaela Herrera', @DNI = '38456784', @CUIL = '27-38456784-9', @Nacimiento = '1994-11-23', @Sueldo = 1500000, @ID_parque = 5
-exec Empleados.SP_Guia_Alta @Nombre = 'Juli·n Medina', @DNI = '40567895', @CUIL = '20-40567895-6', @Nacimiento = '1997-01-07', @Sueldo = 1450000, @ID_parque = 8
+exec Empleados.SP_Guia_Alta @Nombre = 'Juli√°n Medina', @DNI = '40567895', @CUIL = '20-40567895-6', @Nacimiento = '1997-01-07', @Sueldo = 1450000, @ID_parque = 8
 
 exec Empleados.SP_Guia_Alta @Nombre = 'Victoria Castro', @DNI = '41678906', @CUIL = '27-41678906-4', @Nacimiento = '1999-03-14', @Sueldo = 1200000, @ID_parque = 2
 exec Empleados.SP_Guia_Alta @Nombre = 'Tomas Flores', @DNI = '39789017', @CUIL = '20-39789017-2', @Nacimiento = '1996-07-29', @Sueldo = 1380000, @ID_parque = 7
 exec Empleados.SP_Guia_Alta @Nombre = 'Abril Morales', @DNI = '43890128', @CUIL = '27-43890128-0', @Nacimiento = '2002-12-12', @Sueldo = 1150000, @ID_parque = 6
-exec Empleados.SP_Guia_Alta @Nombre = 'Federico Su·rez', @DNI = '34901239', @CUIL = '20-34901239-8', @Nacimiento = '1989-04-05', @Sueldo = 2100000, @ID_parque = 9
+exec Empleados.SP_Guia_Alta @Nombre = 'Federico Su√°rez', @DNI = '34901239', @CUIL = '20-34901239-8', @Nacimiento = '1989-04-05', @Sueldo = 2100000, @ID_parque = 9
 exec Empleados.SP_Guia_Alta @Nombre = 'Juana Ruiz', @DNI = '45012340', @CUIL = '27-45012340-5', @Nacimiento = '2003-09-21', @Sueldo = 1050000, @ID_parque = 4
 
 /*
@@ -172,7 +180,7 @@ exec Atracciones.SP_AsignarGuiaTour @ID_tour = 10, @ID_guia = 5
 
 
 --empleados
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1993-04-11', @DNI = '37111222', @Nombre = 'AndrÈs Almada', @Sueldo = 1400000, @ID_parque = 4, @CUIL = '20-37111222-3'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1993-04-11', @DNI = '37111222', @Nombre = 'Andr√©s Almada', @Sueldo = 1400000, @ID_parque = 4, @CUIL = '20-37111222-3'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1998-09-25', @DNI = '41222333', @Nombre = 'Barbara Bustos', @Sueldo = 1310000, @ID_parque = 8, @CUIL = '27-41222333-1'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2001-05-19', @DNI = '43333444', @Nombre = 'Cristian Carrizo', @Sueldo = 1120000, @ID_parque = 2, @CUIL = '20-43333444-9'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1995-11-02', @DNI = '39444555', @Nombre = 'Diana Duarte', @Sueldo = 1550000, @ID_parque = 9, @CUIL = '27-39444555-7'
@@ -180,40 +188,40 @@ exec Empleados.SP_Empleado_Alta @Nacimiento = '2004-02-14', @DNI = '45555666', @
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1997-07-31', @DNI = '40666777', @Nombre = 'Fiorella Funes', @Sueldo = 1260000, @ID_parque = 6, @CUIL = '27-40666777-3'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1992-01-15', @DNI = '36777888', @Nombre = 'Gabriel Gallardo', @Sueldo = 1850000, @ID_parque = 10, @CUIL = '20-36777888-1'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2000-08-22', @DNI = '42888999', @Nombre = 'Isabela Ibarra', @Sueldo = 1230000, @ID_parque = 3, @CUIL = '27-42888999-9'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1994-12-05', @DNI = '38999000', @Nombre = 'Hugo JÈrez', @Sueldo = 1480000, @ID_parque = 5, @CUIL = '20-38999000-7'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '2003-03-10', @DNI = '44111333', @Nombre = 'Karina Kr¸ger', @Sueldo = 1040000, @ID_parque = 7, @CUIL = '27-44111333-5'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1994-12-05', @DNI = '38999000', @Nombre = 'Hugo J√©rez', @Sueldo = 1480000, @ID_parque = 5, @CUIL = '20-38999000-7'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '2003-03-10', @DNI = '44111333', @Nombre = 'Karina Kr√ºger', @Sueldo = 1040000, @ID_parque = 7, @CUIL = '27-44111333-5'
 
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1991-06-28', @DNI = '35222444', @Nombre = 'Lautaro LeguizamÛn', @Sueldo = 1920000, @ID_parque = 2, @CUIL = '20-35222444-2'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1991-06-28', @DNI = '35222444', @Nombre = 'Lautaro Leguizam√≥n', @Sueldo = 1920000, @ID_parque = 2, @CUIL = '20-35222444-2'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1996-10-14', @DNI = '39333555', @Nombre = 'Malena Moyano', @Sueldo = 1370000, @ID_parque = 5, @CUIL = '27-39333555-0'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '2005-01-09', @DNI = '46444666', @Nombre = 'Nahuel N˙Òez', @Sueldo = 910000, @ID_parque = 8, @CUIL = '20-46444666-8'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '2005-01-09', @DNI = '46444666', @Nombre = 'Nahuel N√∫√±ez', @Sueldo = 910000, @ID_parque = 8, @CUIL = '20-46444666-8'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1999-04-23', @DNI = '41555777', @Nombre = 'Olga Ortega', @Sueldo = 1290000, @ID_parque = 1, @CUIL = '27-41555777-6'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2002-11-17', @DNI = '43666888', @Nombre = 'Pedro Palacios', @Sueldo = 1160000, @ID_parque = 10, @CUIL = '20-43666888-4'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1990-05-30', @DNI = '35777999', @Nombre = 'Romina Quiroga', @Sueldo = 1980000, @ID_parque = 3, @CUIL = '27-35777999-2'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1997-02-12', @DNI = '40888111', @Nombre = 'Sergio Sanabria', @Sueldo = 1430000, @ID_parque = 7, @CUIL = '20-40888111-0'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2003-07-04', @DNI = '44999222', @Nombre = 'Tamara Toledo', @Sueldo = 1010000, @ID_parque = 6, @CUIL = '27-44999222-8'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1993-09-18', @DNI = '37123987', @Nombre = 'ValentÌn Valdez', @Sueldo = 1620000, @ID_parque = 4, @CUIL = '20-37123987-6'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1993-09-18', @DNI = '37123987', @Nombre = 'Valent√≠n Valdez', @Sueldo = 1620000, @ID_parque = 4, @CUIL = '20-37123987-6'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1996-01-27', @DNI = '39234098', @Nombre = 'Wendy Williams', @Sueldo = 1390000, @ID_parque = 9, @CUIL = '27-39234098-4'
 
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1988-08-08', @DNI = '33445566', @Nombre = 'Xavier Xavier', @Sueldo = 2200000, @ID_parque = 6, @CUIL = '20-33445566-1'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '2001-12-11', @DNI = '43556677', @Nombre = 'Yara Y·Òez', @Sueldo = 1180000, @ID_parque = 3, @CUIL = '27-43556677-9'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1994-03-05', @DNI = '38667788', @Nombre = 'ZacarÌas Z·rate', @Sueldo = 1500000, @ID_parque = 1, @CUIL = '20-38667788-7'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '2001-12-11', @DNI = '43556677', @Nombre = 'Yara Y√°√±ez', @Sueldo = 1180000, @ID_parque = 3, @CUIL = '27-43556677-9'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1994-03-05', @DNI = '38667788', @Nombre = 'Zacar√≠as Z√°rate', @Sueldo = 1500000, @ID_parque = 1, @CUIL = '20-38667788-7'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1999-06-20', @DNI = '41778899', @Nombre = 'Adriana Arrieta', @Sueldo = 1270000, @ID_parque = 5, @CUIL = '27-41778899-5'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1991-10-15', @DNI = '36889900', @Nombre = 'Blas Barrionuevo', @Sueldo = 1750000, @ID_parque = 9, @CUIL = '20-36889900-3'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '2002-02-28', @DNI = '43990011', @Nombre = 'Cecilia C·ceres', @Sueldo = 1100000, @ID_parque = 2, @CUIL = '27-43990011-1'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1995-04-13', @DNI = '39001122', @Nombre = 'Dami·n Delgado', @Sueldo = 1420000, @ID_parque = 8, @CUIL = '20-39001122-9'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '2002-02-28', @DNI = '43990011', @Nombre = 'Cecilia C√°ceres', @Sueldo = 1100000, @ID_parque = 2, @CUIL = '27-43990011-1'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1995-04-13', @DNI = '39001122', @Nombre = 'Dami√°n Delgado', @Sueldo = 1420000, @ID_parque = 8, @CUIL = '20-39001122-9'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2000-09-07', @DNI = '42112233', @Nombre = 'Elsa Espinoza', @Sueldo = 1240000, @ID_parque = 7, @CUIL = '27-42112233-7'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1993-07-24', @DNI = '37223344', @Nombre = 'Fabio Figueroa', @Sueldo = 1580000, @ID_parque = 10, @CUIL = '20-37223344-5'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1997-12-19', @DNI = '40334455', @Nombre = 'Gisela Godoy', @Sueldo = 1340000, @ID_parque = 4, @CUIL = '27-40334455-3'
 
-exec Empleados.SP_Empleado_Alta @Nacimiento = '2004-05-06', @DNI = '45445566', @Nombre = 'Hern·n Herrera', @Sueldo = 970000, @ID_parque = 10, @CUIL = '20-45445566-1'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '2004-05-06', @DNI = '45445566', @Nombre = 'Hern√°n Herrera', @Sueldo = 970000, @ID_parque = 10, @CUIL = '20-45445566-1'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1996-02-18', @DNI = '39556677', @Nombre = 'Irene Insaurralde', @Sueldo = 1410000, @ID_parque = 4, @CUIL = '27-39556677-9'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1990-11-30', @DNI = '35667788', @Nombre = 'Jorge Ju·rez', @Sueldo = 1910000, @ID_parque = 7, @CUIL = '20-35667788-7'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1990-11-30', @DNI = '35667788', @Nombre = 'Jorge Ju√°rez', @Sueldo = 1910000, @ID_parque = 7, @CUIL = '20-35667788-7'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2003-08-14', @DNI = '44778899', @Nombre = 'Laura Luna', @Sueldo = 1030000, @ID_parque = 1, @CUIL = '27-44778899-5'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1992-05-25', @DNI = '36889911', @Nombre = 'Marcos Mansilla', @Sueldo = 1780000, @ID_parque = 9, @CUIL = '20-36889911-3'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '1999-01-03', @DNI = '41990022', @Nombre = 'Natalia Nieva', @Sueldo = 1300000, @ID_parque = 5, @CUIL = '27-41990022-1'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2005-06-22', @DNI = '46112233', @Nombre = 'Omar Ojeda', @Sueldo = 890000, @ID_parque = 2, @CUIL = '20-46112233-9'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1994-10-09', @DNI = '38223344', @Nombre = 'Patricia P·ez', @Sueldo = 1460000, @ID_parque = 6, @CUIL = '27-38223344-7'
-exec Empleados.SP_Empleado_Alta @Nacimiento = '1989-12-15', @DNI = '34334455', @Nombre = 'QuintÌn Quiroz', @Sueldo = 2050000, @ID_parque = 3, @CUIL = '20-34334455-5'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1994-10-09', @DNI = '38223344', @Nombre = 'Patricia P√°ez', @Sueldo = 1460000, @ID_parque = 6, @CUIL = '27-38223344-7'
+exec Empleados.SP_Empleado_Alta @Nacimiento = '1989-12-15', @DNI = '34334455', @Nombre = 'Quint√≠n Quiroz', @Sueldo = 2050000, @ID_parque = 3, @CUIL = '20-34334455-5'
 exec Empleados.SP_Empleado_Alta @Nacimiento = '2001-03-27', @DNI = '43445566', @Nombre = 'Raquel Ramos', @Sueldo = 1190000, @ID_parque = 8, @CUIL = '27-43445566-3'
 
 --guardaparque
@@ -242,92 +250,92 @@ exec Empleados.SP_Guardaparque_Alta @ID_Empleado = 60
 
 --empresas
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Pancheria Don Carlos', @CUIT = '30-45896321-9', @Correo = 'contacto@pancheriadoncarlos.com', @telefono = '+54 11 6900 2210'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'CafÈ Martinez Express', @CUIT = '30-70823415-2', @Correo = 'express@cafemartinez.com.ar', @telefono = '+54 11 4789 3322'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Kiosco El TrÈbol', @CUIT = '20-34895126-4', @Correo = 'kioscoeltrebol@gmail.com', @telefono = '+54 11 5566 9911'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'HeladerÌas Grido Sucursal', @CUIT = '33-65478932-9', @Correo = 'franquicias@gridohelados.com', @telefono = '+54 351 420 8800'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Caf√© Martinez Express', @CUIT = '30-70823415-2', @Correo = 'express@cafemartinez.com.ar', @telefono = '+54 11 4789 3322'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Kiosco El Tr√©bol', @CUIT = '20-34895126-4', @Correo = 'kioscoeltrebol@gmail.com', @telefono = '+54 11 5566 9911'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Helader√≠as Grido Sucursal', @CUIT = '33-65478932-9', @Correo = 'franquicias@gridohelados.com', @telefono = '+54 351 420 8800'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Maxikiosco Open 25', @CUIT = '30-71452896-1', @Correo = 'administracion@open25.com.ar', @telefono = '+54 11 4322 1100'
 
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Restaurante El FortÌn', @CUIT = '30-52369874-5', @Correo = 'reservas@elfortinresto.com', @telefono = '+54 11 4641 4422'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Restaurante El Fort√≠n', @CUIT = '30-52369874-5', @Correo = 'reservas@elfortinresto.com', @telefono = '+54 11 4641 4422'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Minimercado Express', @CUIT = '30-71852963-8', @Correo = 'compras@minimercadoexpress.com', @telefono = '+54 11 3220 5544'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'RegalerÌa Las Violetas', @CUIT = '27-38456123-2', @Correo = 'lasvioletasregalos@outlook.com', @telefono = '+54 11 6874 1155'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'PizzerÌa La Guitarrita', @CUIT = '30-68954123-7', @Correo = 'info@laguitarrita.com.ar', @telefono = '+54 11 4783 0077'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'CervecerÌa Patagonia Bar', @CUIT = '30-71524896-3', @Correo = 'parque@cervezapatagonia.com', @telefono = '+54 294 445 5600'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Regaler√≠a Las Violetas', @CUIT = '27-38456123-2', @Correo = 'lasvioletasregalos@outlook.com', @telefono = '+54 11 6874 1155'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Pizzer√≠a La Guitarrita', @CUIT = '30-68954123-7', @Correo = 'info@laguitarrita.com.ar', @telefono = '+54 11 4783 0077'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Cervecer√≠a Patagonia Bar', @CUIT = '30-71524896-3', @Correo = 'parque@cervezapatagonia.com', @telefono = '+54 294 445 5600'
 
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Hamburguesas Dean & Dennis', @CUIT = '30-71485296-4', @Correo = 'concesiones@deandennis.com', @telefono = '+54 11 5235 9900'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'ArtesanÌas del Norte', @CUIT = '20-28965412-5', @Correo = 'artesanÌasdelnorte@gmail.com', @telefono = '+54 387 421 5566'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Artesan√≠as del Norte', @CUIT = '20-28965412-5', @Correo = 'artesan√≠asdelnorte@gmail.com', @telefono = '+54 387 421 5566'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Chopp & Co Foodtruck', @CUIT = '30-71695842-1', @Correo = 'choppandco@hotmail.com', @telefono = '+54 11 2541 3698'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'BufÈ Los Parques', @CUIT = '33-54896532-4', @Correo = 'administracion@bufelosparques.com', @telefono = '+54 11 4899 1234'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Souvenirs AutÛctonos S.R.L.', @CUIT = '30-66584125-9', @Correo = 'ventas@souvenirsautoctonos.com', @telefono = '+54 261 423 8899'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Buf√© Los Parques', @CUIT = '33-54896532-4', @Correo = 'administracion@bufelosparques.com', @telefono = '+54 11 4899 1234'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Souvenirs Aut√≥ctonos S.R.L.', @CUIT = '30-66584125-9', @Correo = 'ventas@souvenirsautoctonos.com', @telefono = '+54 261 423 8899'
 
 exec Concesiones.SP_Empresa_Alta @Nombre = 'El Rey del Pancho', @CUIT = '20-36958412-3', @Correo = 'elreydelpancho@gmail.com', @telefono = '+54 11 6523 0014'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'LibrerÌa y Copias Campus', @CUIT = '27-32659841-8', @Correo = 'campuslibreria@outlook.com', @telefono = '+54 11 4502 3652'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Subway ConcesiÛn', @CUIT = '30-70954126-2', @Correo = 'subwayparques@subwayargentina.com', @telefono = '+54 11 5031 2000'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Librer√≠a y Copias Campus', @CUIT = '27-32659841-8', @Correo = 'campuslibreria@outlook.com', @telefono = '+54 11 4502 3652'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Subway Concesi√≥n', @CUIT = '30-70954126-2', @Correo = 'subwayparques@subwayargentina.com', @telefono = '+54 11 5031 2000'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Helados Chungo', @CUIT = '30-58469512-5', @Correo = 'locales@chungo.com.ar', @telefono = '+54 11 4545 3000'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Parrilla El Tano', @CUIT = '30-62145896-4', @Correo = 'eltanoparrilla@hotmail.com', @telefono = '+54 11 4204 5214'
 
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Drugstore EstaciÛn', @CUIT = '30-71985412-1', @Correo = 'drugstoreestacion@gmail.com', @telefono = '+54 11 3654 7892'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Drugstore Estaci√≥n', @CUIT = '30-71985412-1', @Correo = 'drugstoreestacion@gmail.com', @telefono = '+54 11 3654 7892'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Regalos Regionales Tandil', @CUIT = '20-25698412-7', @Correo = 'info@regionalestandil.com', @telefono = '+54 249 442 3658'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Empanadas El Noble', @CUIT = '30-70789654-3', @Correo = 'concesiones@elnoble.com.ar', @telefono = '+54 11 5129 7000'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Golosinas y CÌa', @CUIT = '30-55698412-6', @Correo = 'ventas@golosinasycia.com', @telefono = '+54 11 4951 2365'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Golosinas y C√≠a', @CUIT = '30-55698412-6', @Correo = 'ventas@golosinasycia.com', @telefono = '+54 11 4951 2365'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Waffles & Co', @CUIT = '27-40125489-4', @Correo = 'wafflesandco@gmail.com', @telefono = '+54 11 5988 3412'
 
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Choribar Parrilla Urbana', @CUIT = '30-71326598-5', @Correo = 'hola@choribar.com.ar', @telefono = '+54 11 4772 1546'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'Kiosco Dulce VisiÛn', @CUIT = '20-31564897-9', @Correo = 'dulcevision@outlook.com', @telefono = '+54 11 6321 4785'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Kiosco Dulce Visi√≥n', @CUIT = '20-31564897-9', @Correo = 'dulcevision@outlook.com', @telefono = '+54 11 6321 4785'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'La Matera Regionales', @CUIT = '30-69854125-2', @Correo = 'contacto@lamateraregionales.com', @telefono = '+54 2324 421569'
-exec Concesiones.SP_Empresa_Alta @Nombre = 'SandwicherÌa Gourmet', @CUIT = '30-71456982-8', @Correo = 'gourmet@sandwicheria.com', @telefono = '+54 11 4821 3654'
+exec Concesiones.SP_Empresa_Alta @Nombre = 'Sandwicher√≠a Gourmet', @CUIT = '30-71456982-8', @Correo = 'gourmet@sandwicheria.com', @telefono = '+54 11 4821 3654'
 exec Concesiones.SP_Empresa_Alta @Nombre = 'Donas Delicity', @CUIT = '30-65894125-6', @Correo = 'delicitydonas@gmail.com', @telefono = '+54 11 4371 8899'
 
 --tipos de actividad
 
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de bebidas energÈticas', @Descripcion = 'Venta de bebidas energÈticas y suplementos en la entrada al parque'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de bicicletas', @Descripcion = 'Puesto de alquiler de bicicletas paseadoras y de montaÒa por hora o fracciÛn'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'PizzerÌa y cafeterÌa', @Descripcion = 'Servicio de cafeterÌa por la maÒana y pizzerÌa al molde durante el almuerzo y cena'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de artesanÌas locales', @Descripcion = 'ExposiciÛn y comercializaciÛn de productos artesanales autÛctonos hechos por productores de la regiÛn'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Maxikiosco y golosinas', @Descripcion = 'Venta minorista de golosinas, cigarrillos, galletitas y artÌculos de primera necesidad'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de bebidas energ√©ticas', @Descripcion = 'Venta de bebidas energ√©ticas y suplementos en la entrada al parque'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de bicicletas', @Descripcion = 'Puesto de alquiler de bicicletas paseadoras y de monta√±a por hora o fracci√≥n'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Pizzer√≠a y cafeter√≠a', @Descripcion = 'Servicio de cafeter√≠a por la ma√±ana y pizzer√≠a al molde durante el almuerzo y cena'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de artesan√≠as locales', @Descripcion = 'Exposici√≥n y comercializaci√≥n de productos artesanales aut√≥ctonos hechos por productores de la regi√≥n'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Maxikiosco y golosinas', @Descripcion = 'Venta minorista de golosinas, cigarrillos, galletitas y art√≠culos de primera necesidad'
 
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'HeladerÌa artesanal', @Descripcion = 'Venta de helados artesanales bochas, paletas y postres helados en la zona recreativa'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Puesto de comida r·pida', @Descripcion = 'Despacho de panchos, hamburguesas, papas fritas y gaseosas en foodtruck autorizado'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de kayaks', @Descripcion = 'PrestaciÛn de servicios de alquiler de botes, kayaks y chalecos salvavidas en el muelle'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Tienda de recuerdos y souvenirs', @Descripcion = 'Venta de remeras, gorras, llaveros e imanes alegÛricos y personalizados del parque'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Servicio de fotografÌa profesional', @Descripcion = 'Captura y revelado instant·neo de fotos de los visitantes en los puntos panor·micos'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Helader√≠a artesanal', @Descripcion = 'Venta de helados artesanales bochas, paletas y postres helados en la zona recreativa'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Puesto de comida r√°pida', @Descripcion = 'Despacho de panchos, hamburguesas, papas fritas y gaseosas en foodtruck autorizado'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de kayaks', @Descripcion = 'Prestaci√≥n de servicios de alquiler de botes, kayaks y chalecos salvavidas en el muelle'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Tienda de recuerdos y souvenirs', @Descripcion = 'Venta de remeras, gorras, llaveros e imanes aleg√≥ricos y personalizados del parque'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Servicio de fotograf√≠a profesional', @Descripcion = 'Captura y revelado instant√°neo de fotos de los visitantes en los puntos panor√°micos'
 
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'LibrerÌa y papelerÌa', @Descripcion = 'Venta de mapas del parque, guÌas turÌsticas, postales, revistas y artÌculos de librerÌa'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Puesto de licuados y jugos', @Descripcion = 'ElaboraciÛn y venta de jugos exprimidos naturales, licuados de fruta y ensaladas de fruta frescas'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de reposeras y sombrillas', @Descripcion = 'Puesto de atenciÛn para el alquiler diario de equipamiento de playa y descanso'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de indumentaria deportiva', @Descripcion = 'Venta de ropa tÈcnica para trekking, gorros para el sol, zapatillas de caminata y protectores'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Parrilla tradicional', @Descripcion = 'Venta de s·ndwiches de lomo, choripanes y carnes asadas al paso para los visitantes'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Librer√≠a y papeler√≠a', @Descripcion = 'Venta de mapas del parque, gu√≠as tur√≠sticas, postales, revistas y art√≠culos de librer√≠a'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Puesto de licuados y jugos', @Descripcion = 'Elaboraci√≥n y venta de jugos exprimidos naturales, licuados de fruta y ensaladas de fruta frescas'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de reposeras y sombrillas', @Descripcion = 'Puesto de atenci√≥n para el alquiler diario de equipamiento de playa y descanso'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de indumentaria deportiva', @Descripcion = 'Venta de ropa t√©cnica para trekking, gorros para el sol, zapatillas de caminata y protectores'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Parrilla tradicional', @Descripcion = 'Venta de s√°ndwiches de lomo, choripanes y carnes asadas al paso para los visitantes'
 
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Kiosco de diarios y revistas', @Descripcion = 'Puesto de distribuciÛn de periÛdicos locales, nacionales, revistas y crucigramas'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de productos org·nicos', @Descripcion = 'ComercializaciÛn de frutos secos, miel pura, barras de cereal y snacks saludables'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Estacionamiento medido', @Descripcion = 'Servicio de ordenamiento y custodia de vehÌculos en las playas de estacionamiento del predio'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Puesto de pochoclos y garrapiÒadas', @Descripcion = 'ElaboraciÛn a la vista y venta de pochoclos dulces, salados y frutos secos acaramelados'
-exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de binoculares', @Descripcion = 'Alquiler de equipos Ûpticos y guÌas impresas para el avistaje de aves y fauna autÛctona'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Kiosco de diarios y revistas', @Descripcion = 'Puesto de distribuci√≥n de peri√≥dicos locales, nacionales, revistas y crucigramas'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Venta de productos org√°nicos', @Descripcion = 'Comercializaci√≥n de frutos secos, miel pura, barras de cereal y snacks saludables'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Estacionamiento medido', @Descripcion = 'Servicio de ordenamiento y custodia de veh√≠culos en las playas de estacionamiento del predio'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Puesto de pochoclos y garrapi√±adas', @Descripcion = 'Elaboraci√≥n a la vista y venta de pochoclos dulces, salados y frutos secos acaramelados'
+exec Concesiones.SP_TipoActividad_Alta @Nombre = 'Alquiler de binoculares', @Descripcion = 'Alquiler de equipos √≥pticos y gu√≠as impresas para el avistaje de aves y fauna aut√≥ctona'
 
 --concesiones viejas
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 4, @IDTipoActividad = 12, @IDParque = 3, @FechaInicio = '2022-03-01', @FechaFin = '2023-03-01', @Monto_mensual = 650000, @Metodo = 'Transferencia'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 18, @IDTipoActividad = 5, @IDParque = 7, @FechaInicio = '2021-06-01', @FechaFin = '2022-06-01', @Monto_mensual = 480000, @Metodo = 'Efectivo'
-exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 1, @IDTipoActividad = 20, @IDParque = 1, @FechaInicio = '2023-01-01', @FechaFin = '2024-01-01', @Monto_mensual = 800000, @Metodo = 'DÈbito Autom·tico'
+exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 1, @IDTipoActividad = 20, @IDParque = 1, @FechaInicio = '2023-01-01', @FechaFin = '2024-01-01', @Monto_mensual = 800000, @Metodo = 'D√©bito Autom√°tico'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 11, @IDTipoActividad = 8, @IDParque = 10, @FechaInicio = '2020-11-01', @FechaFin = '2021-05-01', @Monto_mensual = 550000, @Metodo = 'Transferencia'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 7, @IDTipoActividad = 14, @IDParque = 5, @FechaInicio = '2024-02-01', @FechaFin = '2025-02-01', @Monto_mensual = 720000, @Metodo = 'Efectivo'
 
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 15, @IDTipoActividad = 2, @IDParque = 2, @FechaInicio = '2022-09-01', @FechaFin = '2023-03-01', @Monto_mensual = 420000, @Metodo = 'Transferencia'
-exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 9, @IDTipoActividad = 19, @IDParque = 8, @FechaInicio = '2021-04-01', @FechaFin = '2022-04-01', @Monto_mensual = 900000, @Metodo = 'DÈbito Autom·tico'
+exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 9, @IDTipoActividad = 19, @IDParque = 8, @FechaInicio = '2021-04-01', @FechaFin = '2022-04-01', @Monto_mensual = 900000, @Metodo = 'D√©bito Autom√°tico'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 21, @IDTipoActividad = 11, @IDParque = 4, @FechaInicio = '2023-07-01', @FechaFin = '2024-01-01', @Monto_mensual = 350000, @Metodo = 'Efectivo'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 13, @IDTipoActividad = 17, @IDParque = 9, @FechaInicio = '2020-05-01', @FechaFin = '2021-05-01', @Monto_mensual = 600000, @Metodo = 'Transferencia'
-exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 3, @IDTipoActividad = 3, @IDParque = 6, @FechaInicio = '2022-12-01', @FechaFin = '2023-12-01', @Monto_mensual = 1100000, @Metodo = 'DÈbito Autom·tico'
+exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 3, @IDTipoActividad = 3, @IDParque = 6, @FechaInicio = '2022-12-01', @FechaFin = '2023-12-01', @Monto_mensual = 1100000, @Metodo = 'D√©bito Autom√°tico'
 
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 20, @IDTipoActividad = 15, @IDParque = 2, @FechaInicio = '2024-05-01', @FechaFin = '2025-05-01', @Monto_mensual = 850000, @Metodo = 'Transferencia'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 6, @IDTipoActividad = 9, @IDParque = 10, @FechaInicio = '2021-10-01', @FechaFin = '2022-04-01', @Monto_mensual = 500000, @Metodo = 'Efectivo'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 14, @IDTipoActividad = 6, @IDParque = 4, @FechaInicio = '2023-08-01', @FechaFin = '2024-08-01', @Monto_mensual = 680000, @Metodo = 'Transferencia'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 2, @IDTipoActividad = 13, @IDParque = 7, @FechaInicio = '2022-01-01', @FechaFin = '2022-07-01', @Monto_mensual = 400000, @Metodo = 'Efectivo'
-exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 17, @IDTipoActividad = 1, @IDParque = 3, @FechaInicio = '2024-04-01', @FechaFin = '2025-04-01', @Monto_mensual = 590000, @Metodo = 'DÈbito Autom·tico'
+exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 17, @IDTipoActividad = 1, @IDParque = 3, @FechaInicio = '2024-04-01', @FechaFin = '2025-04-01', @Monto_mensual = 590000, @Metodo = 'D√©bito Autom√°tico'
 
 --activas
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 5, @IDTipoActividad = 10, @IDParque = 1, @FechaInicio = '2026-01-01', @FechaFin = '2027-01-01', @Monto_mensual = 850000, @Metodo = 'Transferencia'
-exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 12, @IDTipoActividad = 4, @IDParque = 9, @FechaInicio = '2025-08-01', @FechaFin = '2026-08-01', @Monto_mensual = 700000, @Metodo = 'DÈbito Autom·tico'
+exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 12, @IDTipoActividad = 4, @IDParque = 9, @FechaInicio = '2025-08-01', @FechaFin = '2026-08-01', @Monto_mensual = 700000, @Metodo = 'D√©bito Autom√°tico'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 8, @IDTipoActividad = 16, @IDParque = 5, @FechaInicio = '2026-04-01', @FechaFin = '2027-04-01', @Monto_mensual = 620000, @Metodo = 'Efectivo'
 exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 19, @IDTipoActividad = 2, @IDParque = 3, @FechaInicio = '2025-12-01', @FechaFin = '2026-12-01', @Monto_mensual = 950000, @Metodo = 'Transferencia'
-exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 10, @IDTipoActividad = 18, @IDParque = 8, @FechaInicio = '2026-06-01', @FechaFin = '2027-06-01', @Monto_mensual = 1200000, @Metodo = 'DÈbito Autom·tico'
+exec Concesiones.SP_RegistrarConcesion @IDEmpresa = 10, @IDTipoActividad = 18, @IDParque = 8, @FechaInicio = '2026-06-01', @FechaFin = '2027-06-01', @Monto_mensual = 1200000, @Metodo = 'D√©bito Autom√°tico'
 
 --hacer concesiones que esten parcialmente pagadas
 update Concesiones.Pago_mensual set Pago = 'P' where Fecha < '2026-05-01'
@@ -344,7 +352,7 @@ select * from Staging.Log_Errores_Importacion
 --crear tipo de visitante
 exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Adulto residente nacional'
 exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Adulto extranjero'
-exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Menor de edad (6 a 12 aÒos)'
+exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Menor de edad (6 a 12 a√±os)'
 exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Jubilado y pensionado nacional'
 exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Estudiante universitario o terciario'
 exec Ventas.SP_TipoVisitante_Alta @Nombre = 'Residente local (provincial/municipal)'
@@ -435,43 +443,43 @@ exec Ventas.SP_Tarifa_Alta @Fecha_desde = '2026-01-01', @Fecha_hasta = null, @Pr
 --@Nombre,@Documento,@tipo_doc,@nacimiento,@ID_tipo visitante;@ID_tour (pueden ser varios separados por ',')|otro visitante
 exec Ventas.SP_RegistrarVenta @ID_parque = 1, @Pedido = 'Gustavo Cerati,50000073,ARG,1959-08-11,1;1,2|Marie Curie,50000074,POL,1867-11-07,2;1,2,3', @PuntoDeVenta = 'Ventanilla 1'
 exec Ventas.SP_RegistrarVenta @ID_parque = 1, @Pedido = 'Charly Garcia,50000075,ARG,1951-10-23,1;2|Mercedes Sosa,50000076,ARG,1935-07-09,5;1,3,2', @PuntoDeVenta = 'Ventanilla Online 1'
-exec Ventas.SP_RegistrarVenta @ID_parque = 1, @Pedido = 'Albert Einstein,50000077,GER,1879-03-14,6;2', @PuntoDeVenta = 'BoleterÌa Central'
+exec Ventas.SP_RegistrarVenta @ID_parque = 1, @Pedido = 'Albert Einstein,50000077,GER,1879-03-14,6;2', @PuntoDeVenta = 'Boleter√≠a Central'
 
-exec Ventas.SP_RegistrarVenta @ID_parque = 2, @Pedido = 'Luis Alberto Spinetta,50000078,ARG,1950-01-23,1;4,5', @PuntoDeVenta = 'BoleterÌa Central'
+exec Ventas.SP_RegistrarVenta @ID_parque = 2, @Pedido = 'Luis Alberto Spinetta,50000078,ARG,1950-01-23,1;4,5', @PuntoDeVenta = 'Boleter√≠a Central'
 exec Ventas.SP_RegistrarVenta @ID_parque = 2, @Pedido = 'Freddie Mercury,50000080,ENG,1946-09-05,2;4,5,6', @PuntoDeVenta = 'Ventanilla 2'
 exec Ventas.SP_RegistrarVenta @ID_parque = 2, @Pedido = 'Ricardo Darin,50000081,ARG,1957-01-16,1;5|Guillermo Francella,50000082,ARG,1955-02-14,2;4,6', @PuntoDeVenta = 'Acceso Sur'
 
 exec Ventas.SP_RegistrarVenta @ID_parque = 3, @Pedido = 'Marta Minujin,50000083,ARG,1943-01-30,1;7,9|Julio Cortazar,50000084,ARG,1914-08-26,3;8', @PuntoDeVenta = 'Ventanilla 1'
 exec Ventas.SP_RegistrarVenta @ID_parque = 3, @Pedido = 'Jorge Luis Borges,50000085,ARG,1899-08-24,1;7,8,9', @PuntoDeVenta = 'Ventanilla 2'
-exec Ventas.SP_RegistrarVenta @ID_parque = 3, @Pedido = 'Stephen Hawking,50000086,ENG,1942-01-08,2;8|Isaac Newton,50000087,ENG,1643-01-04,2;7,9', @PuntoDeVenta = 'BoleterÌa Central'
+exec Ventas.SP_RegistrarVenta @ID_parque = 3, @Pedido = 'Stephen Hawking,50000086,ENG,1942-01-08,2;8|Isaac Newton,50000087,ENG,1643-01-04,2;7,9', @PuntoDeVenta = 'Boleter√≠a Central'
 
 exec Ventas.SP_RegistrarVenta @ID_parque = 4, @Pedido = 'Quino Lavado,50000088,ARG,1932-07-17,1;10,12|Mafalda Espejo,50000089,ARG,1964-09-29,5;11', @PuntoDeVenta = 'Acceso Norte'
 exec Ventas.SP_RegistrarVenta @ID_parque = 4, @Pedido = 'Elon Musk,50000090,USA,1971-06-28,2;10,11,12', @PuntoDeVenta = 'Ventanilla Online 2'
 exec Ventas.SP_RegistrarVenta @ID_parque = 4, @Pedido = 'Tita Merello,50000091,ARG,1904-10-11,6;12|Anibal Troilo,50000092,ARG,1914-07-11,1;10,11', @PuntoDeVenta = 'Ventanilla 1'
 
-exec Ventas.SP_RegistrarVenta @ID_parque = 5, @Pedido = 'RenÈ Favaloro,50000093,ARG,1923-07-12,1;13,14|Lalisa Manoban,50000094,THA,1997-03-27,5;15', @PuntoDeVenta = 'Ventanilla Online 1'
-exec Ventas.SP_RegistrarVenta @ID_parque = 5, @Pedido = 'Keanu Reeves,50000095,CAN,1964-09-02,2;14,15', @PuntoDeVenta = 'BoleterÌa Central'
+exec Ventas.SP_RegistrarVenta @ID_parque = 5, @Pedido = 'Ren√© Favaloro,50000093,ARG,1923-07-12,1;13,14|Lalisa Manoban,50000094,THA,1997-03-27,5;15', @PuntoDeVenta = 'Ventanilla Online 1'
+exec Ventas.SP_RegistrarVenta @ID_parque = 5, @Pedido = 'Keanu Reeves,50000095,CAN,1964-09-02,2;14,15', @PuntoDeVenta = 'Boleter√≠a Central'
 exec Ventas.SP_RegistrarVenta @ID_parque = 5, @Pedido = 'Carlos Gardel,50000096,ARG,1890-12-11,1;13|Tita Russ,50000097,ARG,1940-05-15,3;14,15', @PuntoDeVenta = 'Ventanilla 2'
 
 exec Ventas.SP_RegistrarVenta @ID_parque = 6, @Pedido = 'Astor Piazzolla,50000098,ARG,1921-03-11,1;16,17|Amalia Lacroze,50000099,ARG,1921-08-15,5;18', @PuntoDeVenta = 'Ventanilla 1'
 exec Ventas.SP_RegistrarVenta @ID_parque = 6, @Pedido = 'Tom Cruise,50000100,USA,1962-07-03,2;16,17,18', @PuntoDeVenta = 'Acceso Este'
-exec Ventas.SP_RegistrarVenta @ID_parque = 6, @Pedido = 'Atahualpa Yupanqui,50000101,ARG,1908-01-31,1;17|Lola Mora,50000102,ARG,1866-11-17,6;16,18', @PuntoDeVenta = 'BoleterÌa Principal'
+exec Ventas.SP_RegistrarVenta @ID_parque = 6, @Pedido = 'Atahualpa Yupanqui,50000101,ARG,1908-01-31,1;17|Lola Mora,50000102,ARG,1866-11-17,6;16,18', @PuntoDeVenta = 'Boleter√≠a Principal'
 
-exec Ventas.SP_RegistrarVenta @ID_parque = 7, @Pedido = 'Mariano Moreno,50000103,ARG,1778-09-23,1;19,20,21', @PuntoDeVenta = 'Terminal Autom·tica 2'
+exec Ventas.SP_RegistrarVenta @ID_parque = 7, @Pedido = 'Mariano Moreno,50000103,ARG,1778-09-23,1;19,20,21', @PuntoDeVenta = 'Terminal Autom√°tica 2'
 exec Ventas.SP_RegistrarVenta @ID_parque = 7, @Pedido = 'Lady Gaga,50000104,USA,1986-03-28,2;19|Taylor Swift,50000105,USA,1989-12-13,2;20,21', @PuntoDeVenta = 'Ventanilla Online 2'
 exec Ventas.SP_RegistrarVenta @ID_parque = 7, @Pedido = 'Juana Azurduy,50000106,ARG,1780-07-12,4;19,21', @PuntoDeVenta = 'Ventanilla 1'
 
-exec Ventas.SP_RegistrarVenta @ID_parque = 8, @Pedido = 'Domingo Faustino Sarmiento,50000107,ARG,1811-02-15,1;22|BenjamÌn Franklin,50000108,USA,1706-01-17,1;23,24', @PuntoDeVenta = 'Informes Entrada'
-exec Ventas.SP_RegistrarVenta @ID_parque = 8, @Pedido = 'Bill Gates,50000109,USA,1955-10-28,2;22,23,24', @PuntoDeVenta = 'BoleterÌa Central'
+exec Ventas.SP_RegistrarVenta @ID_parque = 8, @Pedido = 'Domingo Faustino Sarmiento,50000107,ARG,1811-02-15,1;22|Benjam√≠n Franklin,50000108,USA,1706-01-17,1;23,24', @PuntoDeVenta = 'Informes Entrada'
+exec Ventas.SP_RegistrarVenta @ID_parque = 8, @Pedido = 'Bill Gates,50000109,USA,1955-10-28,2;22,23,24', @PuntoDeVenta = 'Boleter√≠a Central'
 exec Ventas.SP_RegistrarVenta @ID_parque = 8, @Pedido = 'Alfonsina Storni,50000110,ARG,1892-05-29,3;22|Silvina Ocampo,50000111,ARG,1903-07-28,6;23', @PuntoDeVenta = 'Ventanilla 2'
 
-exec Ventas.SP_RegistrarVenta @ID_parque = 9, @Pedido = 'JosÈ de San MartÌn,50000112,ARG,1778-02-25,1;25,26|Remedios de Escalada,50000113,ARG,1797-11-20,5;27', @PuntoDeVenta = 'Ventanilla Online 1'
+exec Ventas.SP_RegistrarVenta @ID_parque = 9, @Pedido = 'Jos√© de San Mart√≠n,50000112,ARG,1778-02-25,1;25,26|Remedios de Escalada,50000113,ARG,1797-11-20,5;27', @PuntoDeVenta = 'Ventanilla Online 1'
 exec Ventas.SP_RegistrarVenta @ID_parque = 9, @Pedido = 'Steve Jobs,50000114,USA,1955-02-24,2;25,26,27', @PuntoDeVenta = 'Ventanilla 1'
-exec Ventas.SP_RegistrarVenta @ID_parque = 9, @Pedido = 'Juan JosÈ Castelli,50000115,ARG,1764-07-19,1;26|Manuel Belgrano Segunda,50000116,ARG,1770-06-03,1;25,27', @PuntoDeVenta = 'Acceso Sur'
+exec Ventas.SP_RegistrarVenta @ID_parque = 9, @Pedido = 'Juan Jos√© Castelli,50000115,ARG,1764-07-19,1;26|Manuel Belgrano Segunda,50000116,ARG,1770-06-03,1;25,27', @PuntoDeVenta = 'Acceso Sur'
 
-exec Ventas.SP_RegistrarVenta @ID_parque = 10, @Pedido = 'Federico Moura,50000117,ARG,1951-10-23,1;28,29|Luca Prodan,50000118,ITA,1953-05-17,5;30', @PuntoDeVenta = 'BoleterÌa VIP'
-exec Ventas.SP_RegistrarVenta @ID_parque = 10, @Pedido = 'Michael Jackson,50000119,USA,1958-08-29,2;28,29,30', @PuntoDeVenta = 'BoleterÌa VIP'
-exec Ventas.SP_RegistrarVenta @ID_parque = 10, @Pedido = 'Luis Sandrini,50000120,ARG,1905-02-22,1;28|NinÌ Marshall,50000121,ARG,1903-06-01,1;29,30', @PuntoDeVenta = 'Ventanilla Online 2'
+exec Ventas.SP_RegistrarVenta @ID_parque = 10, @Pedido = 'Federico Moura,50000117,ARG,1951-10-23,1;28,29|Luca Prodan,50000118,ITA,1953-05-17,5;30', @PuntoDeVenta = 'Boleter√≠a VIP'
+exec Ventas.SP_RegistrarVenta @ID_parque = 10, @Pedido = 'Michael Jackson,50000119,USA,1958-08-29,2;28,29,30', @PuntoDeVenta = 'Boleter√≠a VIP'
+exec Ventas.SP_RegistrarVenta @ID_parque = 10, @Pedido = 'Luis Sandrini,50000120,ARG,1905-02-22,1;28|Nin√≠ Marshall,50000121,ARG,1903-06-01,1;29,30', @PuntoDeVenta = 'Ventanilla Online 2'
 /*
 select * from Ventas.Pago
 select * from ventas.Compra
