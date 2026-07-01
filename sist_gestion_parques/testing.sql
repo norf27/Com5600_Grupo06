@@ -1,4 +1,10 @@
-
+/*
+Fecha: 03/07/2026
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas
+Descripcion: Procedimiento de pruebas que valida el funcionamiento de los procedimientos almacenados del sistema,
+verificando altas, bajas, modificaciones, reactivaciones, manejo de errores y cumplimiento de las reglas de negocio definidas.
+*/
 use sist_gestion_parques
 go
 create or alter procedure SP_Testing as begin
