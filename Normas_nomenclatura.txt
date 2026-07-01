@@ -1,1 +1,174 @@
+# Norma de Nomenclatura
+
+## Objetivo
+
+Con el fin de mantener consistencia, legibilidad y facilidad de mantenimiento en el desarrollo de la base de datos, se definió la siguiente norma de nomenclatura para tablas, procedimientos almacenados y variables.
+
+---
+
+## 1. Nomenclatura de Tablas
+
+### Esquemas
+
+Las tablas se organizan en esquemas según el módulo funcional al que pertenecen.
+
+Ejemplos:
+
+* Parque.Tipo_parque
+* Parque.Provincia
+* Parque.Parque
+* Empleados.Empleado
+* Empleados.Guardaparque
+* Empleados.R_Guardaparque_Parque
+
+### Reglas
+
+* Los nombres de tablas utilizan formato PascalCase con guiones bajos cuando es necesario mejorar la legibilidad.
+* Se utilizan nombres descriptivos relacionados con la entidad representada.
+* Las tablas relacionales utilizan el prefijo **R_**.
+
+Ejemplos:
+
+* Empleados.R_Guardaparque_Parque
+* Ventas.R_Tarifa_Descuento
+
+### Claves primarias
+
+* Se utiliza el nombre **ID** para claves primarias simples.
+
+Ejemplos:
+
+* Parque.Parque(ID)
+* Empleados.Empleado(ID)
+
+### Claves foráneas
+
+* Se utiliza el prefijo **ID_** seguido del nombre de la entidad referenciada.
+
+Ejemplos:
+
+* ID_Parque
+* ID_Empleado
+* ID_Tipo
+* ID_Provincia
+
+---
+
+## 2. Nomenclatura de Procedimientos Almacenados (Stored Procedures)
+
+### Estructura General
+
+Los procedimientos almacenados siguen la siguiente estructura:
+
+SP_<Entidad>_<Accion>
+
+Donde:
+
+* SP = Stored Procedure
+* Entidad = Nombre de la tabla o entidad principal
+* Acción = Operación realizada
+
+### Acciones utilizadas
+
+* Alta → Inserción o reactivación de registros.
+* Baja → Baja lógica de registros.
+* Modificar → Actualización de registros.
+* Consultar → Obtención de información.
+
+### Ejemplos
+
+* Parque.SP_TipoParque_Alta
+* Parque.SP_Provincia_Alta
+* Parque.SP_Parque_Baja
+* Empleados.SP_Empleado_Baja
+* Empleados.SP_Guardaparque_Alta
+* Empleados.SP_GuardaparqueParque_Baja
+
+### Reglas
+
+* Todos los procedimientos almacenados comienzan con el prefijo **SP_**.
+* Se utiliza PascalCase para el nombre de la entidad.
+* El nombre debe indicar claramente la operación realizada.
+
+---
+
+## 3. Nomenclatura de Variables
+
+### Variables locales
+
+Las variables locales se identifican mediante el prefijo **@** y utilizan PascalCase o nombres descriptivos.
+
+Ejemplos:
+
+* @ID
+* @Estado
+* @Nombre
+* @Descripcion
+* @Superficie
+* @Fecha_Ultima_Actualizacion
+* @ID_Empleado
+* @ID_Parque
+
+### Variables de control y validación
+
+Para variables auxiliares se utilizan nombres descriptivos que indiquen claramente su propósito.
+
+Ejemplos:
+
+* @error
+* @ret
+* @Msg
+* @Num
+
+### Reglas
+
+* Todas las variables comienzan con el símbolo **@**.
+* Deben utilizar nombres descriptivos.
+* Las variables que representan claves foráneas mantienen el prefijo **ID_**.
+* Se evita el uso de abreviaturas ambiguas.
+
+---
+
+## 4. Nomenclatura de Restricciones
+
+### Constraints
+
+Se utilizan prefijos que permiten identificar rápidamente el tipo de restricción.
+
+#### Claves foráneas
+
+Prefijo:
+
+FK_
+
+Ejemplos:
+
+* FK_tipo_parque
+* FK_provincia
+* FK_parque_emp
+* FK_Guardaparque_Empleado
+
+#### Check Constraints
+
+Prefijo:
+
+CK_ o check_
+
+Ejemplos:
+
+* CK_Estado_Guardaparque_parque
+* CK_GuardaparqueParque_Fechas
+* check_superficie
+* check_DNI
+
+---
+
+## 5. Convenciones Generales
+
+* Los nombres deben ser descriptivos y representar claramente su función.
+* Se evita el uso de espacios y caracteres especiales.
+* Los nombres de entidades utilizan singular.
+* Los estados de los registros se almacenan mediante el campo Estado.
+* Las bajas se realizan mediante borrado lógico utilizando Estado = 'I'.
+* Se mantiene una estructura uniforme en todos los módulos de la base de datos.
 
