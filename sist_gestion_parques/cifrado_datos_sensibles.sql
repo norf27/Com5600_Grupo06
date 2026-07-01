@@ -1,3 +1,10 @@
+/*
+Fecha: 03/07/2026
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas
+Descripcion: Procedimiento almacenado encargado de preparar y aplicar el cifrado de datos 
+sensibles en la base de datos, agregando las columnas necesarias y protegiendo información confidencial de empleados y clientes.
+*/
+
 USE sist_gestion_parques;
 GO
 
