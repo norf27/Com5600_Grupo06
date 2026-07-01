@@ -1,6 +1,6 @@
 /*
 Fecha: 03/07/2026
-Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas 
 Descripcion: Script de genaracion de procedure de modificacion
 */
 USE sist_gestion_parques
