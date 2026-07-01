@@ -1,6 +1,7 @@
 /*
 Fecha: 03/07/2026
-Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas
 Descripcion:
 Procedimiento de negocio para el registro de ventas de entradas.
 */
@@ -332,7 +333,7 @@ begin
 	DECLARE @jsonTable TABLE(DATA NVARCHAR(MAX))
 	DECLARE @EsDiaEspecial CHAR(1) = 'I'
 
-		-- 2. Consumo de API para verificar si el día actual es feriado
+		-- 2. Consumo de API para verificar si el dÃ­a actual es feriado
 	EXEC sp_OACreate 'MSXML2.XMLHTTP', @Object OUT
 	EXEC sp_OAMethod @Object, 'OPEN', NULL, 'GET', @urlFeriados, 'FALSE'
 	EXEC sp_OAMethod @Object, 'SEND'
