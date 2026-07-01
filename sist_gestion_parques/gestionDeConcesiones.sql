@@ -1,6 +1,7 @@
 /*
 Fecha: 03/07/2026
-Integrantes: Cuda Federico, Santiago Grasso, Luna Gauna Thiago Gonzalo, Nicolas Orfano
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
+Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas 
 Descripcion:
 Procedimientos de negocio para la gestion de concesiones.
 */
