@@ -1,5 +1,6 @@
 /*
 Fecha: 03/07/2026
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
 Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas 
 Descripcion: Script de genaracion de procedure de agregado
 */
