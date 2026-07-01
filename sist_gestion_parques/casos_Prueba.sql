@@ -1,5 +1,6 @@
 /*
 Fecha: 03/07/2026
+Universidad Nacional de La Matanza, Bases de Datos Aplicadas
 Integrantes: Cuda Federico, Grasso Santiago, Luna Gauna Thiago Gonzalo, Orfano Nicolas
 Descripcion: Script de pruebas para la carga inicial de datos del sistema, incluyendo tipos de parque, 
 importación de provincias desde archivo externo y alta de parques con datos de ejemplo para validar el correcto 
