@@ -159,7 +159,7 @@ begin
 			OR v.ID_tipo NOT IN (SELECT ID_tipo_visitante FROM Ventas.Tarifa WHERE Fecha_hasta IS NULL AND Estado = 'A' AND ID_parque = @ID_parque)
 	)
 	BEGIN
-		THROW 51000, 'Hubo un problema a la hora de extraer los datos', 1;
+		;THROW 51000, 'Hubo un problema a la hora de extraer los datos', 1;
 	END;
 
 	--6)

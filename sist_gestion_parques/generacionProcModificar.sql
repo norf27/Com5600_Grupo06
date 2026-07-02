@@ -958,7 +958,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	UPDATE Ventas.Cliente
@@ -1006,7 +1006,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	UPDATE Ventas.Tipo_visitante
@@ -1046,7 +1046,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	UPDATE Ventas.Tarifa
@@ -1102,7 +1102,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	
@@ -1158,7 +1158,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	UPDATE Ventas.Compra
@@ -1207,7 +1207,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	UPDATE Ventas.Pago

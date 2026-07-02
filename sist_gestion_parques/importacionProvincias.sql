@@ -69,11 +69,15 @@ BEGIN
     SELECT 
         Staging.FN_Limpiar_Texto(ProvJson.nombre), 
         'A'
-    FROM Staging.STG_ImportarProvincias STG
-    CROSS APPLY OPENJSON(STG.Contenido_JSON, '$.provincias')
-    WITH (
-        nombre VARCHAR(100) '$.nombre'
-    ) ProvJson
+    FROM (
+        -- Aislamos la lectura del JSON en una tabla derivada
+        SELECT DISTINCT TRIM(J.nombre) AS nombre
+        FROM Staging.STG_ImportarProvincias STG
+        CROSS APPLY OPENJSON(STG.Contenido_JSON, '$.provincias')
+        WITH (
+            nombre VARCHAR(100) '$.nombre'
+        ) AS J
+    ) AS ProvJson
     WHERE TRIM(ProvJson.nombre) <> ''
       AND NOT EXISTS (
           SELECT 1 

@@ -659,7 +659,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 
     update Ventas.Cliente set Estado = 'i' where ID = @ID
@@ -696,7 +696,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 
     update Ventas.Tipo_visitante set Estado = 'i' where ID = @ID
@@ -734,7 +734,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 		
 	update Ventas.Tarifa set Estado = 'i' where ID = @ID
@@ -766,7 +766,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
     update Ventas.Entrada set Estado = 'i' where ID = @ID
@@ -811,7 +811,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	update Ventas.Compra set Estado = 'i' where ID = @ID
@@ -840,7 +840,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 		
 	update Ventas.Pago set Estado = 'i' where ID = @ID

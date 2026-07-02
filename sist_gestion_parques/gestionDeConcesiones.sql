@@ -74,7 +74,7 @@ SET NOCOUNT ON;
 
     IF @Errores <> ''
     BEGIN
-        THROW 50001, @Errores, 1;
+        ;THROW 50001, @Errores, 1;
     END
 
 
@@ -103,7 +103,7 @@ SET NOCOUNT ON;
             ROLLBACK TRANSACTION;
         THROW;
     END CATCH
-END;
+END
 GO
 
 

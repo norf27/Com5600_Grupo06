@@ -1262,14 +1262,14 @@ BEGIN
 	)
 	SET @Errores += CHAR(13) + '- Ya existe un cliente con ese documento';
 
-	declare @ID int, @Estado char(1)
-	select @ID = ID, @Estado = Estado from Ventas.Cliente where Documento = @Documento AND Tipo_doc = @Tipo_doc
+	declare @ID int, @Estado char(1);
+	select @ID = ID, @Estado = Estado from Ventas.Cliente where Documento = @Documento AND Tipo_doc = @Tipo_doc;
 
 	-- ERRORES
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	-- INSERT
@@ -1327,7 +1327,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	-- INSERT
@@ -1339,7 +1339,7 @@ BEGIN
 	
 	PRINT 'Tipo de visitante registrado correctamente';
     RETURN SCOPE_IDENTITY();
-END
+END;
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Tarifa_Alta
@@ -1385,7 +1385,7 @@ BEGIN
 	
 	IF @Errores<>''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	-- INSERT
@@ -1409,7 +1409,7 @@ BEGIN
 			@ID_parque
 		);
     RETURN SCOPE_IDENTITY();
-END
+END;
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Entrada_Alta
@@ -1460,7 +1460,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-	THROW 50001, @Errores, 1;
+	    ;THROW 50001, @Errores, 1;
 	END
 	
 	-- INSERT
@@ -1525,7 +1525,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	if @ID is not NULL
@@ -1550,7 +1550,7 @@ BEGIN
 	
 	PRINT 'Compra registrada correctamente';
     RETURN SCOPE_IDENTITY();
-END
+END;
 GO 
 
 CREATE OR ALTER PROCEDURE Ventas.SP_Pago_Alta
@@ -1599,7 +1599,7 @@ BEGIN
 	
 	IF @Errores <> ''
 	BEGIN
-		THROW 50001, @Errores, 1;
+		;THROW 50001, @Errores, 1;
 	END
 	
 	-- INSERT
@@ -1623,7 +1623,7 @@ BEGIN
 	
 	PRINT 'Pago registrado correctamente';
     RETURN SCOPE_IDENTITY();
-END
+END;
 GO 
 
 
